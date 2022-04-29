@@ -12,7 +12,7 @@ class ModelScorer:
         #
         self.sqlalchemy_engine = sqlalchemy_engine
         # this assumes that the endpoint is up and running
-        self.model_api_endpoint = "http://127.0.0.1:8000/classify"
+        self.model_api_endpoint = "http://model_inference_api:8000/classify"
         self.classes = ["Negative", "Neutral", "Positive"]
 
     def get_data_to_run_model(self) -> pd.DataFrame:
@@ -82,6 +82,7 @@ if __name__ == "__main__":
     model_scorer = ModelScorer(sqlalchemy_engine=engine)
 
     df = model_scorer.get_data_to_run_model()
+    print(df.head(1))
     pred_df = model_scorer.run_model_on_dataframe(df)
     model_scorer.write_preds_to_db(pred_df)
 

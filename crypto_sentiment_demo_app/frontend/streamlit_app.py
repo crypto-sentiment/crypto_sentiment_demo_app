@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import time
 import pandas as pd
 import requests
 import streamlit as st
@@ -10,7 +10,7 @@ from crypto_sentiment_demo_app.utils import load_config_params, get_db_connectio
 # loading project-wide configuration params
 params: dict[str, any] = load_config_params()
 
-MODEL_API_ENDPOINT = "http://127.0.0.1:8000/classify"
+MODEL_API_ENDPOINT = "http://model_inference_api:8000/classify"
 
 engine = get_db_connection_engine()
 
@@ -40,6 +40,7 @@ def run_app():
 
     today = datetime.today().strftime("%Y-%m-%d")
     today_average_sentiment = get_sentiment_score(date=today)
+    if not today_average_sentiment: today_average_sentiment = 0
 
     # mock version
     st.markdown(f"#### Today's average news sentiment: {round(today_average_sentiment * 100)}%")
