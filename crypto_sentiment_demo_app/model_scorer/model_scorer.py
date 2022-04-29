@@ -1,10 +1,10 @@
 from typing import Dict, List
-import time
 import numpy as np
 import pandas as pd
 import requests
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine.base import Engine
+from crypto_sentiment_demo_app.utils import get_db_connection_engine
 
 
 class ModelScorer:
@@ -78,15 +78,11 @@ class ModelScorer:
 
 
 if __name__ == "__main__":
-    # TODO replace with reading from configs
-    with open("db_connection.ini") as f:
-        conn_string = f.read().strip()
-        engine = create_engine(conn_string)
-
+    engine = get_db_connection_engine()
     model_scorer = ModelScorer(sqlalchemy_engine=engine)
 
-    while 1:
-        time.sleep(3600)
-        df = model_scorer.get_data_to_run_model()
-        pred_df = model_scorer.run_model_on_dataframe(df)
-        model_scorer.write_preds_to_db(pred_df)
+    df = model_scorer.get_data_to_run_model()
+    pred_df = model_scorer.run_model_on_dataframe(df)
+    model_scorer.write_preds_to_db(pred_df)
+
+    print(f"Wrote predictions for {len(df)} records into model_predictions.")

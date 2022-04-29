@@ -1,9 +1,8 @@
 import mmh3
-import time
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from sqlalchemy import create_engine
+from crypto_sentiment_demo_app.utils import get_db_connection_engine
 from sqlalchemy.engine.base import Engine
 
 
@@ -14,7 +13,6 @@ class BitcointickerCrawler:
         self.sqlalchemy_engine = sqlalchemy_engine
 
     def parse_bitcointicker(self) -> pd.DataFrame:
-
         page = requests.get(self.url)
         soup_object = BeautifulSoup(page.content, "html.parser")
 
@@ -67,16 +65,11 @@ class BitcointickerCrawler:
 
 if __name__ == "__main__":
 
-    # TODO replace with reading from configs
-    with open("db_connection.ini") as f:
-        conn_string = f.read().strip()
-        engine = create_engine(conn_string)
-
+    engine = get_db_connection_engine()
     crawler = BitcointickerCrawler(sqlalchemy_engine=engine)
 
-    while 1:
-        time.sleep(3600)
-        df = crawler.parse_bitcointicker()
-        print(df.head())
-        crawler.write_news_to_db(df=df, table_name="news_titles")
-        crawler.write_ids_to_db(df=df, table_name="model_predictions", index_name="title_id")
+    df = crawler.parse_bitcointicker()
+    crawler.write_news_to_db(df=df, table_name="news_titles")
+    crawler.write_ids_to_db(df=df, table_name="model_predictions", index_name="title_id")
+
+    print(f"Wrote {len(df)} records")

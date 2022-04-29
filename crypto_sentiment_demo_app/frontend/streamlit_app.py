@@ -3,15 +3,16 @@ from datetime import datetime
 import pandas as pd
 import requests
 import streamlit as st
-from sqlalchemy import create_engine
 from sqlalchemy.engine.cursor import LegacyCursorResult
+
+from crypto_sentiment_demo_app.utils import load_config_params, get_db_connection_engine
+
+# loading project-wide configuration params
+params: dict[str, any] = load_config_params()
 
 MODEL_API_ENDPOINT = "http://127.0.0.1:8000/classify"
 
-# TODO move away from frontend
-with open("db_connection.ini") as f:
-    conn_string = f.read().strip()
-    engine = create_engine(conn_string)
+engine = get_db_connection_engine()
 
 
 def get_sentiment_score(date: str = "1971-01-01"):
