@@ -10,7 +10,7 @@ from crypto_sentiment_demo_app.utils import load_config_params, get_db_connectio
 # loading project-wide configuration params
 params: dict[str, any] = load_config_params()
 
-MODEL_API_ENDPOINT = "http://model_inference_api:8000/classify"
+MODEL_API_ENDPOINT = "http://model_inference_api:8001/classify"
 
 engine = get_db_connection_engine()
 
