@@ -162,4 +162,5 @@ cython_debug/
 
 # custom
 .DS_Store
+.local
 db_connection.ini

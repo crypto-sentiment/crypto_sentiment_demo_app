@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "crypto-sentiment-demo-app"
+version = "0.1.0"
+description = "Cryptonews sentiment analysis demo application"
+authors = [
+    "Yury Kashnitsky <yury.kashnitsky@gmail.com>",
+    "Yekaterina Kryukova <Yekaterina.kryukova@phystech.edu>",
+    "Zalina Rusinova <z.gilvanova@gmail.com>",
+    "Arseniy Glotov <senya.ds.researcher@gmail.com>",
+    "Nikita Zakharov <nikitaurman2@gmail.com>",
+    "Victor Aleksandrin <aleksandrinvictor@gmail.com>",
+]
+license = "CCBY-4.0"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<=3.9.9"
+beautifulsoup4 = "^4.11.1"
+mmh3 = "^3.0.0"
+numpy = "^1.22.3"
+pandas = "^1.3.5"
+psycopg2-binary = "^2.9.3"
+SQLAlchemy = "^1.4.36"
+streamlit = "^1.8.1"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+click = "^8.0.4"
+flake8 = "^3.7.9"
+isort = "^5.10.1"
+mypy = "^0.770"
+pre_commit = "^2.18.1"
+pylint = "^2.12.2"
+pytest = "^5.2"
+pytest-cov = "^2.8.1"
+pytest-html = "^2.1.0"
+
+[tool.black]
+line-length = 119
+target-version = ['py38', 'py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+  | \.git
+  | \.tox
+  | \*venv
+)/
+'''
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

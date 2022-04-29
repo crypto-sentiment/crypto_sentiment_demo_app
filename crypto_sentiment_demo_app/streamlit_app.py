@@ -40,6 +40,7 @@ def run_app():
     today = datetime.today().strftime("%Y-%m-%d")
     today_average_sentiment = get_sentiment_score(date=today)
 
+    # mock version
     st.markdown(f"#### Today's average news sentiment: {round(today_average_sentiment * 100)}%")
     # quick n dirty
     if today_average_sentiment > 0.7:

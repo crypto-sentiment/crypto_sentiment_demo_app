@@ -1,4 +1,5 @@
 import mmh3
+import time
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -72,7 +73,10 @@ if __name__ == "__main__":
         engine = create_engine(conn_string)
 
     crawler = BitcointickerCrawler(sqlalchemy_engine=engine)
-    df = crawler.parse_bitcointicker()
-    print(df.head())
-    crawler.write_news_to_db(df=df, table_name="news_titles")
-    crawler.write_ids_to_db(df=df, table_name="model_predictions", index_name="title_id")
+
+    while 1:
+        time.sleep(3600)
+        df = crawler.parse_bitcointicker()
+        print(df.head())
+        crawler.write_news_to_db(df=df, table_name="news_titles")
+        crawler.write_ids_to_db(df=df, table_name="model_predictions", index_name="title_id")

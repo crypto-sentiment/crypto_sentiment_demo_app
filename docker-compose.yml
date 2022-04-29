@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+  crawler:
+    image: basic_image_crawler
+    build: .
+    command: python3 -m crypto_sentiment_demo_app.crawler
+#    command: poetry run python3 -m crypto_sentiment_demo_app.crawler > crawler.log 2>&1 &
+    volumes:
+      - ./:/root
+
+  model_scorer:
+    image: basic_image_model_scorer
+    build: .
+    command: python3 -m crypto_sentiment_demo_app.model_scorer
+#    command: poetry run python3 -m crypto_sentiment_demo_app.model_scorer > model_scorer.log 2>&1 &
+    volumes:
+      - ./:/root
+#    depends_on:
+#      - postgres
+
+  frontend:
+      image: basic_image_streamlit
+      build: .
+      command: streamlit run crypto_sentiment_demo_app/streamlit_app.py
+#      command: poetry run streamlit run crypto_sentiment_demo_app/streamlit_app.py > streamlit.log 2>&1 &
+      ports:
+        - "8501:8501"
+      volumes:
+        - ./:/root
+  #    depends_on:
+  #      - postgres

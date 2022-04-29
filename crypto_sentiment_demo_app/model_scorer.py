@@ -1,5 +1,5 @@
 from typing import Dict, List
-
+import time
 import numpy as np
 import pandas as pd
 import requests
@@ -84,6 +84,9 @@ if __name__ == "__main__":
         engine = create_engine(conn_string)
 
     model_scorer = ModelScorer(sqlalchemy_engine=engine)
-    df = model_scorer.get_data_to_run_model()
-    pred_df = model_scorer.run_model_on_dataframe(df)
-    model_scorer.write_preds_to_db(pred_df)
+
+    while 1:
+        time.sleep(3600)
+        df = model_scorer.get_data_to_run_model()
+        pred_df = model_scorer.run_model_on_dataframe(df)
+        model_scorer.write_preds_to_db(pred_df)
