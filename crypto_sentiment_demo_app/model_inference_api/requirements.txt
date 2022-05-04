@@ -6,3 +6,4 @@ PyYAML >= 5.3.1
 scikit-learn >= 1.0.2
 SQLAlchemy >= 1.4.36
 uvicorn >= 0.17.6
+hydra-core==1.1.2
