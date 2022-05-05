@@ -20,13 +20,13 @@ def get_project_root() -> Path:
     return Path(__file__).parent.parent
 
 
-def load_config_params() -> Dict[str, Any]:
+def load_config_params(return_hydra_config: bool = False) -> Dict[str, Any]:
     """
     Loads global project configuration params defined in the `config.yaml` file.
 
     :return: a nested dictionary corresponding to the `config.yaml` file.
     """
-    cfg = compose(config_name="config")
+    cfg = compose(config_name="config", return_hydra_config=return_hydra_config)
 
     return cast(Dict[str, Any], OmegaConf.to_container(cfg))
 
@@ -39,7 +39,7 @@ def get_logger(name) -> logging.Logger:
     """
 
     params = load_config_params()
-    log_config = params["logging"]
+    log_config = params["logger"]
     logging.config.dictConfig(config=log_config)
 
     return logging.getLogger(name)
