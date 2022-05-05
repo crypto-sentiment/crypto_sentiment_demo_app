@@ -4,10 +4,10 @@ version: 0.1.0
 path_to_model: static/models/logit_tfidf_btc_sentiment.pkl # TODO replace this with setting up MLFlow tracking
 tfidf: # See https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
   stop_words: english
-  ngram_range: '(1, 5)'
+  ngram_range: [1, 5]
   analyzer: char
   min_df: 8
-  lowercase: true
+  lowercase: True
   max_features: 100000
 logreg: # See https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
   C: 2.7
@@ -17,6 +17,14 @@ logreg: # See https://scikit-learn.org/stable/modules/generated/sklearn.linear_m
   max_iter: 500
   n_jobs: 4
   fit_intercept: false
+
+cross_validation:                             # Params of cross-validation
+  cv_perform_cross_val: True                  # Whether to perform cross-validation
+  cv_n_splits: 5
+  cv_shuffle: True
+  cv_random_state: 17
+  cv_n_jobs: 4
+  cv_scoring: accuracy
 
 inference:
   round_prob: 4
