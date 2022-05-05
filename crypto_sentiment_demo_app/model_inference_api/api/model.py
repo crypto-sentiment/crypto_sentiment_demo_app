@@ -1,12 +1,13 @@
+from copy import deepcopy
+from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, status
-from crypto_sentiment_demo_app.utils import load_config_params
-from crypto_sentiment_demo_app.models import ModelsRegistry, ModelEngine
+
+from crypto_sentiment_demo_app.models import ModelEngine, ModelsRegistry
+from crypto_sentiment_demo_app.utils import get_logger, load_config_params
+
 from .news import News
-from copy import deepcopy
-from crypto_sentiment_demo_app.utils import get_logger
-from pathlib import Path
 
 logger = get_logger(Path(__file__).name)
 

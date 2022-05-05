@@ -3,16 +3,16 @@ from typing import Any, Dict
 import pytorch_lightning as pl
 import torch
 from datasets import load_metric
+from pytorch_lightning import Callback
 from torch import Tensor
 from transformers import get_scheduler
-from pytorch_lightning import Callback
 
 from .utils import build_object
 
 
 class SentimentPipeline(pl.LightningModule):
     """Sentiment classification pipeline.
-    
+
     :param cfg: model config.
     """
 
@@ -115,6 +115,7 @@ class SentimentPipeline(pl.LightningModule):
 
 class MetricTracker(Callback):
     """Callback to keep losses and metrics."""
+
     def __init__(self):
         self.collection = {
             "train_loss": [],

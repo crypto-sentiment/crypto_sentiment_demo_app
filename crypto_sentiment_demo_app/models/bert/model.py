@@ -1,15 +1,17 @@
+import os
+from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
 import torch
-from crypto_sentiment_demo_app.models.base import ModelEngine, ModelsRegistry
-from torch.nn import functional as F
-from .pipeline import SentimentPipeline, MetricTracker
-from .utils import build_object
-from .dataset import split_train_val, build_dataloaders
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
-import os
-from pathlib import Path
+from torch.nn import functional as F
+
+from crypto_sentiment_demo_app.models.base import ModelEngine, ModelsRegistry
+
+from .dataset import build_dataloaders, split_train_val
+from .pipeline import MetricTracker, SentimentPipeline
+from .utils import build_object
 
 
 @ModelsRegistry.register("bert")
@@ -18,6 +20,7 @@ class Bert(ModelEngine):
 
     :param cfg: model config
     """
+
     def __init__(self, cfg: Dict[str, Any]):
         """Init model."""
         self.cfg = cfg["model"]
@@ -38,9 +41,7 @@ class Bert(ModelEngine):
         """
         train_data, val_data, train_labels, val_labels = split_train_val(X, y)
 
-        train_dataloader, val_dataloader = build_dataloaders(
-            self.cfg, train_data, train_labels, val_data, val_labels
-        )
+        train_dataloader, val_dataloader = build_dataloaders(self.cfg, train_data, train_labels, val_data, val_labels)
 
         seed_everything(self.cfg["seed"])
 
@@ -85,9 +86,7 @@ class Bert(ModelEngine):
         """
         encodings = self.tokenizer([input_text], **self.cfg["tokenizer"]["call_params"])
 
-        item = {
-            key: torch.tensor(val, device=self.device) for key, val in encodings.items()
-        }
+        item = {key: torch.tensor(val, device=self.device) for key, val in encodings.items()}
 
         logits = self.model.model(**item).logits
 

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, Iterable, Optional, cast
+from typing import Any, Callable, Dict, Optional, cast
+
 import pandas as pd
 
 

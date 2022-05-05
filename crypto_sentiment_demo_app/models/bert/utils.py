@@ -1,19 +1,17 @@
-from typing import Any, Dict, Callable
 from importlib import import_module
+from typing import Any, Callable, Dict
 
 
-def build_object(
-    object_cfg: Dict[str, Any], is_hugging_face: bool = False, **kwargs: Dict[str, Any]
-) -> Callable:
+def build_object(object_cfg: Dict[str, Any], is_hugging_face: bool = False, **kwargs: Dict[str, Any]) -> Callable:
     """Build object from config.
 
     Config schould have the following construction:
 
     class: <class name>
-    params: 
+    params:
         <param name>: val
 
-    params - constructor parameters. 
+    params - constructor parameters.
     Also if kwargs is passed they will be added as constructor parameters.
 
     :param object_cfg: object config

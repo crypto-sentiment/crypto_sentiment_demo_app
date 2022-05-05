@@ -1,10 +1,11 @@
-import torch
-from typing import Dict, Any, Tuple, Iterable, List
+from typing import Any, Dict, Iterable, List, Tuple
 
-from torch.utils.data import Dataset, DataLoader
-from .utils import build_object
-from sklearn.model_selection import train_test_split
 import pandas as pd
+import torch
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, Dataset
+
+from .utils import build_object
 
 
 class FinNewsDataset(Dataset):
@@ -53,9 +54,7 @@ def prepare_dataset(cfg: Dict[str, Any], data: List[str], labels: List[int]) -> 
     return FinNewsDataset(encodings, labels)
 
 
-def split_train_val(
-    X: pd.Series, y: pd.Series, test_size: float = 0.2
-) -> Tuple[list, ...]:
+def split_train_val(X: pd.Series, y: pd.Series, test_size: float = 0.2) -> Tuple[list, ...]:
     """Split data on train and validation.
 
     :param X: series with titles
@@ -66,9 +65,7 @@ def split_train_val(
     labels_mapping: Dict[str, int] = {"Negative": 0, "Positive": 2, "Neutral": 1}
     y = y.map(labels_mapping)
 
-    train_data, val_data, train_labels, val_labels = train_test_split(
-        X, y, test_size=test_size
-    )
+    train_data, val_data, train_labels, val_labels = train_test_split(X, y, test_size=test_size)
 
     return (
         train_data.tolist(),
@@ -97,11 +94,7 @@ def build_dataloaders(
     train_dataset = prepare_dataset(cfg, train_data, train_labels)
     val_dataset = prepare_dataset(cfg, val_data, val_labels)
 
-    train_dataloader = DataLoader(
-        train_dataset, batch_size=cfg["train_batch_size"], shuffle=True
-    )
-    val_dataloader = DataLoader(
-        val_dataset, batch_size=cfg["val_batch_size"], shuffle=False
-    )
+    train_dataloader = DataLoader(train_dataset, batch_size=cfg["train_batch_size"], shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=cfg["val_batch_size"], shuffle=False)
 
     return train_dataloader, val_dataloader

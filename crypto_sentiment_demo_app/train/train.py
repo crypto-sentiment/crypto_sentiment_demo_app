@@ -1,7 +1,9 @@
-from omegaconf import OmegaConf
-from crypto_sentiment_demo_app.models.base import ModelsRegistry, ModelEngine
-from typing import cast, Dict, Any
+from typing import Any, Dict, cast
+
 from hydra import compose
+from omegaconf import OmegaConf
+
+from crypto_sentiment_demo_app.models.base import ModelEngine, ModelsRegistry
 from crypto_sentiment_demo_app.train.read_data import read_train_data
 from crypto_sentiment_demo_app.utils import get_project_root
 

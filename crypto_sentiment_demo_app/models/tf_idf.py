@@ -1,13 +1,14 @@
-from typing import Dict, Any, Iterable, Optional, cast
-from crypto_sentiment_demo_app.models.base import ModelEngine, ModelsRegistry
+import pickle
+from pathlib import Path
+from typing import Any, Dict, Iterable, Optional, cast
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.pipeline import Pipeline
+
+from crypto_sentiment_demo_app.models.base import ModelEngine, ModelsRegistry
 from crypto_sentiment_demo_app.utils import get_logger, timer
-from pathlib import Path
-import pickle
 
 logger = get_logger(Path(__file__).name)
 
