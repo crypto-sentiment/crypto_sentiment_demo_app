@@ -43,7 +43,9 @@ def run_app():
         today_average_sentiment = 0
 
     # mock version
-    st.markdown(f"#### Today's average news sentiment: {round(today_average_sentiment * 100)}%")
+    st.markdown(
+        f"#### Today's average news sentiment: {round(today_average_sentiment * 100)}%"
+    )
     # quick n dirty
     if today_average_sentiment > 0.7:
         st.image("static/img/barometer_positive.png", width=300)
@@ -51,7 +53,9 @@ def run_app():
         st.image("static/img/barometer_neutral.png", width=300)
 
     # get user input from text areas in a Streamlit app
-    title = st.text_area("Insert your title here", value="BTC drops by 10% today", height=10)
+    title = st.text_area(
+        "Insert your title here", value="BTC drops by 10% today", height=10
+    )
 
     # process input and run inference
     pred_dict = requests.post(
@@ -61,7 +65,9 @@ def run_app():
     ).json()
 
     # process predictions
-    pred_df = pd.DataFrame.from_dict(pred_dict, orient="index", columns=["pred_score"]).astype(float)
+    pred_df = pd.DataFrame.from_dict(
+        pred_dict, orient="index", columns=["pred_score"]
+    ).astype(float)
 
     pred_df["Sentiment"] = pred_df.index
     predicted_class = pred_df["pred_score"].argmax()

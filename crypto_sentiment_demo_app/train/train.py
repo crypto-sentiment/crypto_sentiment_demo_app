@@ -7,8 +7,8 @@ from crypto_sentiment_demo_app.utils import get_project_root
 
 
 def main():
+    """Read config, train model and save checkpoint."""
     cfg = compose(config_name="config", return_hydra_config=True)
-
     model_choice = cfg.hydra.runtime.choices.model
     dict_cfg = cast(Dict[str, Any], OmegaConf.to_container(cfg))
     del dict_cfg["hydra"]
@@ -17,9 +17,7 @@ def main():
 
     project_root = get_project_root()
     cfg_data = dict_cfg["data"]
-    print(f"project_root: {project_root}")
     path_to_data = project_root / cfg_data["path_to_data"] / cfg_data["train_filename"]
-    print(f"path_to_data: {path_to_data}")
 
     train_df = read_train_data(path_to_data=path_to_data)
     train_texts = train_df[cfg_data["text_field_name"]]

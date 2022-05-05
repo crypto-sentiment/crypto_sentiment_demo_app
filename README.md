@@ -25,7 +25,12 @@ To launch the whole application:
  - install [`docker`](https://docs.docker.com/engine/install/ubuntu/) and [`docker-compose`](https://docs.docker.com/compose/install/). Tested with Docker version 20.10.14 and docker-compose v2.4.1 (make sure it's docker-compose v2 not v1, I had to add the path to docker-compose to the PATH env variable: `export PATH=/usr/libexec/docker/cli-plugins/:$PATH`);
  - add a DB connection string `postgresql://<user>:<pwd>@<host>:<port>/<database>` to the `db_connection.ini` file (for the exact connection string, refer to [this](https://www.notion.so/d8eaed6d640640e59704771f6b12b603) Notion page, limited to project contributors);
  - put the model pickle file into `static/models` (later this will be superseded by MLFlow registry), at the moment the model file `/artifacts/models.logit_tfidf_btc_sentiment.pkl` is stored on the Hostkey machine;
- - run `docker-compose up`.
+ - run `docker-compose --profile production up`.
+
+ To train the model:
+ - select model config in the config.yaml file
+ - place data in the data folder. Make sure that path to data and train filename match the config
+ - run `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up`. Model checkpoint will be saved in the path_to_model folder
 
 This will open a streamlit app `http://<hostname>:8501` in your browser, see a screenshot below in the [Frontend](#frontend) section.
 

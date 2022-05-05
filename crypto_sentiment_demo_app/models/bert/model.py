@@ -14,8 +14,12 @@ from pathlib import Path
 
 @ModelsRegistry.register("bert")
 class Bert(ModelEngine):
-    def __init__(self, cfg: Dict[str, Any]):
+    """Bert model. Wrapper for hugging face models.
 
+    :param cfg: model config
+    """
+    def __init__(self, cfg: Dict[str, Any]):
+        """Init model."""
         self.cfg = cfg["model"]
         self.class_names = cfg["data"]["class_names"]
 
@@ -27,6 +31,11 @@ class Bert(ModelEngine):
         self.tokenizer = build_object(self.cfg["tokenizer"], is_hugging_face=True)
 
     def fit(self, X: Iterable, y: Iterable, *args, **kwargs) -> None:
+        """Fit model.
+
+        :param X: train data
+        :param y: train labels
+        """
         train_data, val_data, train_labels, val_labels = split_train_val(X, y)
 
         train_dataloader, val_dataloader = build_dataloaders(
@@ -69,7 +78,11 @@ class Bert(ModelEngine):
 
     @torch.no_grad()
     def predict(self, input_text: str) -> Dict[str, str]:
+        """Predict sentiment probabilitites for the input text.
 
+        :param input_text: input text
+        :return: dictionary mapping class names to predicted probabilities
+        """
         encodings = self.tokenizer([input_text], **self.cfg["tokenizer"]["call_params"])
 
         item = {
@@ -84,9 +97,21 @@ class Bert(ModelEngine):
         return response_dict
 
     def save(self, path: Optional[str] = None) -> None:
+        """Save model.
+
+        Not implemented, because pytorch lightning saves checkpoints during training.
+
+        :param path: save path, defaults to None
+        """
+        # TODO: replace with saving to MlFlow registry
         pass
 
     def load(self, path: Optional[str] = None) -> None:
+        """Load model checkpoint.
+
+        :param path: checkpoint path, defaults to None
+        """
+        # TODO: replace with loading from MlFlow registry
         filepath = path or self.cfg["path_to_model"]
         self.model = SentimentPipeline.load_from_checkpoint(filepath, cfg=self.cfg)
         self.model = self.model.to(self.device)

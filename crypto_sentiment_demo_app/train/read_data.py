@@ -4,8 +4,7 @@ import pandas as pd
 
 
 def read_train_data(path_to_data: Path) -> pd.DataFrame:
-    """
-    A custom function that reads training data from CSV files into Pandas DataFrames.
+    """A custom function that reads training data from CSV files into Pandas DataFrames.
 
     Schould be replaced with finctuion that reads from db.
 

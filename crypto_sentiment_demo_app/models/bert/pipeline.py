@@ -11,9 +11,13 @@ from .utils import build_object
 
 
 class SentimentPipeline(pl.LightningModule):
-    """Class for training text classification models"""
+    """Sentiment classification pipeline.
+    
+    :param cfg: model config.
+    """
 
     def __init__(self, cfg: Dict[str, Any]):
+        """Init pipeline."""
         super().__init__()
 
         self.cfg = cfg
@@ -23,6 +27,7 @@ class SentimentPipeline(pl.LightningModule):
         self.metrics = []
 
     def configure_optimizers(self):
+        """Setup optimizers and schedulers."""
         optimizer = build_object(self.cfg["optimizer"], params=self.model.parameters())
 
         lr_scheduler = get_scheduler(
@@ -40,10 +45,16 @@ class SentimentPipeline(pl.LightningModule):
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
     def forward(self, batch: Dict[str, Tensor]):
+        """Forward pass."""
         return self.model(**batch)
 
     def training_step(self, batch: Dict[str, Tensor], batch_idx: int) -> Tensor:
+        """Train step.
 
+        :param batch: dict with data and labels
+        :param batch_idx: batch index
+        :return: batch loss
+        """
         outputs = self.model(**batch)
 
         logits = outputs.logits
@@ -71,7 +82,11 @@ class SentimentPipeline(pl.LightningModule):
         return outputs.loss
 
     def validation_step(self, batch: Dict[str, Tensor], batch_idx: int) -> None:
+        """Validation step.
 
+        :param batch: dict with data and labels
+        :param batch_idx: batch index
+        """
         with torch.no_grad():
             outputs = self.model(**batch)
 
@@ -99,6 +114,7 @@ class SentimentPipeline(pl.LightningModule):
 
 
 class MetricTracker(Callback):
+    """Callback to keep losses and metrics."""
     def __init__(self):
         self.collection = {
             "train_loss": [],

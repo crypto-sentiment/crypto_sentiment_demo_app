@@ -1,5 +1,5 @@
 import torch
-from typing import Dict, Any, Tuple, Iterable
+from typing import Dict, Any, Tuple, Iterable, List
 
 from torch.utils.data import Dataset, DataLoader
 from .utils import build_object
@@ -8,22 +8,44 @@ import pandas as pd
 
 
 class FinNewsDataset(Dataset):
-    def __init__(self, encodings: Dict[str, Any], labels: list):
+    """Pytorch dataset for the news data.
+
+    :param encodings: titles encodings
+    :param labels: sentiment labels
+    """
+
+    def __init__(self, encodings: Dict[str, Any], labels: List[int]):
+        """Init dataset."""
         self.encodings = encodings
         self.labels = labels
 
     def __getitem__(self, idx: int) -> Dict[str, Any]:
+        """Get sample.
+
+        :param idx: sample index
+        :return: dict with data and labels
+        """
         item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
         item["labels"] = torch.tensor(self.labels[idx])
 
         return item
 
     def __len__(self) -> int:
+        """Return length of the dataset.
+
+        :return: length of the dataset
+        """
         return len(self.labels)
 
 
-def prepare_dataset(cfg: Dict[str, Any], data: Iterable, labels: Iterable) -> Dataset:
+def prepare_dataset(cfg: Dict[str, Any], data: List[str], labels: List[int]) -> Dataset:
+    """Preprocess titles.
 
+    :param cfg: model/preporcess config
+    :param data: list with titles
+    :param labels: list with labels
+    :return: pytorch dataset
+    """
     tokenizer = build_object(cfg["tokenizer"], is_hugging_face=True)
 
     encodings = tokenizer(data, **cfg["tokenizer"]["call_params"])
@@ -34,7 +56,13 @@ def prepare_dataset(cfg: Dict[str, Any], data: Iterable, labels: Iterable) -> Da
 def split_train_val(
     X: pd.Series, y: pd.Series, test_size: float = 0.2
 ) -> Tuple[list, ...]:
+    """Split data on train and validation.
 
+    :param X: series with titles
+    :param y: series with labels
+    :param test_size: val size, defaults to 0.2
+    :return: tuple: (train_data, val_data, train_labels, val_labels)
+    """
     labels_mapping: Dict[str, int] = {"Negative": 0, "Positive": 2, "Neutral": 1}
     y = y.map(labels_mapping)
 
@@ -57,7 +85,15 @@ def build_dataloaders(
     val_data: Iterable,
     val_labels: Iterable,
 ) -> Tuple[DataLoader, DataLoader]:
+    """Build dataloaders from train data and labels.
 
+    :param cfg: model/preporcess config
+    :param train_data: train data
+    :param train_labels: train_labels
+    :param val_data: val_data
+    :param val_labels: val_labels
+    :return: (train_dataloader, val_dataloader)
+    """
     train_dataset = prepare_dataset(cfg, train_data, train_labels)
     val_dataset = prepare_dataset(cfg, val_data, val_labels)
 

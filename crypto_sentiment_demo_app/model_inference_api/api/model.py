@@ -12,7 +12,11 @@ logger = get_logger(Path(__file__).name)
 
 
 def load_model(params: Dict[str, Any]) -> ModelEngine:
+    """Load model from registry based on params.
 
+    :param params: config
+    :return: model with ModelEngine interface
+    """
     model_params = deepcopy(params)
     model_choice = model_params["hydra"]["runtime"]["choices"]["model"]
     del model_params["hydra"]
@@ -28,22 +32,24 @@ params = load_config_params(return_hydra_config=True)
 
 model: ModelEngine = load_model(params)
 
-
 app = FastAPI()
 
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 def is_model_loaded() -> bool:
+    """Check whether model was loaded.
+
+    Need this to force other services wait until model will be loaded.
+    """
     return model is not None
 
 
 @app.get("/")
 def get_classifier_details() -> Dict[str, Any]:
-    """
-    Gets classifier's name and model version by reading it from the config file.
+    """Gets classifier's name and model version by reading it from the config file.
+
     :return: Classifier's name and model version
     """
-
     logger.info(f"model_params: {params.keys()}")
     return {
         "name": params["model"]["name"],
@@ -53,16 +59,12 @@ def get_classifier_details() -> Dict[str, Any]:
 
 @app.post("/classify", status_code=200)
 def classify_content(input_data: News) -> Dict[str, str]:
-    """
-    Gets a JSON with text fields, processes them, runs model prediction
-    and returns the resulting predicted probabilities for each class.
+    """Get input data and return model prediction.
 
-    :param input_json: input JSON structured as {text_field_name: text_field_value},
-                       e.g. {"title": "BTC drops by 10% this Friday"}
-
+    :param input_data: input News object structured as {text_field_name: text_field_value},
+        e.g. {"title": "BTC drops by 10% this Friday"}
     :return: a Response with a dictionary mapping class names to predicted probabilities
     """
-
     text_field_name: str = params["data"]["text_field_name"]
 
     data_dict = input_data.dict()
