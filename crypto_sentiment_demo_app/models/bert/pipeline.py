@@ -24,8 +24,6 @@ class SentimentPipeline(pl.LightningModule):
         self.model = build_object(cfg["model"], is_hugging_face=True)
         self.metric = load_metric("accuracy")
 
-        self.metrics = []
-
     def configure_optimizers(self):
         """Setup optimizers and schedulers."""
         optimizer = build_object(self.cfg["optimizer"], params=self.model.parameters())

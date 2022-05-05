@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict
 def build_object(object_cfg: Dict[str, Any], is_hugging_face: bool = False, **kwargs: Dict[str, Any]) -> Callable:
     """Build object from config.
 
-    Config schould have the following construction:
+    Config should have the following construction:
 
     class: <class name>
     params:
@@ -16,7 +16,7 @@ def build_object(object_cfg: Dict[str, Any], is_hugging_face: bool = False, **kw
 
     :param object_cfg: object config
     :param is_hugging_face: whether object is hugging face model, defaults to False
-    :raises ValueError: if config doesn't contain class key
+    :raises ValueError: if config doesn't contain the class key
     :return: created object
     """
     if "class" not in object_cfg.keys():

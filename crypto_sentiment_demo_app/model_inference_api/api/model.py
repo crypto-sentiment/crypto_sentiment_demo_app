@@ -13,7 +13,7 @@ logger = get_logger(Path(__file__).name)
 
 
 def load_model(params: Dict[str, Any]) -> ModelEngine:
-    """Load model from registry based on params.
+    """Load model from models registry based on the passed params.
 
     :param params: config
     :return: model with ModelEngine interface
@@ -60,7 +60,7 @@ def get_classifier_details() -> Dict[str, Any]:
 
 @app.post("/classify", status_code=200)
 def classify_content(input_data: News) -> Dict[str, str]:
-    """Get input data and return model prediction.
+    """Get the input data and return model prediction.
 
     :param input_data: input News object structured as {text_field_name: text_field_value},
         e.g. {"title": "BTC drops by 10% this Friday"}

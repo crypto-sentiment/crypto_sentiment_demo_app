@@ -51,8 +51,8 @@ class ModelsRegistry:
     def register(cls, name: str) -> Callable:
         """Register model.
 
-        :param name: model name, note that config schould of the model schould have the same name
-        :return: wrapper function that saves model in registry
+        :param name: model name, note that config of the model should have the same name
+        :return: wrapper function that saves model in the registry
         """
 
         def inner_wrapper(
