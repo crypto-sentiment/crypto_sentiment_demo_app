@@ -1,10 +1,10 @@
 import torch
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Iterable
 
 from torch.utils.data import Dataset, DataLoader
 from .utils import build_object
-import pandas as pd
 from sklearn.model_selection import train_test_split
+import pandas as pd
 
 
 class FinNewsDataset(Dataset):
@@ -22,7 +22,7 @@ class FinNewsDataset(Dataset):
         return len(self.labels)
 
 
-def prepare_dataset(cfg: Dict[str, Any], data: list, labels: list) -> Dataset:
+def prepare_dataset(cfg: Dict[str, Any], data: Iterable, labels: Iterable) -> Dataset:
 
     tokenizer = build_object(cfg["tokenizer"], is_hugging_face=True)
 
@@ -32,28 +32,34 @@ def prepare_dataset(cfg: Dict[str, Any], data: list, labels: list) -> Dataset:
 
 
 def split_train_val(
-    dataset: pd.DataFrame, test_size: float = 0.2
-) -> Tuple[pd.DataFrame, ...]:
+    X: pd.Series, y: pd.Series, test_size: float = 0.2
+) -> Tuple[list, ...]:
+
+    labels_mapping: Dict[str, int] = {"Negative": 0, "Positive": 2, "Neutral": 1}
+    y = y.map(labels_mapping)
+
     train_data, val_data, train_labels, val_labels = train_test_split(
-        dataset["title"],
-        dataset["label"],
-        test_size=test_size,
-        stratify=dataset["label"],
+        X, y, test_size=test_size
     )
 
-    return train_data, val_data, train_labels, val_labels
+    return (
+        train_data.tolist(),
+        val_data.tolist(),
+        train_labels.tolist(),
+        val_labels.tolist(),
+    )
 
 
 def build_dataloaders(
     cfg: Dict[str, Any],
-    train_data: pd.DataFrame,
-    train_labels: pd.DataFrame,
-    val_data: pd.DataFrame,
-    val_labels: pd.DataFrame,
+    train_data: Iterable,
+    train_labels: Iterable,
+    val_data: Iterable,
+    val_labels: Iterable,
 ) -> Tuple[DataLoader, DataLoader]:
 
-    train_dataset = prepare_dataset(cfg, train_data.tolist(), train_labels.tolist())
-    val_dataset = prepare_dataset(cfg, val_data.tolist(), val_labels.tolist())
+    train_dataset = prepare_dataset(cfg, train_data, train_labels)
+    val_dataset = prepare_dataset(cfg, val_data, val_labels)
 
     train_dataloader = DataLoader(
         train_dataset, batch_size=cfg["train_batch_size"], shuffle=True

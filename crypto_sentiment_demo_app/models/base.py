@@ -8,7 +8,7 @@ class ModelEngine(ABC):
         pass
 
     @abstractmethod
-    def predict(self, X: Iterable) -> Dict[str, str]:
+    def predict(self, input_text: str) -> Dict[str, str]:
         pass
 
     @abstractmethod

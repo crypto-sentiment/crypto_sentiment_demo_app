@@ -21,8 +21,6 @@ def load_model(params: Dict[str, Any]) -> ModelEngine:
 
     model.load()
 
-    logger.info("model_loaded")
-
     return model
 
 
@@ -31,11 +29,9 @@ params = load_config_params(return_hydra_config=True)
 model: ModelEngine = load_model(params)
 
 
-# initializing the API, see https://fastapi.tiangolo.com/tutorial/first-steps/
 app = FastAPI()
 
 
-# check if model is loaded correctly
 @app.get("/health", status_code=status.HTTP_200_OK)
 def is_model_loaded() -> bool:
     return model is not None
@@ -70,7 +66,6 @@ def classify_content(input_data: News) -> Dict[str, str]:
     text_field_name: str = params["data"]["text_field_name"]
 
     data_dict = input_data.dict()
-    # logger.info(f"data_dict: {data_dict}")
 
     if text_field_name not in data_dict:
         raise HTTPException(
@@ -79,7 +74,5 @@ def classify_content(input_data: News) -> Dict[str, str]:
         )
 
     response_dict = model.predict(data_dict.get(text_field_name, ""))
-
-    # logger.info(f"response_dict: {response_dict}")
 
     return response_dict

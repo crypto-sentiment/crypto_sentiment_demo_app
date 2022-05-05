@@ -63,6 +63,7 @@ class TfidfLogisticRegression(ModelEngine):
         return response_dict
 
     def save(self, path: Optional[str] = None) -> None:
+        # TODO: replace with saving to MlFlow registry
         path_to_saved_model = cast(str, self.cfg["path_to_model"] or path)
 
         with open(path_to_saved_model, "wb") as f:
@@ -71,6 +72,7 @@ class TfidfLogisticRegression(ModelEngine):
     def load(self, path: Optional[str] = None) -> None:
         path_to_saved_model = cast(str, self.cfg["path_to_model"] or path)
 
+        # TODO: replace with loading from MlFlow registry
         with open(path_to_saved_model, "rb") as f:
             self.model = pickle.load(f)
 

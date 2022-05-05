@@ -1,5 +1,8 @@
 data:
   text_field_name: title
+  label_field_name: sentiment
+  path_to_data: data/
+  train_filename: toy_train.csv
   class_names: ["Negative", "Neutral", "Positive"]
 
 crawler:
@@ -19,7 +22,7 @@ database:
 # Hydra logging boilerplate
 defaults:
   - _self_
-  - model: bert
+  - model: tf_idf
   - logger: base
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
