@@ -56,7 +56,7 @@ services:
       - model_inference_api
     profiles:
       - production
-  
+
   train:
     image: basic_image_train
     build:
@@ -69,3 +69,12 @@ services:
       - ./:/root
     profiles:
       - train
+
+  label_studio:
+    image: heartexlabs/label-studio:latest
+    ports:
+      - "8080:8080"
+    profiles:
+      - label
+    extra_hosts:
+      - "db:146.0.74.25"
