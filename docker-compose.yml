@@ -76,5 +76,3 @@ services:
       - "8080:8080"
     profiles:
       - label
-    extra_hosts:
-      - "db:146.0.74.25"

@@ -1,16 +1,18 @@
-# Import the SDK and the client module
+import argparse
+import os
 from typing import Any, Dict, List
 
 import pandas as pd
-from label_studio_sdk import Client
+from label_studio_sdk import Client, Project
 
 from crypto_sentiment_demo_app.utils import get_db_connection_engine
 
-LABEL_STUDIO_URL = ""
-API_KEY = ""
-
 
 def read_data_from_db() -> pd.DataFrame:
+    """Read data from db.
+
+    :return: dataframe with data from db
+    """
     sqlalchemy_engine = get_db_connection_engine()
 
     query = """
@@ -31,7 +33,12 @@ def read_data_from_db() -> pd.DataFrame:
 
 
 def collect_tasks(content_df: pd.DataFrame) -> List[Dict[str, Any]]:
-    tasks = []
+    """Create labelling tasks.
+
+    :param content_df: dataframe with samples from db
+    :return: list of tasks in the format supported by label studio
+    """
+    tasks: List[Dict[str, Any]] = []
     predicted_mapping = {0: "Negative", 1: "Neutral", 2: "Positive"}
 
     for _, row in content_df.iterrows():
@@ -59,13 +66,15 @@ def collect_tasks(content_df: pd.DataFrame) -> List[Dict[str, Any]]:
     return tasks
 
 
-def main():
-    # Connect to the Label Studio API and check the connection
-    ls = Client(url=LABEL_STUDIO_URL, api_key=API_KEY)
-    print(ls.check_connection())
+def create_project(client: Client, project_title: str) -> Project:
+    """Create label studio project.
 
-    project = ls.start_project(
-        title="Crypto Sentiment project",
+    :param client: label studio client
+    :param project_title: title of the project
+    :return: created label studio project
+    """
+    project = client.start_project(
+        title=project_title,
         label_config="""
         <View>
         <Header value="Choose text sentiment:"/>
@@ -79,14 +88,54 @@ def main():
         """,
     )
 
+    return project
+
+
+def import_tasks(project: Project) -> None:
+    """Import tasks into label studio project.
+
+    :param project: import tasks to that project
+    """
     content_df = read_data_from_db()
+
+    # Model score is required for active learning
     content_df["model_score"] = content_df[["positive", "negative", "neutral"]].max(axis=1)
-    print(content_df.head())
 
     tasks = collect_tasks(content_df)
 
     project.import_tasks(tasks)
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--mode", type=str, default="create", choices=["create", "append"])
+parser.add_argument("--project_title", type=str, default="Crypto Sentiment project")
+
 if __name__ == "__main__":
-    main()
+    args = parser.parse_args()
+
+    LABEL_STUDIO_URL = os.environ.get("LABEL_STUDIO_URL")
+    API_KEY = os.environ.get("API_KEY")
+
+    ls = Client(url=LABEL_STUDIO_URL, api_key=API_KEY)
+
+    conn_check: Dict[str, str] = ls.check_connection()
+    if conn_check["status"] != "UP":
+        raise ValueError("Cannot connect to label studio, check LABEL_STUDIO_URL and API_KEY env variables.")
+
+    if args.mode == "create":
+        project = create_project(ls, args.project_title)
+
+        import_tasks(project)
+    elif args.mode == "append":
+        projects = ls.get_projects()
+
+        selected_project = None
+        for project in projects:
+            if project.params["title"] == args.project_title:
+                selected_project = project
+                break
+
+        if selected_project is None:
+            raise ValueError(f"Project with title: {args.title} not found! You should create it before append tasks")
+
+        import_tasks(selected_project)
