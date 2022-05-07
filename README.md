@@ -128,6 +128,7 @@ Label Studio service allows us to annotate additional data.
 To launch the service:
 - run `docker compose --profile label up`. This will launch Label Studio at http://\<server-ip\>:8080/
 - Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
+- Install label_studio_sdk `pip install label-studio-sdk`
 - To create new annotation project run `LABEL_STUDIO_URL=http://<server-ip>:8080/ API_KEY=<Access Token> python crypto_sentiment_demo_app/label_studio/create_task.py --mode="create" --project_title="Crypto Sentiment project"`
 - To add annotation tasks to existing project run `LABEL_STUDIO_URL=http://<server-ip>:8080/ API_KEY=<Access Token> python crypto_sentiment_demo_app/label_studio/create_task.py --mode="append" --project_title="Crypto Sentiment project"`
 
