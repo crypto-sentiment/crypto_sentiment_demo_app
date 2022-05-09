@@ -118,3 +118,18 @@ Curently, the streamlit app looks like this:
 The frontend itself talks to the database to get the average `positive` score for today's news titles (this will be changed in the future).
 
 This is to be superseded by a more advanced React front end service ([Notion ticket](https://www.notion.so/a74951e4e815480584dea7d61ddce6cc?v=dbfdb1207d0e451b827d3c5041ed0cfd&p=31d73280a5d547bdb8852d3d63d73060)).
+
+
+### Label Studio
+Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)
+
+Label Studio service allows us to annotate additional data.
+
+To launch the service:
+- run `docker compose --profile label up`. This will launch Label Studio at http://\<server-ip\>:8080/
+- Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
+- Install label_studio_sdk `pip install label-studio-sdk`
+- To create new annotation project run `LABEL_STUDIO_URL=http://<server-ip>:8080/ API_KEY=<Access Token> python crypto_sentiment_demo_app/label_studio/create_task.py --mode="create" --project_title="Crypto Sentiment project"`
+- To add annotation tasks to existing project run `LABEL_STUDIO_URL=http://<server-ip>:8080/ API_KEY=<Access Token> python crypto_sentiment_demo_app/label_studio/create_task.py --mode="append" --project_title="Crypto Sentiment project"`
+
+At the moment, create_task.py creates tasks reading samples from the model_predictions table. Annotated samples could be exported to csv files. Further this manual saving will be replaced with the script that writes data into a database.
