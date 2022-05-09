@@ -1,0 +1,11 @@
+[tool.black]
+line-length = 119
+target-version = ['py38', 'py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+  | \.git
+  | \.tox
+  | \*venv
+)/
+'''

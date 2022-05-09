@@ -22,8 +22,12 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
+ARG USER_ID
+ARG GROUP_ID
+
 # Create a non-root user and switch to it
-RUN adduser --disabled-password --gecos '' --shell /bin/bash user \
+RUN addgroup --gid $GROUP_ID user
+RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID --shell /bin/bash user \
     && chown -R user:user /root
 RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-user
 USER user
@@ -47,4 +51,3 @@ RUN curl -sLo ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py39
     && conda clean -ya
 
 ENV PYTHONPATH "${PYTHONPATH}:/root/crypto_sentiment_demo_app"
-COPY . /root

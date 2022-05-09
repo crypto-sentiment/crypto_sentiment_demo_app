@@ -3,9 +3,10 @@ import logging.config
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
-import yaml
+from hydra import compose
+from omegaconf import OmegaConf
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 
@@ -19,16 +20,15 @@ def get_project_root() -> Path:
     return Path(__file__).parent.parent
 
 
-def load_config_params() -> Dict[str, Any]:
+def load_config_params(return_hydra_config: bool = False) -> Dict[str, Any]:
     """
     Loads global project configuration params defined in the `config.yaml` file.
 
     :return: a nested dictionary corresponding to the `config.yaml` file.
     """
-    project_root: Path = get_project_root()
-    with open(project_root / "config.yml") as f:
-        params: Dict[str, Any] = yaml.load(f, Loader=yaml.FullLoader)
-    return params
+    cfg = compose(config_name="config", return_hydra_config=return_hydra_config)
+
+    return cast(Dict[str, Any], OmegaConf.to_container(cfg))
 
 
 def get_logger(name) -> logging.Logger:
@@ -39,7 +39,7 @@ def get_logger(name) -> logging.Logger:
     """
 
     params = load_config_params()
-    log_config = params["logging"]
+    log_config = params["logger"]
     logging.config.dictConfig(config=log_config)
 
     return logging.getLogger(name)
@@ -76,9 +76,12 @@ def get_db_connection_engine() -> Engine:
 def get_model_inference_api_endpoint() -> str:
 
     params = load_config_params()
-    hostname = params["model"]["inference_api_host_name"]
-    port = params["model"]["inference_api_port"]
-    endpoint_name = params["model"]["inference_api_endpoint_name"]
+
+    inference_api_params = params["inference_api"]
+
+    hostname = inference_api_params["host_name"]
+    port = inference_api_params["port"]
+    endpoint_name = inference_api_params["endpoint_name"]
 
     return f"http://{hostname}:{port}/{endpoint_name}"
 
