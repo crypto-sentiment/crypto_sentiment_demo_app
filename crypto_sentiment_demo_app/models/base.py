@@ -67,7 +67,7 @@ class ModelsRegistry:
         return inner_wrapper
 
     @classmethod
-    def get_model(cls, name: str, cfg: Dict[str, Any]) -> "ModelEngine":
+    def get_model(cls, name: str, cfg: Dict[str, Any]) -> ModelEngine:
         """Get model by name.
 
         :param name: model name
