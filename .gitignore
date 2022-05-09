@@ -162,4 +162,8 @@ cython_debug/
 
 # custom
 .DS_Store
+.local
+.bash_history
+.python_history
 db_connection.ini
+static/models/*.pkl
