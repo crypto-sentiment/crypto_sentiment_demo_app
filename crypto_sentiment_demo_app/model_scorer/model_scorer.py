@@ -1,19 +1,27 @@
-from typing import Dict, List
+from time import sleep
+from typing import Any, Dict, List
+
 import numpy as np
 import pandas as pd
 import requests
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from sqlalchemy.engine.base import Engine
-from crypto_sentiment_demo_app.utils import get_db_connection_engine
+from sqlalchemy.exc import IntegrityError
+
+from crypto_sentiment_demo_app.utils import (
+    get_db_connection_engine,
+    get_model_inference_api_endpoint,
+    load_config_params,
+)
 
 
 class ModelScorer:
-    def __init__(self, sqlalchemy_engine: Engine):
+    def __init__(self, sqlalchemy_engine: Engine, model_api_endpoint: str, model_classes: List[str]):
         #
         self.sqlalchemy_engine = sqlalchemy_engine
         # this assumes that the endpoint is up and running
-        self.model_api_endpoint = "http://model_inference_api:8001/classify"
-        self.classes = ["Negative", "Neutral", "Positive"]
+        self.model_api_endpoint = model_api_endpoint
+        self.model_classes = model_classes
 
     def get_data_to_run_model(self) -> pd.DataFrame:
         query = """
@@ -50,7 +58,7 @@ class ModelScorer:
             pred_dicts.append(pred_dict)
         pred_df = pd.DataFrame(pred_dicts)
 
-        pred_df["predicted_class"] = np.argmax(pred_df[self.classes].values, axis=1)
+        pred_df["predicted_class"] = np.argmax(pred_df[self.model_classes].values, axis=1)
         pred_df.set_index("title_id", inplace=True)
 
         return pred_df
@@ -74,16 +82,42 @@ class ModelScorer:
 
                          """
         )
-        engine.execute(query)
+        self.sqlalchemy_engine.execute(query)
+
+    def run(self):
+
+        # TODO: run with crontab instead
+        while 1:
+
+            try:
+                df = self.get_data_to_run_model()
+
+                if len(df):
+                    pred_df = self.run_model_on_dataframe(df)
+                    self.write_preds_to_db(pred_df)
+                    print(f"Wrote predictions for {len(df)} records into model_predictions.")  # TODO: set up logging
+
+                # There're max ~180 news per day, and the parser get's 50 at a time,
+                # so it's fine to sleep for a quarter of a day a day
+                sleep(21600)
+
+            # TODO: fix duplicates better
+            except IntegrityError:
+                pass
+
+
+def main():
+    # load project-wide params
+    params: Dict[str, Any] = load_config_params()
+
+    engine = get_db_connection_engine()
+    model_api_endpoint = get_model_inference_api_endpoint()
+    model_scorer = ModelScorer(
+        sqlalchemy_engine=engine, model_api_endpoint=model_api_endpoint, model_classes=params["data"]["class_names"]
+    )
+
+    model_scorer.run()
 
 
 if __name__ == "__main__":
-    engine = get_db_connection_engine()
-    model_scorer = ModelScorer(sqlalchemy_engine=engine)
-
-    df = model_scorer.get_data_to_run_model()
-    print(df.head(1))
-    pred_df = model_scorer.run_model_on_dataframe(df)
-    model_scorer.write_preds_to_db(pred_df)
-
-    print(f"Wrote predictions for {len(df)} records into model_predictions.")
+    main()

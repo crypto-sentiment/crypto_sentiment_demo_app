@@ -3,10 +3,11 @@ import logging.config
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from sqlalchemy import create_engine
-from sqlalchemy.engine.base import Engine
+from typing import Any, Dict
 
 import yaml
+from sqlalchemy import create_engine
+from sqlalchemy.engine.base import Engine
 
 
 def get_project_root() -> Path:
@@ -18,7 +19,7 @@ def get_project_root() -> Path:
     return Path(__file__).parent.parent
 
 
-def load_config_params() -> dict[str, any]:
+def load_config_params() -> Dict[str, Any]:
     """
     Loads global project configuration params defined in the `config.yaml` file.
 
@@ -26,7 +27,7 @@ def load_config_params() -> dict[str, any]:
     """
     project_root: Path = get_project_root()
     with open(project_root / "config.yml") as f:
-        params: dict[str, any] = yaml.load(f, Loader=yaml.FullLoader)
+        params: Dict[str, Any] = yaml.load(f, Loader=yaml.FullLoader)
     return params
 
 
@@ -70,6 +71,16 @@ def get_db_connection_engine() -> Engine:
         engine = create_engine(conn_string)
 
     return engine
+
+
+def get_model_inference_api_endpoint() -> str:
+
+    params = load_config_params()
+    hostname = params["model"]["inference_api_host_name"]
+    port = params["model"]["inference_api_port"]
+    endpoint_name = params["model"]["inference_api_endpoint_name"]
+
+    return f"http://{hostname}:{port}/{endpoint_name}"
 
 
 if __name__ == "__main__":

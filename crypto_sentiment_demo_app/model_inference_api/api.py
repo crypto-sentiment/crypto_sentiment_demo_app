@@ -5,8 +5,9 @@ from fastapi import FastAPI
 from fastapi_health import health
 from sklearn.pipeline import Pipeline
 
-from .inference import model_inference
 from crypto_sentiment_demo_app.utils import load_config_params
+
+from .inference import model_inference
 
 # loading project-wide configuration params
 params: Dict[str, Any] = load_config_params()
@@ -66,7 +67,9 @@ def classify_content(input_json: Dict[str, str]) -> Dict[str, str]:
     assert text_field_name in input_json
 
     response_dict = model_inference(
-        model=model, input_text=input_json.get(text_field_name, ""), class_names=class_names
+        model=model,
+        input_text=input_json.get(text_field_name, ""),
+        class_names=class_names,
     )
 
     return response_dict

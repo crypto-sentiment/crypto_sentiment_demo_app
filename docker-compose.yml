@@ -30,24 +30,14 @@ services:
       - model_inference_api
 
   frontend:
-    image: basic_image_streamlit
-    build: crypto_sentiment_demo_app/frontend
-    command: streamlit run crypto_sentiment_demo_app/frontend/streamlit_app.py
-    ports:
-      - "8501:8501"
-    volumes:
-      - ./:/root
-    depends_on:
-      - model_inference_api
-    links:
-      - model_inference_api
-
-  data_provider:
-    image: basic_image_data_provider
-    build: crypto_sentiment_demo_app/data_provider
-    command: uvicorn crypto_sentiment_demo_app.data_provider.api:app --host data_provider --port 8002 --reload
-    ports:
-      - "8002:8002"
-    volumes:
-      - ./:/root
-    hostname: data_provider
+      image: basic_image_streamlit
+      build: crypto_sentiment_demo_app/frontend
+      command: streamlit run crypto_sentiment_demo_app/frontend/streamlit_app.py
+      ports:
+        - "8501:8501"
+      volumes:
+        - ./:/root
+      depends_on:
+        - model_inference_api
+      links:
+        - model_inference_api

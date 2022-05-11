@@ -1,36 +1,21 @@
 data:
-  path_to_data: data                          # Local path where the train and validation data should be placed
-                                              # in order to run the model training
   text_field_name: title
-  label_field_name: sentiment
-  num_classes: 3
-  max_text_length_words: 500
   class_names: ["Negative", "Neutral", "Positive"]
 
-model:                                        # Params of the model defined in src/model.py
-  name: "Tf-Idf & logreg"                     # TODO replace this with setting up MLFlow tracking
-  version: 0.1.0                              # TODO replace this with setting up MLFlow tracking
-  path_to_model: static/models/logit_tfidf_btc_sentiment.pkl # TODO replace this with setting up MLFlow tracking
+crawler:
+  url: "https://bitcointicker.co/news/"
+
+model:                                          # Params of the model defined in src/model.py
+  name: "Tf-Idf & logreg"                       # TODO replace this with setting up MLFlow tracking
+  version: 0.1.0                                # TODO replace this with setting up MLFlow tracking
+  path_to_model: static/models/logit_tfidf_btc_sentiment.pkl # TODO replace this with setting up MLFlow model registry
+  inference_api_host_name: model_inference_api  # "model_inference_api" should work with docker-compose
+                                                # "localhost" works locally
+  inference_api_port: 8001
+  inference_api_endpoint_name: classify
 
 database:
   path_to_connection_param_file: db_connection.ini
-
-logging:
-  version: 1
-  formatters:
-    app:
-      format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-  handlers:
-    console:
-      class: logging.StreamHandler
-      level: INFO
-      formatter: app
-      stream: ext://sys.stdout
-  loggers:
-    appLogger:
-      level: INFO
-      handlers: [console]
-      propagate: no
-  root:
-    level: INFO
-    handlers: [console]
+  content_table_name: news_titles
+  content_index_name: title_id
+  model_pred_table_name: model_predictions
