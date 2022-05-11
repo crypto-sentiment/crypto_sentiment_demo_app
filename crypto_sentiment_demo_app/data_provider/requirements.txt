@@ -1,0 +1,5 @@
+fastapi >= 0.75.1
+PyYAML >= 5.3.1
+SQLAlchemy >= 1.4.36
+uvicorn >= 0.17.6
+psycopg2-binary >= 2.9.3
