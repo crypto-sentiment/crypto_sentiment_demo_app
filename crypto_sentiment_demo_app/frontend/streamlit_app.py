@@ -21,7 +21,7 @@ def run_app():
     st.title("Cryptonews sentiment")
     st.write("by Yury Kashnitsky")
 
-    today_average_sentiment = get_sentiment_score(24)
+    today_average_sentiment = get_sentiment_score(n_hours=24)
     if not today_average_sentiment:
         today_average_sentiment = 0
 
