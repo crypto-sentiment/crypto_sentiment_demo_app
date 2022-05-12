@@ -1,7 +1,7 @@
-from typing import List
-from pydantic import BaseModel
 import datetime
 from typing import List
+
+from pydantic import BaseModel
 
 
 class PositiveScore(BaseModel):

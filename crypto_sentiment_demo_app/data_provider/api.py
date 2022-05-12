@@ -1,11 +1,11 @@
 from fastapi import FastAPI
+
 from crypto_sentiment_demo_app.data_provider.db_connector import DBConnection
 from crypto_sentiment_demo_app.data_provider.schemas import (
+    AveragePerDaysPositiveScore,
     NewsTitles,
     PositiveScore,
-    AveragePerDaysPositiveScore
 )
-
 
 db = DBConnection()
 app = FastAPI()
@@ -29,8 +29,7 @@ async def avg_positive_per_days(start_date: str = "2022-05-01", end_date: str = 
     Returns average per day positive score for news from
     (start_date <= news_publication_date <= end_date) period.
     """
-    result = db.calc_avg_per_day_positive_model_predictions(
-        start_date, end_date)
+    result = db.calc_avg_per_day_positive_model_predictions(start_date, end_date)
     return result
 
 
@@ -40,8 +39,7 @@ async def avg_positive_for_period(start_date: str = "2022-05-01", end_date: str 
     Returns average positive score for news from
     (start_date <= news_publication_date <= end_date) period.
     """
-    result = db.calc_avg_for_period_positive_model_predictions(
-        start_date, end_date)
+    result = db.calc_avg_for_period_positive_model_predictions(start_date, end_date)
     return result
 
 

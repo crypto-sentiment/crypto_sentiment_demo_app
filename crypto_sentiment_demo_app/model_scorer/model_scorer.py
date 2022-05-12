@@ -16,7 +16,12 @@ from crypto_sentiment_demo_app.utils import (
 
 
 class ModelScorer:
-    def __init__(self, sqlalchemy_engine: Engine, model_api_endpoint: str, model_classes: List[str]):
+    def __init__(
+        self,
+        sqlalchemy_engine: Engine,
+        model_api_endpoint: str,
+        model_classes: List[str],
+    ):
         #
         self.sqlalchemy_engine = sqlalchemy_engine
         # this assumes that the endpoint is up and running
@@ -113,7 +118,9 @@ def main():
     engine = get_db_connection_engine()
     model_api_endpoint = get_model_inference_api_endpoint()
     model_scorer = ModelScorer(
-        sqlalchemy_engine=engine, model_api_endpoint=model_api_endpoint, model_classes=params["data"]["class_names"]
+        sqlalchemy_engine=engine,
+        model_api_endpoint=model_api_endpoint,
+        model_classes=params["data"]["class_names"],
     )
 
     model_scorer.run()
