@@ -31,6 +31,13 @@ def load_config_params() -> Dict[str, Any]:
     return params
 
 
+def tag_question_mark(string):
+    if "?" not in string:
+        return True
+    else:
+        return False
+
+
 def get_logger(name) -> logging.Logger:
     """
 
