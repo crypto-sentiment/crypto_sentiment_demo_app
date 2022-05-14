@@ -106,7 +106,7 @@ class BitcointickerCrawler:
 
                 # There're max ~180 news per day, and the parser get's 50 at a time,
                 # so it's fine to sleep for a quarter of a day a day
-                sleep(2)
+                sleep(21600)
 
             # TODO: fix duplicates better
             except IntegrityError:
