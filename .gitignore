@@ -167,3 +167,4 @@ cython_debug/
 .python_history
 db_connection.ini
 static/models/*.pkl
+*.csv
