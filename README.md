@@ -31,6 +31,7 @@ To launch the whole application:
  To train the model:
  - select model config in the conf/config.yaml file. Available configs can be found in the conf/models folder.
  - place data in the data folder. Specify the path to the data in the config (path_to_data key). This will be replaced with reading from a database.
+ - make sure that other services are stopped: `docker compose stop` and `docker compose rm`.
  - run `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up --build`. Model checkpoint will be saved with the path specified with checkpoint_path key in the model config. Onnx model will be saved with the path specified with path_to_model key in the model config.
  - if you would like to train a model while other services are running add `-d` option: `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up --build -d`
 
