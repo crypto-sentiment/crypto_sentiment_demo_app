@@ -6,8 +6,15 @@ WORKDIR /root
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN rm /etc/apt/sources.list.d/cuda.list
-RUN rm /etc/apt/sources.list.d/nvidia-ml.list
+# RUN rm /etc/apt/sources.list.d/cuda.list
+
+ENV CUDA_LIST=/etc/apt/sources.list.d/cuda.list
+ENV NVIDIA_ML_LIST=/etc/apt/sources.list.d/nvidia-ml.list
+
+RUN if [test -f ${CUDA_LIST}] ; then rm CUDA_LIST ; fi
+RUN if [test -f ${NVIDIA_ML_LIST}] ; then rm NVIDIA_ML_LIST ; fi
+
+# RUN rm /etc/apt/sources.list.d/nvidia-ml.list
 
 # Install some basic utilities
 RUN apt-get update && apt-get install -y \
