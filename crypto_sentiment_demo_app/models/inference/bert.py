@@ -11,7 +11,13 @@ from .base import IModelInference, InferenceRegistry
 
 @InferenceRegistry.register("bert")
 class BertInference(IModelInference):
+    """Bert inference model.
+
+    :param cfg: model config
+    """
+
     def __init__(self, cfg: Dict[str, Any]) -> None:
+        """Init model."""
         super().__init__(cfg)
 
         self.model_cfg = self.cfg["model"]

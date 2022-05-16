@@ -8,7 +8,13 @@ from .base import IModelInference, InferenceRegistry
 
 @InferenceRegistry.register("tf_idf")
 class TfidfLogisticRegressionInference(IModelInference):
+    """Tf-idf logreg inference model.
+
+    :param cfg: model config.
+    """
+
     def __init__(self, cfg: Dict[str, Any]) -> None:
+        """Inint model."""
         super().__init__(cfg)
 
         self.model_cfg = self.cfg["model"]
