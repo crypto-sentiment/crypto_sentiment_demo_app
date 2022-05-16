@@ -26,13 +26,17 @@ To launch the whole application:
  - add a DB connection string `postgresql://<user>:<pwd>@<host>:<port>/<database>` to the `db_connection.ini` file (for the exact connection string, refer to [this](https://www.notion.so/d8eaed6d640640e59704771f6b12b603) Notion page, limited to project contributors);
  - put the model pickle file into `static/models` (later this will be superseded by MLFlow registry), at the moment the model file `/artifacts/models.logit_tfidf_btc_sentiment.pkl` is stored on the Hostkey machine;
  - run `docker-compose --profile production up`.
+ This will open a streamlit app `http://<hostname>:8501` in your browser, see a screenshot below in the [Frontend](#frontend) section.
 
  To train the model:
- - select model config in the config.yaml file
- - place data in the data folder. Make sure that path to data and train filename match the config
- - run `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up`. Model checkpoint will be saved in the path_to_model folder
+ - select model config in the conf/config.yaml file. Available configs can be found in the conf/models folder.
+ - place data in the data folder. Specify the path to the data in the config (path_to_data key). This will be replaced with reading from a database.
+ - run `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up --build`. Model checkpoint will be saved with the path specified with checkpoint_path key in the model config. Onnx model will be saved with the path specified with path_to_model key in the model config.
+ - if you would like to train a model while other services are running add `-d` option: `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up --build -d`
 
-This will open a streamlit app `http://<hostname>:8501` in your browser, see a screenshot below in the [Frontend](#frontend) section.
+ Using gpu to train a model:
+ - enable gpu access with compose: `https://docs.docker.com/compose/gpu-support/`
+ - set device: cuda in model's config
 
 ### Running the app without docker-compose
 
