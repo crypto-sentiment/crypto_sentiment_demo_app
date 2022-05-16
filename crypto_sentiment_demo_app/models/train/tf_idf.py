@@ -1,41 +1,45 @@
 import pickle
 from pathlib import Path
-from typing import Any, Dict, Iterable, Optional, cast
+from typing import Any, Dict
 
+import numpy as np
+from skl2onnx import to_onnx
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import Pipeline
 
-from crypto_sentiment_demo_app.models.base import ModelEngine, ModelsRegistry
 from crypto_sentiment_demo_app.utils import get_logger, timer
+
+from .base import IModelTrain, TrainRegistry
 
 logger = get_logger(Path(__file__).name)
 
 
-@ModelsRegistry.register("tf_idf")
-class TfidfLogisticRegression(ModelEngine):
+@TrainRegistry.register("tf_idf")
+class TfidfLogisticRegression(IModelTrain):
     """Logistic regression with tf-idf model.
 
     :param cfg: model config
     """
 
-    def __init__(self, cfg: Dict[str, Any]):
-        """Init model."""
-        self.cfg = cfg["model"]
-        self.class_names = cfg["data"]["class_names"]
-        self.model: Pipeline = self._initialize_model(self.cfg)
+    def __init__(self, cfg: Dict[str, Any]) -> None:
+        super().__init__(cfg)
 
-    def fit(self, X: Iterable, y: Iterable, *args: Any, **kwargs: Any) -> None:
+        self.model_cfg = self.cfg["model"]
+        self.model: Pipeline = self._initialize_model(self.model_cfg)
+
+    def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         """Fit model.
 
         :param X: train data
         :param y: train labels
         """
+        self.train_sample = X[:1]
         self.model.fit(X, y)
 
-        if self.cfg["cross_validation"]["cv_perform_cross_val"]:
-            cross_val_params = self.cfg["cross_validation"]
+        if self.model_cfg["cross_validation"]["cv_perform_cross_val"]:
+            cross_val_params = self.model_cfg["cross_validation"]
 
             with timer("Cross-validation", logger=logger):
                 skf = StratifiedKFold(
@@ -57,37 +61,34 @@ class TfidfLogisticRegression(ModelEngine):
                 avg_cross_score = round(100 * cv_results.mean(), 2)
                 print("Average cross-validation {}: {}%.".format(cross_val_params["cv_scoring"], avg_cross_score))
 
-    def predict(self, input_text: str) -> Dict[str, str]:
-        """Predict sentiment probabilitites for the input text.
+    def _save_model(self, env: str = "dev"):
+        if env == "dev":
+            with open(self.model_cfg["checkpoint_path"], "wb") as f:
+                pickle.dump(self.model, f)
+        elif env == "prod":
+            model_onnx = to_onnx(self.model, self.train_sample)
 
-        :param input_text: input text
-        :return: dictionary mapping class names to predicted probabilities
-        """
-        prediction = self.model.predict_proba([input_text]).squeeze().round(self.cfg["inference"]["round_prob"])
-        response_dict: Dict[str, str] = dict(zip(self.class_names, map(str, prediction.tolist())))
+            with open(self.model_cfg["path_to_model"], "wb") as f:
+                f.write(model_onnx.SerializeToString())
+        else:
+            raise ValueError(f"Unknown env passed: expected one of ('dev', 'prod'), given: {env}")
 
-        return response_dict
-
-    def save(self, path: Optional[str] = None) -> None:
+    def save(self) -> None:
         """Save model.
 
         :param path: save path, defaults to None
         """
-        # TODO: replace with saving to MlFlow registry
-        path_to_saved_model = cast(str, self.cfg["path_to_model"] or path)
 
-        with open(path_to_saved_model, "wb") as f:
-            pickle.dump(self.model, f)
+        self._save_model("dev")
+        self._save_model("prod")
 
-    def load(self, path: Optional[str] = None) -> None:
+    def load(self) -> None:
         """Load model checkpoint.
 
         :param path: checkpoint path, defaults to None
         """
-        path_to_saved_model = cast(str, self.cfg["path_to_model"] or path)
 
-        # TODO: replace with loading from MlFlow registry
-        with open(path_to_saved_model, "rb") as f:
+        with open(self.cfg["model_checkpoint"], "rb") as f:
             self.model = pickle.load(f)
 
     def _initialize_model(self, cfg: Dict[str, Any]) -> Pipeline:

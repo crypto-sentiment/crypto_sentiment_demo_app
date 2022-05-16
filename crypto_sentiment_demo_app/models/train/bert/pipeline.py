@@ -6,26 +6,24 @@ from datasets import load_metric
 from pytorch_lightning import Callback
 from torch import Tensor
 from transformers import get_scheduler
+from transformers.modeling_outputs import SequenceClassifierOutput
 
-from .utils import build_object
+from crypto_sentiment_demo_app.models.utils import build_object
 
 
 class SentimentPipeline(pl.LightningModule):
-    """Sentiment classification pipeline.
-
-    :param cfg: model config.
-    """
+    """Class for training text classification models"""
 
     def __init__(self, cfg: Dict[str, Any]):
-        """Init pipeline."""
         super().__init__()
 
         self.cfg = cfg
         self.model = build_object(cfg["model"], is_hugging_face=True)
         self.metric = load_metric("accuracy")
 
+        self.tokenizer = build_object(cfg["tokenizer"], is_hugging_face=True)
+
     def configure_optimizers(self):
-        """Setup optimizers and schedulers."""
         optimizer = build_object(self.cfg["optimizer"], params=self.model.parameters())
 
         lr_scheduler = get_scheduler(
@@ -43,17 +41,16 @@ class SentimentPipeline(pl.LightningModule):
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
     def forward(self, batch: Dict[str, Tensor]):
-        """Forward pass."""
-        return self.model(**batch)
+        encodings = self.tokenizer(batch["news"], **self.cfg["tokenizer"]["call_params"])
+
+        item = {key: val.to(self.device) for key, val in encodings.items()}
+        item["labels"] = batch["labels"]
+
+        return self.model(**item)
 
     def training_step(self, batch: Dict[str, Tensor], batch_idx: int) -> Tensor:
-        """Train step.
 
-        :param batch: dict with data and labels
-        :param batch_idx: batch index
-        :return: batch loss
-        """
-        outputs = self.model(**batch)
+        outputs: SequenceClassifierOutput = self.forward(batch)
 
         logits = outputs.logits
         predictions = torch.argmax(logits, dim=-1)
@@ -80,13 +77,9 @@ class SentimentPipeline(pl.LightningModule):
         return outputs.loss
 
     def validation_step(self, batch: Dict[str, Tensor], batch_idx: int) -> None:
-        """Validation step.
 
-        :param batch: dict with data and labels
-        :param batch_idx: batch index
-        """
         with torch.no_grad():
-            outputs = self.model(**batch)
+            outputs = self.forward(batch)
 
         logits = outputs.logits
         predictions = torch.argmax(logits, dim=-1)
@@ -112,8 +105,6 @@ class SentimentPipeline(pl.LightningModule):
 
 
 class MetricTracker(Callback):
-    """Callback to keep losses and metrics."""
-
     def __init__(self):
         self.collection = {
             "train_loss": [],
