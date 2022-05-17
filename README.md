@@ -33,7 +33,7 @@ To launch the whole application:
  - place data in the data folder. Specify the path to the data in the config (path_to_data key). This will be replaced with reading from a database.
  - make sure that other services are stopped: `docker compose stop` and `docker compose rm`.
  - run `USER=$(id -u) GROUP=$(id -g) docker compose -f docker-compose.yml --profile train up --build`. Model checkpoint will be saved with the path specified with checkpoint_path key in the model config. Onnx model will be saved with the path specified with path_to_model key in the model config.
- - if you would like to train a model while other services are running add `-d` option: `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up --build -d`
+ - if you would like to train a model while other services are running add `-d` option: `USER=$(id -u) GROUP=$(id -g) docker compose -f docker-compose.yml --profile train up --build -d`
 
  Using gpu to train a model:
  - enable gpu access with compose: `https://docs.docker.com/compose/gpu-support/`
