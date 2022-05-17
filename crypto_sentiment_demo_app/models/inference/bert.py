@@ -9,6 +9,12 @@ from crypto_sentiment_demo_app.models.utils import build_object
 from .base import IModelInference, InferenceRegistry
 
 
+def log_sum_exp_softmax(x: np.ndarray) -> np.ndarray:
+    c = np.max(x)
+
+    return np.exp(x - np.log(np.exp(x - c).sum()) - c)
+
+
 @InferenceRegistry.register("bert")
 class BertInference(IModelInference):
     """Bert inference model.
@@ -40,7 +46,7 @@ class BertInference(IModelInference):
 
         outputs = self.session.run(output_names=["logits"], input_feed=dict(inputs))[0].squeeze()
 
-        predicted_probs = np.exp(outputs) / np.sum(np.exp(outputs), axis=0)
+        predicted_probs = log_sum_exp_softmax(outputs)
 
         response_dict = dict(zip(self.class_names, map(str, predicted_probs.tolist())))
 
