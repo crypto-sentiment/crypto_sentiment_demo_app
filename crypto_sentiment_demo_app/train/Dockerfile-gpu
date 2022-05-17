@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.3.1-base-ubuntu20.04
+FROM nvidia/cuda:11.3.1-devel-ubuntu20.04
 
 WORKDIR /root
 
@@ -6,15 +6,11 @@ WORKDIR /root
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# RUN rm /etc/apt/sources.list.d/cuda.list
-
 ENV CUDA_LIST=/etc/apt/sources.list.d/cuda.list
 ENV NVIDIA_ML_LIST=/etc/apt/sources.list.d/nvidia-ml.list
 
-RUN if [test -f ${CUDA_LIST}] ; then rm CUDA_LIST ; fi
-RUN if [test -f ${NVIDIA_ML_LIST}] ; then rm NVIDIA_ML_LIST ; fi
-
-# RUN rm /etc/apt/sources.list.d/nvidia-ml.list
+RUN if test -f $CUDA_LIST ; then rm $CUDA_LIST ; fi
+RUN if test -f $NVIDIA_ML_LIST ; then rm $NVIDIA_ML_LIST ; fi
 
 # Install some basic utilities
 RUN apt-get update && apt-get install -y \
@@ -26,8 +22,7 @@ RUN apt-get update && apt-get install -y \
     libx11-6 \
     ffmpeg \
     libsm6 \
-    libxext6 \
-    && rm -rf /var/lib/apt/lists/*
+    libxext6
 
 ARG USER_ID
 ARG GROUP_ID
@@ -43,18 +38,16 @@ USER user
 ENV HOME=/home/user
 RUN chmod 777 /home/user
 
-COPY environment.yml /root
-# Set up the Conda environment
-ENV CONDA_AUTO_UPDATE_CONDA=false \
-    PATH=/home/user/miniconda/bin:$PATH
+# Install python
+RUN sudo apt update \
+    && sudo apt install software-properties-common -y \
+    && sudo add-apt-repository ppa:deadsnakes/ppa -y \
+    && sudo apt install python3.9 -y \
+    && sudo update-alternatives --install /usr/bin/python3 python /usr/bin/python3.9 10 \
+    && sudo apt install python3-pip -y \
+    && sudo rm -rf /var/lib/apt/lists/*
 
-
-RUN curl -sLo ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py39_4.10.3-Linux-x86_64.sh \
-    && chmod +x ~/miniconda.sh \
-    && ~/miniconda.sh -b -p ~/miniconda \
-    && rm ~/miniconda.sh \
-    && conda env update -n base -f /root/environment.yml \
-    && rm /root/environment.yml \
-    && conda clean -ya
+COPY requirements-gpu.txt /root
+RUN pip install -r requirements-gpu.txt --no-cache-dir
 
 ENV PYTHONPATH "${PYTHONPATH}:/root/crypto_sentiment_demo_app"

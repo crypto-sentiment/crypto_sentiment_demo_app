@@ -102,7 +102,7 @@ class Bert(IModelTrain):
         # That hack is applied because there is no easy way to export huggingface model from the code
         subprocess.call(
             [
-                "python",
+                "python3",
                 "-m",
                 "transformers.onnx",
                 "--feature",

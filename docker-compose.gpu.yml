@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  train:
+    build:
+      dockerfile: Dockerfile-gpu
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
