@@ -25,20 +25,19 @@ To launch the whole application:
  - install [`docker`](https://docs.docker.com/engine/install/ubuntu/) and [`docker-compose`](https://docs.docker.com/compose/install/). Tested with Docker version 20.10.14 and docker-compose v2.4.1 (make sure it's docker-compose v2 not v1, I had to add the path to docker-compose to the PATH env variable: `export PATH=/usr/libexec/docker/cli-plugins/:$PATH`);
  - add a DB connection string `postgresql://<user>:<pwd>@<host>:<port>/<database>` to the `db_connection.ini` file (for the exact connection string, refer to [this](https://www.notion.so/d8eaed6d640640e59704771f6b12b603) Notion page, limited to project contributors);
  - put the model pickle file into `static/models` (later this will be superseded by MLFlow registry), at the moment the model file `/artifacts/models.logit_tfidf_btc_sentiment.pkl` is stored on the Hostkey machine;
- - run `docker compose -f docker-compose.yml --profile production up --build`.
+ - run `docker compose --profile production up --build`.
  This will open a streamlit app `http://<hostname>:8501` in your browser, see a screenshot below in the [Frontend](#frontend) section.
 
  To train the model:
  - select model config in the conf/config.yaml file. Available configs can be found in the conf/models folder.
  - place data in the data folder. Specify the path to the data in the config (path_to_data key). This will be replaced with reading from a database.
  - make sure that other services are stopped: `docker compose stop` and `docker compose rm`.
- - run `USER=$(id -u) GROUP=$(id -g) docker compose -f docker-compose.yml --profile train up --build`. Model checkpoint will be saved with the path specified with checkpoint_path key in the model config. Onnx model will be saved with the path specified with path_to_model key in the model config.
- - if you would like to train a model while other services are running add `-d` option: `USER=$(id -u) GROUP=$(id -g) docker compose -f docker-compose.yml --profile train up --build -d`
+ - run `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up --build`. Model checkpoint will be saved with the path specified with checkpoint_path key in the model config. Onnx model will be saved with the path specified with path_to_model key in the model config.
+ - if you would like to train a model while other services are running add `-d` option: `USER=$(id -u) GROUP=$(id -g) docker compose --profile train up --build -d`
 
  Using gpu to train a model:
  - enable gpu access with compose: `https://docs.docker.com/compose/gpu-support/`
  - set device: cuda in model's config
- - run `USER=$(id -u) GROUP=$(id -g) docker compose -f docker-compose.yml -f docker-compose.gpu.yml --profile train up --build`
 
 ### Running the app without docker-compose
 
@@ -114,13 +113,12 @@ The model scorer service takes those title IDs from the `model_predictions` tabl
 
 Source: [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)
 
-Curently, the streamlit app looks like this:
+Curently, the React app looks like this:
 
 
 <center>
-<img src='static/img/streamlit_demo_app.png' width=500>
+<img src='static/img/react_front_app1.png' width=500>
+<img src='static/img/react_front_app2.png' width=500>
 </center>
 
-The frontend itself talks to the database to get the average `positive` score for today's news titles (this will be changed in the future).
-
-This is to be superseded by a more advanced React front end service ([Notion ticket](https://www.notion.so/a74951e4e815480584dea7d61ddce6cc?v=dbfdb1207d0e451b827d3c5041ed0cfd&p=31d73280a5d547bdb8852d3d63d73060)).
+TODO: describe how Frontend talks to the data provider service to get metrics to visualize.
