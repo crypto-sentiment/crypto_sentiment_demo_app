@@ -26,6 +26,8 @@ services:
       retries: 5
     profiles:
       - production
+    networks:
+      - model_inference
 
   model_scorer:
     image: basic_image_model_scorer
@@ -40,13 +42,16 @@ services:
       - model_inference_api
     profiles:
       - production
+    networks:
+      - model_inference
 
   frontend:
-    image: basic_image_streamlit
+    image: react_frontend_image
     build: crypto_sentiment_demo_app/frontend
-    command: streamlit run crypto_sentiment_demo_app/frontend/streamlit_app.py
+    hostname: frontend
+    command: npm start
     ports:
-      - "8501:8501"
+      - "3000:3000"
     volumes:
       - ./:/root
     depends_on:
@@ -56,6 +61,9 @@ services:
       - model_inference_api
     profiles:
       - production
+    networks:
+      - model_inference
+
 
   train:
     image: basic_image_train
@@ -70,3 +78,7 @@ services:
       - ./:/root
     profiles:
       - train
+
+networks:
+  model_inference:
+    driver: bridge

@@ -171,3 +171,4 @@ db_connection.ini
 *.onnx
 *.pkl
 *.csv
+.npm
