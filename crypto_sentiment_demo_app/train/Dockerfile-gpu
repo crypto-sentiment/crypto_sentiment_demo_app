@@ -1,0 +1,53 @@
+FROM nvidia/cuda:11.3.1-devel-ubuntu20.04
+
+WORKDIR /root
+
+# Set up time zone.
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+ENV CUDA_LIST=/etc/apt/sources.list.d/cuda.list
+ENV NVIDIA_ML_LIST=/etc/apt/sources.list.d/nvidia-ml.list
+
+RUN if test -f $CUDA_LIST ; then rm $CUDA_LIST ; fi
+RUN if test -f $NVIDIA_ML_LIST ; then rm $NVIDIA_ML_LIST ; fi
+
+# Install some basic utilities
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    sudo \
+    git \
+    bzip2 \
+    libx11-6 \
+    ffmpeg \
+    libsm6 \
+    libxext6
+
+ARG USER_ID
+ARG GROUP_ID
+
+# Create a non-root user and switch to it
+RUN addgroup --gid $GROUP_ID user
+RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID --shell /bin/bash user \
+    && chown -R user:user /root
+RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-user
+USER user
+
+# All users can use /home/user as their home directory
+ENV HOME=/home/user
+RUN chmod 777 /home/user
+
+# Install python
+RUN sudo apt update \
+    && sudo apt install software-properties-common -y \
+    && sudo add-apt-repository ppa:deadsnakes/ppa -y \
+    && sudo apt install python3.9 -y \
+    && sudo update-alternatives --install /usr/bin/python3 python /usr/bin/python3.9 10 \
+    && sudo apt install python3-pip -y \
+    && sudo rm -rf /var/lib/apt/lists/*
+
+COPY requirements-gpu.txt /root
+RUN pip install -r requirements-gpu.txt --no-cache-dir
+
+ENV PYTHONPATH "${PYTHONPATH}:/root/crypto_sentiment_demo_app"
