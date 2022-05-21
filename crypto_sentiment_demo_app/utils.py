@@ -1,14 +1,19 @@
 import logging
 import logging.config
+import os
 import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, cast
 
+import numpy as np
+from dotenv import load_dotenv
 from hydra import compose
 from omegaconf import OmegaConf
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
+
+load_dotenv()
 
 
 def get_project_root() -> Path:
@@ -63,12 +68,16 @@ def timer(name, logger):
     logger.info(f"[{name}] done in {time.time() - t0:.0f} s")
 
 
-def get_db_connection_engine() -> Engine:
+def get_db_connection_engine(
+    user: str = os.getenv("POSTGRES_USER"),
+    pwd: str = os.getenv("POSTGRES_PASSWORD"),
+    database: str = os.getenv("POSTGRES_DB"),
+    host: str = os.getenv("POSTGRES_HOST"),
+) -> Engine:
 
-    params = load_config_params()
-    with open(params["database"]["path_to_connection_param_file"]) as f:
-        conn_string = f.read().strip()
-        engine = create_engine(conn_string)
+    conn_string = f"postgresql://{user}:{pwd}@{host}/{database}"
+
+    engine = create_engine(conn_string)
 
     return engine
 
@@ -84,6 +93,15 @@ def get_model_inference_api_endpoint() -> str:
     endpoint_name = inference_api_params["endpoint_name"]
 
     return f"http://{hostname}:{port}/{endpoint_name}"
+
+
+def entropy(probs: np.ndarray) -> float:
+    """
+    Calculates classic entropy given a vector of probabilities.
+    :param probs: an array of probabilities
+    :return: float
+    """
+    return (-probs * np.log2(probs)).sum()
 
 
 if __name__ == "__main__":

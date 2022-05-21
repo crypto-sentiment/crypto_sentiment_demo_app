@@ -165,9 +165,10 @@ cython_debug/
 .local
 .bash_history
 .python_history
-db_connection.ini
+db_setup/pgadmin/
 *.pt
 *.ckpt
 *.onnx
 *.pkl
 *.csv
+.env

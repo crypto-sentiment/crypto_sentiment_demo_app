@@ -9,6 +9,7 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import IntegrityError
 
 from crypto_sentiment_demo_app.utils import (
+    entropy,
     get_db_connection_engine,
     get_model_inference_api_endpoint,
     load_config_params,
@@ -59,6 +60,8 @@ class ModelScorer:
         pred_df = pd.DataFrame(pred_dicts)
 
         pred_df["predicted_class"] = np.argmax(pred_df[self.model_classes].values, axis=1)
+        # TODO: configure the active learning criterion to be configurable
+        pred_df["entropy"] = pred_df[self.model_classes].apply(entropy, axis=1)
         pred_df.set_index("title_id", inplace=True)
 
         return pred_df
