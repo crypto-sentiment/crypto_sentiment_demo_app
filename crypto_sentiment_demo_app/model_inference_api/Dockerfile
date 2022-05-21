@@ -2,9 +2,18 @@ FROM nvidia/cuda:11.3.1-base-ubuntu20.04
 
 WORKDIR /root
 
-# Set up time zone.
-ENV TZ=UTC
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt update -y && \
+    apt upgrade -y && \
+    apt install -y curl locales locales-all && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+COPY requirements.txt /root
+RUN python -m pip install --upgrade pip
+RUN pip3 install -r requirements.txt
 
 RUN rm /etc/apt/sources.list.d/cuda.list
 RUN rm /etc/apt/sources.list.d/nvidia-ml.list

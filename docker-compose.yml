@@ -64,7 +64,8 @@ services:
       args:
         USER_ID: "$USER"
         GROUP_ID: "$GROUP"
-    command: python crypto_sentiment_demo_app/train/train.py
+      dockerfile: Dockerfile-cpu
+    command: python3 crypto_sentiment_demo_app/train/train.py
     volumes:
       - ./:/root
     profiles:

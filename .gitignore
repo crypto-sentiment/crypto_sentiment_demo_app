@@ -166,4 +166,8 @@ cython_debug/
 .bash_history
 .python_history
 db_connection.ini
-static/models/*.pkl
+*.pt
+*.ckpt
+*.onnx
+*.pkl
+*.csv

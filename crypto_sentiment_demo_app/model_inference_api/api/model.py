@@ -4,7 +4,10 @@ from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, status
 
-from crypto_sentiment_demo_app.models import ModelEngine, ModelsRegistry
+from crypto_sentiment_demo_app.models.inference import (
+    IModelInference,
+    InferenceRegistry,
+)
 from crypto_sentiment_demo_app.utils import get_logger, load_config_params
 
 from .news import News
@@ -12,7 +15,7 @@ from .news import News
 logger = get_logger(Path(__file__).name)
 
 
-def load_model(params: Dict[str, Any]) -> ModelEngine:
+def load_model(params: Dict[str, Any]) -> IModelInference:
     """Load model from models registry based on the passed params.
 
     :param params: config
@@ -22,16 +25,14 @@ def load_model(params: Dict[str, Any]) -> ModelEngine:
     model_choice = model_params["hydra"]["runtime"]["choices"]["model"]
     del model_params["hydra"]
 
-    model = ModelsRegistry.get_model(model_choice, model_params)
-
-    model.load()
+    model = InferenceRegistry.get_model(model_choice, model_params)
 
     return model
 
 
 params = load_config_params(return_hydra_config=True)
 
-model: ModelEngine = load_model(params)
+model: IModelInference = load_model(params)
 
 app = FastAPI()
 

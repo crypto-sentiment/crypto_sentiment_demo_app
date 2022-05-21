@@ -1,7 +1,8 @@
 name: "Tf-Idf & logreg"                       # TODO replace this with setting up MLFlow tracking
-version: 0.1.0 
+version: 0.1.0
 
-path_to_model: static/models/logit_tfidf_btc_sentiment.pkl # TODO replace this with setting up MLFlow tracking
+path_to_model: static/models/prod/logit_tfidf_btc_sentiment.onnx # TODO replace this with setting up MLFlow tracking
+checkpoint_path: static/models/dev/logit_tfidf_btc_sentiment.pkl
 tfidf: # See https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
   stop_words: english
   ngram_range: [1, 5]
@@ -16,7 +17,7 @@ logreg: # See https://scikit-learn.org/stable/modules/generated/sklearn.linear_m
   random_state: 17
   max_iter: 500
   n_jobs: 4
-  fit_intercept: false
+  fit_intercept: True
 
 cross_validation:                             # Params of cross-validation
   cv_perform_cross_val: True                  # Whether to perform cross-validation
