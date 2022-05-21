@@ -86,6 +86,18 @@ def get_model_inference_api_endpoint() -> str:
     return f"http://{hostname}:{port}/{endpoint_name}"
 
 
+def get_label_studio_endpoint(endpoint_name: str) -> str:
+
+    params = load_config_params()
+
+    label_studio_params = params["label_studio_api"]
+
+    hostname = label_studio_params["host_name"]
+    port = label_studio_params["port"]
+
+    return f"http://{hostname}:{port}/{endpoint_name}"
+
+
 if __name__ == "__main__":
     print(get_project_root().absolute())
     params = load_config_params()
