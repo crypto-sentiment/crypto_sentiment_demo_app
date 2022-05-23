@@ -72,8 +72,12 @@ services:
       - train
 
   label_studio:
-    image: heartexlabs/label-studio:latest
+    image: basic_image_label_studio
+    build: crypto_sentiment_demo_app/label_studio
+    container_name: crypto_sentiment_demo_app-label_studio
     ports:
       - "8080:8080"
+    volumes:
+      - ./:/home/crypto_sentiment_demo_app
     profiles:
       - label

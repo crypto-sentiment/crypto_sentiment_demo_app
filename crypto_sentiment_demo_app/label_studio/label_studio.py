@@ -10,11 +10,10 @@ from crypto_sentiment_demo_app.utils import get_label_studio_endpoint
 
 
 class LabelStudioProject:
-    def __init__(self, project_title: str) -> None:
-        LABEL_STUDIO_URL = os.environ.get("LABEL_STUDIO_URL")
-        self.API_KEY = os.environ.get("API_KEY")
+    def __init__(self, api_key: str, label_studio_url: str, project_title: str) -> None:
 
-        self.client = Client(url=LABEL_STUDIO_URL, api_key=self.API_KEY)
+        self.api_key = api_key
+        self.client = Client(url=label_studio_url, api_key=api_key)
 
         conn_check: Dict[str, str] = self.client.check_connection()
         if conn_check["status"] != "UP":
@@ -115,7 +114,7 @@ class LabelStudioProject:
         def delete_task(url: str):
             return requests.delete(
                 url,
-                headers={"Authorization": f"Token {self.API_KEY}", "content-Type": "application/json"},
+                headers={"Authorization": f"Token {self.api_key}", "content-Type": "application/json"},
             )
 
         list_of_urls = [get_label_studio_endpoint(f"api/tasks/{id}") for id in labeled_tasks_ids]
@@ -126,9 +125,15 @@ class LabelStudioProject:
 
         print(f"response_list: {response_list}")
 
-    def export_tasks(self, export_type: str):
+    def export_tasks(self, export_type: str) -> pd.DataFrame:
         export_tasks = self.project.export_tasks(export_type)
+
+        export_data: Dict[str, list] = {"title_id": [], "label": []}
+
+        for task in export_tasks:
+            export_data["title_id"].append(task["title_id"])
+            export_data["label"].append(task["sentiment"])
 
         self._delete_labelled_tasks()
 
-        return export_tasks
+        return pd.DataFrame(export_data)

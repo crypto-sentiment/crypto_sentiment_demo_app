@@ -32,14 +32,32 @@ def read_data_from_db() -> pd.DataFrame:
     return df
 
 
+def write_data_to_db(df: pd.DataFrame, table_name: str):
+    """
+    Writes exported samples into a table
+
+    :param df: a pandas DataFrame output by the label studio export method
+    :param table_name: table name to write data to
+    :return: None
+    """
+    sqlalchemy_engine = get_db_connection_engine()
+
+    # Write news titles to the table
+    df.to_sql(name=table_name, con=sqlalchemy_engine, if_exists="append", index=False)
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--mode", type=str, default="import", choices=["import", "export"])
 parser.add_argument("--project_title", type=str, default="Crypto Sentiment project")
+parser.add_argument("--api_key", type=str, required=True)
+parser.add_argument("--label_studio_url", type=str, required=True)
 
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    label_studio = LabelStudioProject(args.project_title)
+    label_studio = LabelStudioProject(
+        api_key=args.api_key, label_studio_url=args.label_studio_url, project_title=args.project_title
+    )
 
     if args.mode == "import":
         data = read_data_from_db()
@@ -47,24 +65,8 @@ if __name__ == "__main__":
         label_studio.import_tasks(data, model_score_column_name="model_score")
 
     elif args.mode == "export":
-        tasks = label_studio.export_tasks(export_type="JSON")
+        tasks: pd.DataFrame = label_studio.export_tasks(export_type="JSON_MIN")
 
-        print(f"tasks: {tasks[:1]}")
-
-    # if args.mode == "create":
-    #     project = create_project(ls, args.project_title)
-
-    #     import_tasks(project)
-    # elif args.mode == "append":
-    #     projects = ls.get_projects()
-
-    #     selected_project = None
-    #     for project in projects:
-    #         if project.params["title"] == args.project_title:
-    #             selected_project = project
-    #             break
-
-    #     if selected_project is None:
-    #         raise ValueError(f"Project with title: {args.title} not found! You should create it before append tasks")
-
-    #     import_tasks(selected_project)
+        # print(f"tasks: {tasks}")
+        if len(tasks) != 0:
+            write_data_to_db(tasks, "labeled_titles")
