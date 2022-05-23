@@ -42,6 +42,9 @@ services:
     depends_on:
       model_inference_api:
         condition: service_healthy
+    depends_on:
+      - crawler
+      - db
     links:
       - model_inference_api
     profiles:
@@ -93,10 +96,10 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       PGDATA: /data/postgres
     volumes:
-      - postgres:/data/postgres
+      - ./db_setup/postgres:/data/postgres
       - ./db_setup/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
     ports:
-      - "5433:5432"
+      - "8432:5432"
     profiles:
       - production
     networks:
@@ -115,7 +118,7 @@ services:
         - ./db_setup/pgadmin/:/var/lib/pgadmin
         - ./db_setup/docker_pgadmin_servers.json:/pgadmin4/servers.json
       ports:
-        - "5050:80"
+        - "8050:80"
       profiles:
         - production
       networks:

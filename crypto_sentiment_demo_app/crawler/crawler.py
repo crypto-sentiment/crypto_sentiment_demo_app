@@ -111,8 +111,8 @@ class BitcointickerCrawler:
 
         # TODO: run with crontab instead
         while 1:
-            df = self.dummy_parse()
-            # df = self.parse_bitcointicker()
+            #df = self.dummy_parse()
+            df = self.parse_bitcointicker()
 
             try:
                 self.write_news_to_db(df=df, table_name=content_table_name)
