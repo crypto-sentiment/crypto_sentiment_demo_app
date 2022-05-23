@@ -21,6 +21,12 @@ class BitcointickerCrawler:
         self.url = url
         self.sqlalchemy_engine = sqlalchemy_engine
 
+    def dummy_parse(self) -> pd.DataFrame:
+
+        df = pd.read_csv("data/bitcoin_ticker_5rows.csv", index_col="title_id")
+
+        return df
+
     def parse_bitcointicker(self) -> pd.DataFrame:
         """
         Parse 50 latest news and return a dataframe with 50 rows and columns:
@@ -105,20 +111,23 @@ class BitcointickerCrawler:
 
         # TODO: run with crontab instead
         while 1:
-            df = self.parse_bitcointicker()
+            df = self.dummy_parse()
+            # df = self.parse_bitcointicker()
 
             try:
                 self.write_news_to_db(df=df, table_name=content_table_name)
                 self.write_ids_to_db(df=df, table_name=model_pred_table_name, index_name=content_index_name)
                 print(f"Wrote {len(df)} records")  # TODO: set up logging
 
+            # TODO: fix duplicates better
+            except IntegrityError as e:
+                print(e)
+                pass
+
+            finally:
                 # There're max ~180 news per day, and the parser get's 50 at a time,
                 # so it's fine to sleep for a quarter of a day a day
                 sleep(21600)
-
-            # TODO: fix duplicates better
-            except IntegrityError:
-                pass
 
 
 def main():

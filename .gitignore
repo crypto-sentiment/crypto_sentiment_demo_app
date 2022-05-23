@@ -171,4 +171,5 @@ db_setup/pgadmin/
 *.onnx
 *.pkl
 *.csv
+!data/bitcoin_ticker_5rows.csv
 .env

@@ -74,14 +74,15 @@ class ModelScorer:
         # TODO avoid hardcoded class names
         query = text(
             f"""
-                                INSERT INTO {table_name} (title_id, negative, neutral, positive, predicted_class)
+                                INSERT INTO {table_name} (title_id, negative, neutral, positive, predicted_class, entropy)
                                 VALUES {','.join([str(i) for i in list(pred_df.to_records(index=True))])}
                                 ON CONFLICT (title_id)
                                 DO  UPDATE SET title_id=excluded.title_id,
                                                negative=excluded.negative,
                                                neutral=excluded.neutral,
                                                positive=excluded.positive,
-                                               predicted_class=excluded.predicted_class
+                                               predicted_class=excluded.predicted_class,
+                                               entropy=excluded.entropy
 
                          """
         )
