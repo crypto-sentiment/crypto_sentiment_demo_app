@@ -14,7 +14,7 @@ inference_api:
   endpoint_name: classify
 
 label_studio_api:
-  host_name: 146.0.74.25
+  host_name: label_studio_api
   port: 8080
 
 database:

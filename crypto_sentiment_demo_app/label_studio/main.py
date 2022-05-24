@@ -49,6 +49,7 @@ def write_data_to_db(df: pd.DataFrame, table_name: str):
 parser = argparse.ArgumentParser()
 parser.add_argument("--mode", type=str, default="import", choices=["import", "export"])
 parser.add_argument("--project_title", type=str, default="Crypto Sentiment project")
+parser.add_argument("--model_score_column_name", type=str, default="model_score")
 parser.add_argument("--api_key", type=str, required=True)
 parser.add_argument("--label_studio_url", type=str, required=True)
 
@@ -62,11 +63,10 @@ if __name__ == "__main__":
     if args.mode == "import":
         data = read_data_from_db()
 
-        label_studio.import_tasks(data, model_score_column_name="model_score")
+        label_studio.import_tasks(data, model_score_column_name=args.model_score_column_name)
 
     elif args.mode == "export":
         tasks: pd.DataFrame = label_studio.export_tasks(export_type="JSON_MIN")
 
-        # print(f"tasks: {tasks}")
         if len(tasks) != 0:
             write_data_to_db(tasks, "labeled_titles")

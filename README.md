@@ -132,7 +132,14 @@ Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/la
 Label Studio service allows us to annotate additional data.
 
 To launch the service:
-- run `docker compose --profile label up`. This will launch Label Studio at http://\<server-ip\>:8080/
+- run: `docker compose --profile label up`. This will launch Label Studio at http://\<server-ip\>:8080/
 - Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
-- To create new annotation project and add tasks from the model_predictions table run `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh <Access Token>`
-- To export annotated tasks from lable studio run `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh <Access Token> export`
+- To create new annotation project and add tasks from the model_predictions table run:
+
+    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -a <access_token> -p <project_name> -m import -c <model_score_column_name>`.
+
+    model_score_column_name is hardcoded like "model_score" by now. It should be defined in the model_predictions table in the future.
+- Create the table labeled_title if it doesn't exist:
+    1. `psql -U mlooops -d cryptotitles_db -W`
+    2. `create table labeled_title (title_id BIGINT PRIMARY KEY, label VARCHAR(8));`
+- To export annotated tasks from the label studio run `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -a <access_token> -p <project_name> -m export`
