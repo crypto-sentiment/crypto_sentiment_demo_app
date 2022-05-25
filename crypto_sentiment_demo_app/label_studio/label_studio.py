@@ -25,7 +25,7 @@ class LabelStudioProject:
 
         conn_check: Dict[str, str] = self.client.check_connection()
         if conn_check["status"] != "UP":
-            raise ValueError("Cannot connect to label studio, check LABEL_STUDIO_URL and API_KEY env variables.")
+            raise ValueError("Cannot connect to label studio, check label studio api key.")
 
         self.project = self._create_project(self.project_title)
 
