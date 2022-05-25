@@ -133,7 +133,7 @@ Label Studio service allows us to annotate additional data.
 
 To launch the service:
 - add a DB connection string `postgresql://<user>:<pwd>@<host>:<port>/<database>` to the `db_connection.ini` file (for the exact connection string, refer to [this](https://www.notion.so/d8eaed6d640640e59704771f6b12b603) Notion page, limited to project contributors);
-- run: `docker compose --profile label up`. This will launch Label Studio at http://\<server-ip\>:8080/
+- run: `docker compose --profile label up --build`. This will launch Label Studio at http://\<server-ip\>:8080/
 - Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
 - To create new annotation project and add tasks from the model_predictions table run:
 
