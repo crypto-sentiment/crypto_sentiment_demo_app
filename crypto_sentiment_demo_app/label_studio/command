@@ -1,5 +1,0 @@
-API_KEY=95abd6e7abdd559612fca2986b16364298cdbbb5 LABEL_STUDIO_URL=http://127.0.0.1:8080/ python3 /home/crypto_sentiment_demo_app/label_studio/main.py --mode import
-
-
-
-ALTER TABLE labeled_titles ALTER COLUMN column_name TYPE VARCHAR(511);
