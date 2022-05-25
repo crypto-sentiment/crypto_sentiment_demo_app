@@ -22,11 +22,6 @@ while getopts ":a:p:m:c:" opt; do
     esac
 done
 
-printf "Argument api_key is %s\n" "$api_key"
-printf "Argument project_name is %s\n" "$project_name"
-printf "Argument mode is %s\n" "$mode"
-printf "Argument model_score_column_name is %s\n" "$model_score_column_name"
-
 docker exec -w /home/crypto_sentiment_demo_app crypto_sentiment_demo_app-label_studio \
     python3 crypto_sentiment_demo_app/label_studio/main.py \
     --mode "$mode" \
