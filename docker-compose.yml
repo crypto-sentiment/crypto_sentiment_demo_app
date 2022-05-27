@@ -156,6 +156,8 @@ networks:
     driver: bridge
   model_inference:
     driver: bridge
+  data_provider:
+    driver: bridge
 
 volumes:
   postgres:
