@@ -9,6 +9,7 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import IntegrityError
 
 from crypto_sentiment_demo_app.utils import (
+    entropy,
     get_db_connection_engine,
     get_model_inference_api_endpoint,
     load_config_params,
@@ -59,6 +60,8 @@ class ModelScorer:
         pred_df = pd.DataFrame(pred_dicts)
 
         pred_df["predicted_class"] = np.argmax(pred_df[self.model_classes].values, axis=1)
+        # TODO: configure the active learning criterion to be configurable
+        pred_df["entropy"] = pred_df[self.model_classes].apply(entropy, axis=1)
         pred_df.set_index("title_id", inplace=True)
 
         return pred_df
@@ -71,14 +74,15 @@ class ModelScorer:
         # TODO avoid hardcoded class names
         query = text(
             f"""
-                                INSERT INTO {table_name} (title_id, negative, neutral, positive, predicted_class)
+                                INSERT INTO {table_name} (title_id, negative, neutral, positive, predicted_class, entropy)
                                 VALUES {','.join([str(i) for i in list(pred_df.to_records(index=True))])}
                                 ON CONFLICT (title_id)
                                 DO  UPDATE SET title_id=excluded.title_id,
                                                negative=excluded.negative,
                                                neutral=excluded.neutral,
                                                positive=excluded.positive,
-                                               predicted_class=excluded.predicted_class
+                                               predicted_class=excluded.predicted_class,
+                                               entropy=excluded.entropy
 
                          """
         )
@@ -97,13 +101,15 @@ class ModelScorer:
                     self.write_preds_to_db(pred_df)
                     print(f"Wrote predictions for {len(df)} records into model_predictions.")  # TODO: set up logging
 
+            # TODO: fix duplicates better
+            except IntegrityError as e:
+                print(e)
+                pass
+
+            finally:
                 # There're max ~180 news per day, and the parser get's 50 at a time,
                 # so it's fine to sleep for a quarter of a day a day
                 sleep(21600)
-
-            # TODO: fix duplicates better
-            except IntegrityError:
-                pass
 
 
 def main():
