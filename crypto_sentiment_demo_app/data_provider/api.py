@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi_health import health
+from typing import Optional
 
 from crypto_sentiment_demo_app.data_provider.db_connector import DBConnection
 from crypto_sentiment_demo_app.data_provider.schemas import (
@@ -9,6 +11,7 @@ from crypto_sentiment_demo_app.data_provider.schemas import (
 
 db = DBConnection()
 app = FastAPI()
+app.add_api_route("/health", health([db.is_connection_alive]))
 
 
 @app.on_event("shutdown")
@@ -28,6 +31,7 @@ async def avg_positive_per_days(start_date: str = "2022-05-01", end_date: str = 
     """
     Returns average per day positive score for news from
     (start_date <= news_publication_date <= end_date) period.
+    Date format: %yyyy%-%mm%-%dd%.
     """
     result = db.calc_avg_per_day_positive_model_predictions(start_date, end_date)
     return result
@@ -38,13 +42,18 @@ async def avg_positive_for_period(start_date: str = "2022-05-01", end_date: str 
     """
     Returns average positive score for news from
     (start_date <= news_publication_date <= end_date) period.
+    Date format: %yyyy%-%mm%-%dd%.
     """
     result = db.calc_avg_for_period_positive_model_predictions(start_date, end_date)
     return result
 
 
 @app.get("/news/top_k_news_titles", response_model=NewsTitles)
-async def top_k_news_titles(k: int = 10):
-    """Returns top-k latest model scored news."""
-    result = db.get_top_k_news_titles(k)
+async def top_k_news_titles(k: int = 10, class_name: Optional[str] = None):
+    """
+    Returns top-k latest model scored news filtered by class.
+    Class name can be "positive", "neutral", "negative".
+    If class_name is not specified the filter won't be applied.
+    """
+    result = db.get_top_k_news_titles(k, class_name)
     return result

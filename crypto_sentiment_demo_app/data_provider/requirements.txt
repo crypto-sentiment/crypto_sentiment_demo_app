@@ -1,4 +1,6 @@
 fastapi >= 0.75.1
+fastapi_health >= 0.4.0
+pydantic >= 1.9.0
 PyYAML >= 5.3.1
 SQLAlchemy >= 1.4.36
 uvicorn >= 0.17.6

@@ -68,7 +68,9 @@ def get_db_connection_engine() -> Engine:
     params = load_config_params()
     with open(params["database"]["path_to_connection_param_file"]) as f:
         conn_string = f.read().strip()
-        engine = create_engine(conn_string)
+        engine = create_engine(
+            conn_string, connect_args={'connect_timeout': 10}
+        )
 
     return engine
 

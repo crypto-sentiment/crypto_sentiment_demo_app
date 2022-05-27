@@ -1,5 +1,6 @@
 import datetime
 from typing import List
+from enum import Enum
 
 from pydantic import BaseModel
 
@@ -26,3 +27,9 @@ class AveragePerDayPositiveScore(BaseModel):
 
 class AveragePerDaysPositiveScore(BaseModel):
     __root__: List[AveragePerDayPositiveScore]
+
+
+class ClassesMapping(Enum):
+    negative = 0
+    neutral = 1
+    positive = 2
