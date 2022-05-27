@@ -7,16 +7,31 @@ services:
     command: python3 -m crypto_sentiment_demo_app.crawler.crawler
     volumes:
       - ./:/root
+    profiles:
+      - production
+    depends_on:
+      - db
+    networks:
+      - postgres
 
   model_inference_api:
     image: basic_image_model_fast_api
     build: crypto_sentiment_demo_app/model_inference_api
-    command: uvicorn crypto_sentiment_demo_app.model_inference_api.api:app --host model_inference_api --port 8001 --reload
+    command: uvicorn crypto_sentiment_demo_app.model_inference_api.api.model:app --host model_inference_api --port 8001 --reload
     volumes:
       - ./:/root
     ports:
       - "8001:8001"
     hostname: model_inference_api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://model_inference_api:8001/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - production
+    networks:
+      - model_inference
 
   model_scorer:
     image: basic_image_model_scorer
@@ -25,19 +40,124 @@ services:
     volumes:
       - ./:/root
     depends_on:
-      - model_inference_api
+      model_inference_api:
+        condition: service_healthy
+    depends_on:
+      - crawler
+      - db
     links:
       - model_inference_api
+    profiles:
+      - production
+    networks:
+      - model_inference
+      - postgres
+
+  data_provider:
+    image: basic_image_data_provider
+    build: crypto_sentiment_demo_app/data_provider
+    command: uvicorn crypto_sentiment_demo_app.data_provider.api:app --host data_provider --port 8002 --reload
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./:/root
+    hostname: data_provider
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://data_provider:8002/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - production
+    networks:
+      - data_provider
+      - postgres
 
   frontend:
-      image: basic_image_streamlit
-      build: crypto_sentiment_demo_app/frontend
-      command: streamlit run crypto_sentiment_demo_app/frontend/streamlit_app.py
-      ports:
-        - "8501:8501"
+    image: basic_image_streamlit
+    build: crypto_sentiment_demo_app/frontend
+    command: streamlit run crypto_sentiment_demo_app/frontend/streamlit_app.py
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./:/root
+    depends_on:
+      model_inference_api:
+        condition: service_healthy
+      data_provider:
+        condition: service_healthy
+    links:
+      - model_inference_api
+      - data_provider
+    profiles:
+      - production
+    networks:
+      - model_inference
+      - data_provider
+
+  train:
+    image: basic_image_train
+    build:
+      context: crypto_sentiment_demo_app/train
+      args:
+        USER_ID: "$USER"
+        GROUP_ID: "$GROUP"
+      dockerfile: Dockerfile-cpu
+    command: python3 crypto_sentiment_demo_app/train/train.py
+    volumes:
+      - ./:/root
+    profiles:
+      - train
+
+  db:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /data/postgres
+    volumes:
+      - ./db_setup/postgres:/data/postgres
+      - ./db_setup/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    ports:
+      - "8432:5432"
+    profiles:
+      - production
+    networks:
+      - postgres
+
+  pgadmin:
+      container_name: pgadmin
+      image: dpage/pgadmin4
+      restart: always
+      environment:
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+        PGADMIN_CONFIG_SERVER_MODE: "False"
+        PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
       volumes:
-        - ./:/root
-      depends_on:
-        - model_inference_api
-      links:
-        - model_inference_api
+        - ./db_setup/pgadmin/:/var/lib/pgadmin
+        - ./db_setup/docker_pgadmin_servers.json:/pgadmin4/servers.json
+      ports:
+        - "8050:80"
+      profiles:
+        - production
+      networks:
+        - postgres
+      entrypoint:
+        - "/bin/sh"
+        - "-c"
+        - "/bin/echo 'postgres:5432:*:${POSTGRES_USER}:${POSTGRES_PASSWORD}' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
+
+networks:
+  postgres:
+    driver: bridge
+  model_inference:
+    driver: bridge
+  data_provider:
+    driver: bridge
+
+volumes:
+  postgres:

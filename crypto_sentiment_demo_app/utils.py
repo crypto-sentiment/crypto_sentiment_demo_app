@@ -1,13 +1,19 @@
 import logging
 import logging.config
+import os
 import time
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
-import yaml
+import numpy as np
+from dotenv import load_dotenv
+from hydra import compose
+from omegaconf import OmegaConf
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
+
+load_dotenv()
 
 
 def get_project_root() -> Path:
@@ -19,16 +25,15 @@ def get_project_root() -> Path:
     return Path(__file__).parent.parent
 
 
-def load_config_params() -> Dict[str, Any]:
+def load_config_params(return_hydra_config: bool = False) -> Dict[str, Any]:
     """
     Loads global project configuration params defined in the `config.yaml` file.
 
     :return: a nested dictionary corresponding to the `config.yaml` file.
     """
-    project_root: Path = get_project_root()
-    with open(project_root / "config.yml") as f:
-        params: Dict[str, Any] = yaml.load(f, Loader=yaml.FullLoader)
-    return params
+    cfg = compose(config_name="config", return_hydra_config=return_hydra_config)
+
+    return cast(Dict[str, Any], OmegaConf.to_container(cfg))
 
 
 def tag_question_mark(string):
@@ -46,7 +51,7 @@ def get_logger(name) -> logging.Logger:
     """
 
     params = load_config_params()
-    log_config = params["logging"]
+    log_config = params["logger"]
     logging.config.dictConfig(config=log_config)
 
     return logging.getLogger(name)
@@ -70,12 +75,16 @@ def timer(name, logger):
     logger.info(f"[{name}] done in {time.time() - t0:.0f} s")
 
 
-def get_db_connection_engine() -> Engine:
+def get_db_connection_engine(
+    user: str = os.getenv("POSTGRES_USER"),
+    pwd: str = os.getenv("POSTGRES_PASSWORD"),
+    database: str = os.getenv("POSTGRES_DB"),
+    host: str = os.getenv("POSTGRES_HOST"),
+) -> Engine:
 
-    params = load_config_params()
-    with open(params["database"]["path_to_connection_param_file"]) as f:
-        conn_string = f.read().strip()
-        engine = create_engine(conn_string)
+    conn_string = f"postgresql://{user}:{pwd}@{host}/{database}"
+
+    engine = create_engine(conn_string)
 
     return engine
 
@@ -83,11 +92,23 @@ def get_db_connection_engine() -> Engine:
 def get_model_inference_api_endpoint() -> str:
 
     params = load_config_params()
-    hostname = params["model"]["inference_api_host_name"]
-    port = params["model"]["inference_api_port"]
-    endpoint_name = params["model"]["inference_api_endpoint_name"]
+
+    inference_api_params = params["inference_api"]
+
+    hostname = inference_api_params["host_name"]
+    port = inference_api_params["port"]
+    endpoint_name = inference_api_params["endpoint_name"]
 
     return f"http://{hostname}:{port}/{endpoint_name}"
+
+
+def entropy(probs: np.ndarray) -> float:
+    """
+    Calculates classic entropy given a vector of probabilities.
+    :param probs: an array of probabilities
+    :return: float
+    """
+    return (-probs * np.log2(probs)).sum()
 
 
 if __name__ == "__main__":

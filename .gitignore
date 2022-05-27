@@ -165,5 +165,12 @@ cython_debug/
 .local
 .bash_history
 .python_history
-db_connection.ini
-static/models/*.pkl
+db_setup/pgadmin/
+db_setup/postgres/
+*.pt
+*.ckpt
+*.onnx
+*.pkl
+*.csv
+!data/bitcoin_ticker_5rows.csv
+.env
