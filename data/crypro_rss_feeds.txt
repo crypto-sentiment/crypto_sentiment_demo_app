@@ -1,4 +1,3 @@
-﻿Feeds
 https://cointelegraph.com/feed
 https://www.newsbtc.com/feed/
 https://blog.coinbase.com/feed

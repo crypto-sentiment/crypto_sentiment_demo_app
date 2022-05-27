@@ -1,14 +1,13 @@
 from time import sleep
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import feedparser
 import langid
 import pandas as pd
-
-# import spacy
 from mmh3 import hash as mmh3_hash
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import IntegrityError
+from tqdm import tqdm
 
 from crypto_sentiment_demo_app.utils import (
     get_db_connection_engine,
@@ -17,47 +16,34 @@ from crypto_sentiment_demo_app.utils import (
 )
 
 
-class BitcointickerCrawler:
-    def __init__(self, sqlalchemy_engine: Engine, url: str):
+class Crawler:
+    def __init__(self, sqlalchemy_engine: Engine, path_to_rss_feeds: str):
         """
         :param sqlalchemy_engine: SQLAlchemy engine to connect to a database
-        :param url: URL to scrape, this crawler only works with "https://bitcointicker.co/news/"
+        :param path_to_rss_feeds: path to a file with a list of RSS feeds to parse
         """
-        self.url = url
         self.sqlalchemy_engine = sqlalchemy_engine
+        self.path_to_rss_feeds = path_to_rss_feeds
 
-    def dummy_parse(self) -> pd.DataFrame:
-
-        df = pd.read_csv("data/bitcoin_ticker_5rows.csv", index_col="title_id")
-
-        return df
-
-    def parse_bitcointicker(self) -> pd.DataFrame:
-        """
-        Parse 50 latest news and return a dataframe with 50 rows and columns:
-        title_id, title, source, pub_time (these are hardcoded).
-        """
-
-        urls = pd.read_csv(
-            r"C:\Users\60118610\git\NLP_crypto\crypto_sentiment_demo_app\crypto_sentiment_demo_app\crawler\Crypto_feeds.csv"
-        )
-        feeds = [feedparser.parse(url)["entries"] for url in list(urls.Feeds)]
-        # convert json to dataframe
+    def parse_rss_feeds(self) -> pd.DataFrame:
+        urls = self.__get_rss_urls(path_to_rss_feed_list=self.path_to_rss_feeds)
         ids, parsed_titles, sources, pub_times = [], [], [], []
-        for k in feeds:
-            for j in range(len(k)):
+
+        for url in tqdm(urls, total=len(urls)):
+            feed: List[feedparser.util.FeedParserDict] = feedparser.parse(url)["entries"]
+            for title_metadata in feed:
                 # add only eng titles and without question marks
-                if (langid.classify(k[j].title)[0] == "en") & (tag_question_mark(k[j].title)):
-                    parsed_titles.append(k[j].title)
-                    ids.append(mmh3_hash(k[j].title, seed=17))
-                    if "summary_detail" in k[j].keys():
-                        sources.append(k[j].summary_detail["base"])
+                if (langid.classify(title_metadata.title)[0] == "en") & (tag_question_mark(title_metadata.title)):
+                    parsed_titles.append(title_metadata.title)
+                    ids.append(mmh3_hash(title_metadata.title, seed=17))
+                    if "summary_detail" in title_metadata.keys():
+                        sources.append(title_metadata.summary_detail["base"])
                     else:
-                        sources.append(k[j].title_detail["base"])
-                    if "published" in k[j].keys():
-                        pub_times.append(k[j].published)
+                        sources.append(title_metadata.title_detail["base"])
+                    if "published" in title_metadata.keys():
+                        pub_times.append(title_metadata.published)
                     else:
-                        pub_times.append(k[j].pubDate)
+                        pub_times.append(None)
 
         df = pd.DataFrame(
             {
@@ -72,8 +58,14 @@ class BitcointickerCrawler:
 
         df.set_index("title_id", inplace=True)
 
-        print(df)
+        print(df.head())
         return df
+
+    @staticmethod
+    def __get_rss_urls(path_to_rss_feed_list: str) -> List[str]:
+        with open(path_to_rss_feed_list) as f:
+            urls = [line.strip() for line in f.readlines()]
+        return urls
 
     def write_news_to_db(self, df: pd.DataFrame, table_name: str):
         """
@@ -89,10 +81,10 @@ class BitcointickerCrawler:
 
     def write_ids_to_db(self, df: pd.DataFrame, index_name: str, table_name: str):
         """
-        Writes news IDs into a table for model predictions to be furtherpicked up by the
+        Writes news IDs into a table for model predictions to be further picked up by the
         `model_scorer` service.
 
-        :param df: a pandas DataFrame output by the `parse_bitcointicker` method
+        :param df: a pandas DataFrame output by the `parse_rss_feeds` method
         :param index_name: index name of a table to write data to
         :param table_name: table name to write IDs to
         :return: None
@@ -119,8 +111,7 @@ class BitcointickerCrawler:
 
         # TODO: run with crontab instead
         while 1:
-            # df = self.dummy_parse()
-            df = self.parse_bitcointicker()
+            df = self.parse_rss_feeds()
 
             try:
                 self.write_news_to_db(df=df, table_name=content_table_name)
@@ -131,15 +122,13 @@ class BitcointickerCrawler:
                 )
                 print(f"Wrote {len(df)} records")  # TODO: set up logging
 
-            # TODO: fix duplicates better
-            except IntegrityError as e:
-                print(e)
-                pass
-
-            finally:
                 # There're max ~180 news per day, and the parser get's 50 at a time,
                 # so it's fine to sleep for a quarter of a day a day
                 sleep(21600)
+
+            # TODO: fix duplicates better
+            except IntegrityError:
+                pass
 
 
 def main():
@@ -152,7 +141,10 @@ def main():
     params: Dict[str, Any] = load_config_params()
 
     engine = get_db_connection_engine()
-    crawler = BitcointickerCrawler(sqlalchemy_engine=engine, url=params["crawler"]["url"])
+    crawler = Crawler(
+        sqlalchemy_engine=engine,
+        path_to_rss_feeds=params["crawler"]["path_to_feeds_list"],
+    )
 
     # run crawler specifying database params to write content to
     crawler.run(

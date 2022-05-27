@@ -4,6 +4,7 @@ data:
 
 crawler:
   url: "https://bitcointicker.co/news/"
+  path_to_feeds_list: data/crypto_rss_feeds.txt
 
 model:                                          # Params of the model defined in src/model.py
   name: "Tf-Idf & logreg"                       # TODO replace this with setting up MLFlow tracking
