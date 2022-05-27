@@ -170,7 +170,3 @@ class DBConnection:
             pub_date_col.between(start_date, end_date))
         return self._execute_and_fetchall(query)[0][0]
 
-
-if __name__ == '__main__':
-    db_conn = DBConnection()
-    print(db_conn.get_top_k_news_titles(10))
