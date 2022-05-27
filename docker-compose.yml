@@ -53,6 +53,26 @@ services:
       - model_inference
       - postgres
 
+  data_provider:
+    image: basic_image_data_provider
+    build: crypto_sentiment_demo_app/data_provider
+    command: uvicorn crypto_sentiment_demo_app.data_provider.api:app --host data_provider --port 8002 --reload
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./:/root
+    hostname: data_provider
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://data_provider:8002/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - production
+    networks:
+      - data_provider
+      - postgres
+
   frontend:
     image: basic_image_streamlit
     build: crypto_sentiment_demo_app/frontend
@@ -64,13 +84,16 @@ services:
     depends_on:
       model_inference_api:
         condition: service_healthy
+      data_provider:
+        condition: service_healthy
     links:
       - model_inference_api
+      - data_provider
     profiles:
       - production
     networks:
       - model_inference
-      - postgres
+      - data_provider
 
   train:
     image: basic_image_train
@@ -132,6 +155,8 @@ networks:
   postgres:
     driver: bridge
   model_inference:
+    driver: bridge
+  data_provider:
     driver: bridge
 
 volumes:

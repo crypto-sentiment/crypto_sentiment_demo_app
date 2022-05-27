@@ -99,7 +99,12 @@ class BitcointickerCrawler:
         df[index_name] = df.index
         df[index_name].to_sql(name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=False)
 
-    def run(self, content_index_name: str, content_table_name: str, model_pred_table_name: str):
+    def run(
+        self,
+        content_index_name: str,
+        content_table_name: str,
+        model_pred_table_name: str,
+    ):
         """
         Runs the crawler
 
@@ -116,7 +121,11 @@ class BitcointickerCrawler:
 
             try:
                 self.write_news_to_db(df=df, table_name=content_table_name)
-                self.write_ids_to_db(df=df, table_name=model_pred_table_name, index_name=content_index_name)
+                self.write_ids_to_db(
+                    df=df,
+                    table_name=model_pred_table_name,
+                    index_name=content_index_name,
+                )
                 print(f"Wrote {len(df)} records")  # TODO: set up logging
 
             # TODO: fix duplicates better

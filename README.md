@@ -12,9 +12,12 @@ The general idea of the workflow is the following (__bolded__ verbs below corres
 - `Crawler` periodically __scrapes__ 50 latest news from [https://bitcointicker.co/news/](https://bitcointicker.co/news/) and __writes__ this data to the `Database`;
 - `ML model API` service hosts the ML model inference API (model training is not covered here);
 - the `Model Scorer` service periodically __reads__ those news titles from the `Database` that lack model predictions, __invokes__ `ML model API` for these fresh titles and __writes__ the result to the `Database`;
-- `Frontend` __reads__ a metric (average sentiment score for all news titles for the current date) from the `Database` and visualizes it as a barometer. Also, users __interact__ with `Frontend` by inserting news titles (i.e. free text), for which `Frontend` __invokes__ `ML model API` to show predictions for the corresponding user-input news titles.
+- `Data Provider` service __reads__ news titles from the `Database` with its model predictions and provides it to `Frontend` via API;
+- `Frontend` __reads__ a metric (average sentiment score for all news titles for the last 24 hours) from the `Data Provider` and visualizes it as a barometer. Also, users __interact__ with `Frontend` by inserting news titles (i.e. free text), for which `Frontend` __invokes__ `ML model API` to show predictions for the corresponding user-input news titles.
 
 ## Running the app
+
+### Running the app with docker-compose
 
 All components except for the database are packed together and managed by `docker-compose`. See [`docker-compose.yml`](docker-compose.yml) which lists all services and associated commands. At the moment, the database is spun up separately, manually.
 
@@ -48,6 +51,7 @@ The app includes prototypes of the following components:
 - primitive crawler: see [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/);
 - model API endpoint: see [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/);
 - model scoring the news: see [`crypto_sentiment_demo_app/model_scorer/`](crypto_sentiment_demo_app/model_scorer/);
+- data provider: see [`crypto_sentiment_demo_app/data_provider/`](crypto_sentiment_demo_app/data_provider/);
 - primitive front end: see [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/).
 
 Below, we go through each one individually.
@@ -102,6 +106,11 @@ Source: [`crypto_sentiment_demo_app/model_scorer/`](crypto_sentiment_demo_app/mo
 
 The model scorer service takes those title IDs from the `model_predictions` table that don't yet have predictions (score for `negative`, score for `neutral`, score for `positive`, and `predicted_class`) and calls the Model inference API to run the model against the corresponding titles. It then updates records in the `model_predictions` table to write model predictions into it.
 
+### Data Provider
+
+Source: [`crypto_sentiment_demo_app/data_provider/`](crypto_sentiment_demo_app/data_provider/)
+
+FastAPI service which aggregates the necessary data for our frontend from the database. Run it and check its [`documentation`](http://localhost:8002/docs) for endpoints description and examples.
 
 ### Frontend
 

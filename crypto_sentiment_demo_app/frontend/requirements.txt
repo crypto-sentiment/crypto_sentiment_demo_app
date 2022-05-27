@@ -7,4 +7,5 @@ python-dotenv >= 0.20.0
 PyYAML >= 5.3.1
 SQLAlchemy >= 1.4.36
 streamlit >= 1.8.1
+typing-extensions >= 4.2.0
 hydra-core==1.1.2
