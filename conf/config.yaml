@@ -7,6 +7,7 @@ data:
 
 crawler:
   url: "https://bitcointicker.co/news/"
+  path_to_feeds_list: data/crypto_rss_feeds.txt
 
 inference_api:
   host_name: model_inference_api

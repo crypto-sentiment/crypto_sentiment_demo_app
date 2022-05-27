@@ -1,3 +1,4 @@
+from pathlib import Path
 from time import sleep
 from typing import Any, Dict, List
 
@@ -11,9 +12,13 @@ from tqdm import tqdm
 
 from crypto_sentiment_demo_app.utils import (
     get_db_connection_engine,
+    get_logger,
+    insert_on_duplicate,
     load_config_params,
     tag_question_mark,
 )
+
+logger = get_logger(Path(__file__).name)
 
 
 class Crawler:
@@ -44,7 +49,7 @@ class Crawler:
                         pub_times.append(title_metadata.published)
                     else:
                         pub_times.append(None)
-
+            logger.info(f"Parsed feed {url}")
         df = pd.DataFrame(
             {
                 "title_id": ids,
@@ -58,7 +63,7 @@ class Crawler:
 
         df.set_index("title_id", inplace=True)
 
-        print(df.head())
+        logger.info(df.head())
         return df
 
     @staticmethod
@@ -77,7 +82,9 @@ class Crawler:
         """
 
         # Write news titles to the table
-        df.to_sql(name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=True)
+        df.to_sql(
+            name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=True, method=insert_on_duplicate
+        )
 
     def write_ids_to_db(self, df: pd.DataFrame, index_name: str, table_name: str):
         """
@@ -92,7 +99,9 @@ class Crawler:
 
         # write news title IDs to a table for predictions
         df[index_name] = df.index
-        df[index_name].to_sql(name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=False)
+        df[index_name].to_sql(
+            name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=False, method=insert_on_duplicate
+        )
 
     def run(
         self,
@@ -113,6 +122,8 @@ class Crawler:
         while 1:
             df = self.parse_rss_feeds()
 
+            logger.info(f"Crawled {len(df)} records")
+
             try:
                 self.write_news_to_db(df=df, table_name=content_table_name)
                 self.write_ids_to_db(
@@ -120,15 +131,16 @@ class Crawler:
                     table_name=model_pred_table_name,
                     index_name=content_index_name,
                 )
-                print(f"Wrote {len(df)} records")  # TODO: set up logging
+                logger.info(f"Wrote {len(df)} records")
 
+            # TODO: fix duplicates better
+            except IntegrityError as e:
+                logger.info(e)
+
+            finally:
                 # There're max ~180 news per day, and the parser get's 50 at a time,
                 # so it's fine to sleep for a quarter of a day a day
                 sleep(21600)
-
-            # TODO: fix duplicates better
-            except IntegrityError:
-                pass
 
 
 def main():
