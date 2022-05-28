@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 from hydra import compose
 from omegaconf import OmegaConf
 from sqlalchemy import create_engine
-from sqlalchemy.dialects.mysql import insert
 from sqlalchemy.engine.base import Engine
 
 load_dotenv()
@@ -110,12 +109,6 @@ def entropy(probs: np.ndarray) -> float:
     :return: float
     """
     return (-probs * np.log2(probs)).sum()
-
-
-def insert_on_duplicate(table, conn, keys, data_iter):
-    insert_stmt = insert(table.table).values(list(data_iter))
-    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(insert_stmt.inserted)
-    conn.execute(on_duplicate_key_stmt)
 
 
 if __name__ == "__main__":

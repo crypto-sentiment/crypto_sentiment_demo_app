@@ -5,16 +5,15 @@ from typing import Any, Dict, List
 import feedparser
 import langid
 import pandas as pd
+import pangres
 from mmh3 import hash as mmh3_hash
 from sqlalchemy.engine.base import Engine
-
-# from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError
 from tqdm import tqdm
 
 from crypto_sentiment_demo_app.utils import (
     get_db_connection_engine,
     get_logger,
-    insert_on_duplicate,
     load_config_params,
     tag_question_mark,
 )
@@ -50,7 +49,7 @@ class Crawler:
                         pub_times.append(title_metadata.published)
                     else:
                         pub_times.append(None)
-            logger.info(f"Parsed feed {url}")
+            logger.info(f"Parsed feed {url} with {len(feed)} records.")
         df = pd.DataFrame(
             {
                 "title_id": ids,
@@ -82,10 +81,11 @@ class Crawler:
         :return: None
         """
 
-        # Write news titles to the table
-        df.to_sql(
-            name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=True, method=insert_on_duplicate
-        )
+        # pandas `to_sql` doesn't yet support updating records ("upsert")
+        # https://github.com/pandas-dev/pandas/issues/15988
+        # hence using Pangres upsert https://github.com/ThibTrip/pangres/wiki/Upsert
+
+        pangres.upsert(df=df, con=self.sqlalchemy_engine, table_name=table_name, if_row_exists="update")
 
     def write_ids_to_db(self, df: pd.DataFrame, index_name: str, table_name: str):
         """
@@ -99,10 +99,12 @@ class Crawler:
         """
 
         # write news title IDs to a table for predictions
+        # pandas `to_sql` doesn't yet support updating records ("upsert")
+        # https://github.com/pandas-dev/pandas/issues/15988
+        # hence using Pangres upsert https://github.com/ThibTrip/pangres/wiki/Upsert
         df[index_name] = df.index
-        df[index_name].to_sql(
-            name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=False, method=insert_on_duplicate
-        )
+        # index can not be ignored, hence a workaround with an empty list of columns
+        pangres.upsert(df=df[[]], con=self.sqlalchemy_engine, table_name=table_name, if_row_exists="update")
 
     def run(
         self,
@@ -125,8 +127,7 @@ class Crawler:
 
             logger.info(f"Crawled {len(df)} records")
 
-            # try:
-            if 1:
+            try:
                 self.write_news_to_db(df=df, table_name=content_table_name)
                 self.write_ids_to_db(
                     df=df,
@@ -135,14 +136,13 @@ class Crawler:
                 )
                 logger.info(f"Wrote {len(df)} records")
 
-            # TODO: fix duplicates better
-            # except IntegrityError as e:
-            #    logger.info(e)
+            except IntegrityError as e:
+                logger.error(e)
 
-            # finally:
-            # There're max ~180 news per day, and the parser get's 50 at a time,
-            # so it's fine to sleep for a quarter of a day a day
-            sleep(21600)
+            finally:
+                # There're max ~180 news per day, and the parser get's 50 at a time,
+                # so it's fine to sleep for a quarter of a day a day
+                sleep(21600)
 
 
 def main():
