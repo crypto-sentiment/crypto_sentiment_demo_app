@@ -1,0 +1,23 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Lint
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v2
+      - name: Set up Python environment
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        run: pip install pre-commit==2.17.0
+      - name: Run pre-commit
+        run: pre-commit run --from-ref origin/HEAD --to-ref HEAD
