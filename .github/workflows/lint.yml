@@ -3,10 +3,10 @@ name: Lint
 on:
   push:
     branches:
-      - $default-branch
+      - main
   pull_request:
     branches:
-      - $default-branch
+      - main
 
 jobs:
   build:
@@ -22,4 +22,4 @@ jobs:
       - name: Install dependencies
         run: pip install pre-commit==2.17.0
       - name: Run pre-commit
-        run: pre-commit run --from-ref origin/$default-branch --to-ref HEAD
+        run: pre-commit run --from-ref origin/main --to-ref HEAD
