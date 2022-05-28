@@ -7,7 +7,8 @@ import langid
 import pandas as pd
 from mmh3 import hash as mmh3_hash
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.exc import IntegrityError
+
+# from sqlalchemy.exc import IntegrityError
 from tqdm import tqdm
 
 from crypto_sentiment_demo_app.utils import (
@@ -124,7 +125,8 @@ class Crawler:
 
             logger.info(f"Crawled {len(df)} records")
 
-            try:
+            # try:
+            if 1:
                 self.write_news_to_db(df=df, table_name=content_table_name)
                 self.write_ids_to_db(
                     df=df,
@@ -134,13 +136,13 @@ class Crawler:
                 logger.info(f"Wrote {len(df)} records")
 
             # TODO: fix duplicates better
-            except IntegrityError as e:
-                logger.info(e)
+            # except IntegrityError as e:
+            #    logger.info(e)
 
-            finally:
-                # There're max ~180 news per day, and the parser get's 50 at a time,
-                # so it's fine to sleep for a quarter of a day a day
-                sleep(21600)
+            # finally:
+            # There're max ~180 news per day, and the parser get's 50 at a time,
+            # so it's fine to sleep for a quarter of a day a day
+            sleep(21600)
 
 
 def main():

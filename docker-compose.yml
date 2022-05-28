@@ -62,6 +62,8 @@ services:
     volumes:
       - ./:/root
     hostname: data_provider
+    depends_on:
+      - db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://data_provider:8002/health"]
       interval: 10s
