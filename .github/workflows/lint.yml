@@ -20,4 +20,6 @@ jobs:
       - name: Install dependencies
         run: pip install pre-commit==2.17.0
       - name: Run pre-commit
-        run: pre-commit run --from-ref origin/HEAD --to-ref HEAD
+        run: pre-commit run
+         with:
+          args: --from-ref origin/HEAD --to-ref HEAD
