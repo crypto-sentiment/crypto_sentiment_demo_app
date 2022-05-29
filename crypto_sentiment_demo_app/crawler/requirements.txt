@@ -10,4 +10,5 @@ psycopg2-binary >= 2.9.3
 python-dotenv >= 0.20.0
 requests >= 2.27.1
 spacy >= 2.2.4
+spacy-langdetect >= 0.1.2
 SQLAlchemy >= 1.4.36
