@@ -36,13 +36,6 @@ def load_config_params(return_hydra_config: bool = False) -> Dict[str, Any]:
     return cast(Dict[str, Any], OmegaConf.to_container(cfg))
 
 
-def tag_question_mark(string):
-    if "?" not in string:
-        return True
-    else:
-        return False
-
-
 def get_logger(name) -> logging.Logger:
     """
 

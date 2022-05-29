@@ -3,7 +3,6 @@ from time import sleep
 from typing import Any, Dict, List
 
 import feedparser
-import langid
 import pandas as pd
 import pangres
 from mmh3 import hash as mmh3_hash
@@ -15,7 +14,6 @@ from crypto_sentiment_demo_app.utils import (
     get_db_connection_engine,
     get_logger,
     load_config_params,
-    tag_question_mark,
 )
 
 logger = get_logger(Path(__file__).name)
@@ -31,25 +29,53 @@ class Crawler:
         self.path_to_rss_feeds = path_to_rss_feeds
 
     def parse_rss_feeds(self) -> pd.DataFrame:
+        """
+        Goes through all RSS feeds, calls `__parse_rss_feed` for each one of them to fetch
+        titles, sources, and publication timestamps.
+        :return: a DataFrame with titles, sources, and publication timestamps
+        """
         urls = self.__get_rss_urls(path_to_rss_feed_list=self.path_to_rss_feeds)
-        ids, parsed_titles, sources, pub_times = [], [], [], []
+        dataframes_per_url: List[pd.DataFrame] = []
 
         for url in tqdm(urls, total=len(urls)):
             feed: List[feedparser.util.FeedParserDict] = feedparser.parse(url)["entries"]
-            for title_metadata in feed:
-                # add only eng titles and without question marks
-                if (langid.classify(title_metadata.title)[0] == "en") & (tag_question_mark(title_metadata.title)):
-                    parsed_titles.append(title_metadata.title)
-                    ids.append(mmh3_hash(title_metadata.title, seed=17))
-                    if "summary_detail" in title_metadata.keys():
-                        sources.append(title_metadata.summary_detail["base"])
-                    else:
-                        sources.append(title_metadata.title_detail["base"])
-                    if "published" in title_metadata.keys():
-                        pub_times.append(title_metadata.published)
-                    else:
-                        pub_times.append(None)
+            curr_df: pd.DataFrame = self.__parse_rss_feed(feed)
+            dataframes_per_url.append(curr_df)
             logger.info(f"Parsed feed {url} with {len(feed)} records.")
+
+        df = pd.concat(dataframes_per_url).drop_duplicates(subset="title_id")
+
+        df.set_index("title_id", inplace=True)
+        logger.info(f"Parsed {len(urls)} feeds with {len(df)} records in total.")
+        return df
+
+    @staticmethod
+    def __parse_rss_feed(feed: List[feedparser.util.FeedParserDict]) -> pd.DataFrame:
+        """
+        Parses a single RSS feed and fetches
+        titles, sources, and publication timestamps.
+        :param feed: a list of dictionaries, output of feedparser.parse(<RSS_FEED_URL>)['entries']
+        :return: a DataFrame with titles, sources, and publication timestamps
+        """
+
+        ids, parsed_titles, sources, pub_times = [], [], [], []
+
+        for title_metadata in feed:
+            # "title", "published" are obligatory fields
+            if ("title" not in title_metadata.keys()) or ("published" not in title_metadata.keys()):
+                continue
+            else:
+                #  obligatory fields are there
+                ids.append(mmh3_hash(title_metadata.title, seed=17))
+                parsed_titles.append(title_metadata.title)
+                if "summary_detail" in title_metadata.keys():
+                    sources.append(title_metadata.summary_detail["base"])
+                elif "title_detail" in title_metadata.keys():
+                    sources.append(title_metadata.title_detail["base"])
+                else:
+                    sources.append("missing")
+                pub_times.append(title_metadata.published)
+
         df = pd.DataFrame(
             {
                 "title_id": ids,
@@ -57,17 +83,17 @@ class Crawler:
                 "source": sources,
                 "pub_time": pub_times,
             }
-        ).drop_duplicates(
-            subset="title_id"
-        )  # TODO resolve duplications better
+        )
 
-        df.set_index("title_id", inplace=True)
-
-        logger.info(df.head())
         return df
 
     @staticmethod
     def __get_rss_urls(path_to_rss_feed_list: str) -> List[str]:
+        """
+        Gets a list of URLs form a text file
+        :param path_to_rss_feed_list: path to a text file
+        :return: a list of strings
+        """
         with open(path_to_rss_feed_list) as f:
             urls = [line.strip() for line in f.readlines()]
         return urls
