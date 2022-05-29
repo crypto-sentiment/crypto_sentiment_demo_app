@@ -59,7 +59,9 @@ class TfidfLogisticRegression(IModelTrain):
                 )
 
                 avg_cross_score = round(100 * cv_results.mean(), 2)
-                print("Average cross-validation {}: {}%.".format(cross_val_params["cv_scoring"], avg_cross_score))
+                logger.info(
+                    "Average cross-validation {}: {}%.".format(cross_val_params["cv_scoring"], avg_cross_score)
+                )
 
     def _save_model(self, env: str = "dev"):
         if env == "dev":

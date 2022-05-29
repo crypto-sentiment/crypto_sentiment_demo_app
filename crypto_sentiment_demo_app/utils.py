@@ -102,9 +102,3 @@ def entropy(probs: np.ndarray) -> float:
     :return: float
     """
     return (-probs * np.log2(probs)).sum()
-
-
-if __name__ == "__main__":
-    print(get_project_root().absolute())
-    params = load_config_params()
-    print(params)

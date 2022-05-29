@@ -4,8 +4,8 @@ from typing import Optional
 import sqlalchemy as db
 from sqlalchemy.exc import SQLAlchemyError
 
-from crypto_sentiment_demo_app.utils import get_db_connection_engine
 from crypto_sentiment_demo_app.data_provider.schemas import ClassesMapping
+from crypto_sentiment_demo_app.utils import get_db_connection_engine
 
 
 class DBConnection:
@@ -87,7 +87,9 @@ class DBConnection:
         """Creates table representation."""
         return db.Table(table_name, self.metadata, autoload=True, autoload_with=self.engine)
 
-    def _construct_query_template(self, selectables: list, class_name: Optional[str] = None) -> db.sql.selectable.Select:
+    def _construct_query_template(
+        self, selectables: list, class_name: Optional[str] = None
+    ) -> db.sql.selectable.Select:
         """
         Returns query boilerplate with selected columns
         from selectables and join operators.
@@ -99,7 +101,9 @@ class DBConnection:
         template = db.select(selectables).select_from(join_query)
         return self._filter_by_predicted_class(template, class_name)
 
-    def _filter_by_predicted_class(self, query: db.sql.selectable.Select, class_name: Optional[str] = None) -> db.sql.selectable.Select:
+    def _filter_by_predicted_class(
+        self, query: db.sql.selectable.Select, class_name: Optional[str] = None
+    ) -> db.sql.selectable.Select:
         """Filters news by predicted class."""
         predicted_class = self.model_predictions.c.predicted_class
         if class_name in ClassesMapping.__members__:
@@ -121,10 +125,8 @@ class DBConnection:
             self.news_titles.c.pub_time,
             self.model_predictions.c.positive,
         ]
-        query_template = self._construct_query_template(
-            selectables, class_name)
-        query = query_template.order_by(
-            self.news_titles.c.pub_time.desc()).limit(k)
+        query_template = self._construct_query_template(selectables, class_name)
+        query = query_template.order_by(self.news_titles.c.pub_time.desc()).limit(k)
         return self._execute_and_fetchall(query)
 
     def calc_avg_positive_last_n_hours_model_predictions(self, n_hours: int) -> Optional[float]:
@@ -132,8 +134,7 @@ class DBConnection:
         datetime_mark = datetime.datetime.now() - datetime.timedelta(hours=n_hours)
         selectables = [db.func.avg(self.model_predictions.c.positive)]
         query_template = self._construct_query_template(selectables)
-        query = query_template.where(
-            self.news_titles.c.pub_time >= datetime_mark)
+        query = query_template.where(self.news_titles.c.pub_time >= datetime_mark)
         return self._execute_and_fetchall(query)[0][0]
 
     def calc_avg_per_day_positive_model_predictions(self, start_date: str, end_date: str) -> list:
@@ -145,8 +146,7 @@ class DBConnection:
         pub_date_col = db.cast(self.news_titles.c.pub_time, db.Date)
         selectables = [
             pub_date_col.label("pub_date"),
-            db.func.avg(self.model_predictions.c.positive).label(
-                "avg_positive"),
+            db.func.avg(self.model_predictions.c.positive).label("avg_positive"),
         ]
         query_template = self._construct_query_template(selectables)
         query = (
@@ -163,10 +163,7 @@ class DBConnection:
         Date format: %yyyy%-%mm%-%dd%.
         """
         pub_date_col = db.cast(self.news_titles.c.pub_time, db.Date)
-        selectables = [db.func.avg(
-            self.model_predictions.c.positive).label("avg_positive")]
+        selectables = [db.func.avg(self.model_predictions.c.positive).label("avg_positive")]
         query_template = self._construct_query_template(selectables)
-        query = query_template.filter(
-            pub_date_col.between(start_date, end_date))
+        query = query_template.filter(pub_date_col.between(start_date, end_date))
         return self._execute_and_fetchall(query)[0][0]
-
