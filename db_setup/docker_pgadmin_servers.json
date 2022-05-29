@@ -1,0 +1,14 @@
+{
+    "Servers": {
+      "1": {
+        "Name": "Docker Compose",
+        "Group": "Servers",
+        "Port": 5432,
+        "Username": "mlooops",
+        "Host": "postgres",
+        "SSLMode": "prefer",
+        "MaintenanceDB": "cryptotitles_db",
+        "PassFile": "/tmp/pgpassfile"
+      }
+    }
+  }

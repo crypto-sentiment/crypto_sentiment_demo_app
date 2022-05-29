@@ -15,7 +15,6 @@ model:                                          # Params of the model defined in
   inference_api_endpoint_name: classify
 
 database:
-  path_to_connection_param_file: db_connection.ini
   content_table_name: news_titles
   content_index_name: title_id
   model_pred_table_name: model_predictions

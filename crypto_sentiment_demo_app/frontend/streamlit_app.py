@@ -1,33 +1,17 @@
-from datetime import datetime
-
 import pandas as pd
 import requests
 import streamlit as st
-from sqlalchemy.engine.cursor import LegacyCursorResult
 
-from crypto_sentiment_demo_app.utils import (
-    get_db_connection_engine,
-    get_model_inference_api_endpoint,
-)
+from crypto_sentiment_demo_app.utils import get_model_inference_api_endpoint
 
 # TODO: avoid using globals
 model_api_endpoint = get_model_inference_api_endpoint()
-engine = get_db_connection_engine()
 
 
-def get_sentiment_score(date: str = "1971-01-01"):
-    query = f"""
-    SELECT Avg(t1.positive)
-    FROM   (model_predictions t1
-        JOIN news_titles t2
-          ON t1.title_id = t2.title_id)
-    WHERE  date(t2.pub_time) = '{date}';
-    """
-
-    res: LegacyCursorResult = engine.execute(query)
-
-    result: float = res.fetchone()[0]
-
+def get_sentiment_score(n_hours: 24):
+    endpoint_url = "http://data_provider:8002/positive_score/average_last_hours"
+    payload = {"n": n_hours}
+    result = requests.get(endpoint_url, params=payload).json()
     return result
 
 
@@ -37,8 +21,7 @@ def run_app():
     st.title("Cryptonews sentiment")
     st.write("by Yury Kashnitsky")
 
-    today = datetime.today().strftime("%Y-%m-%d")
-    today_average_sentiment = get_sentiment_score(date=today)
+    today_average_sentiment = get_sentiment_score(n_hours=24)
     if not today_average_sentiment:
         today_average_sentiment = 0
 
