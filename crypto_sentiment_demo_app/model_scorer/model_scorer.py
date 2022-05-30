@@ -83,17 +83,17 @@ class ModelScorer:
         # TODO avoid hardcoded class names
         query = text(
             f"""
-                                INSERT INTO {table_name} (title_id, negative, neutral, positive, predicted_class, entropy)
-                                VALUES {','.join([str(i) for i in list(pred_df.to_records(index=True))])}
-                                ON CONFLICT (title_id)
-                                DO  UPDATE SET title_id=excluded.title_id,
-                                               negative=excluded.negative,
-                                               neutral=excluded.neutral,
-                                               positive=excluded.positive,
-                                               predicted_class=excluded.predicted_class,
-                                               entropy=excluded.entropy
+                INSERT INTO {table_name} (title_id, negative, neutral, positive, predicted_class, entropy)
+                VALUES {','.join([str(i) for i in list(pred_df.to_records(index=True))])}
+                ON CONFLICT (title_id)
+                DO  UPDATE SET title_id=excluded.title_id,
+                    negative=excluded.negative,
+                    neutral=excluded.neutral,
+                    positive=excluded.positive,
+                    predicted_class=excluded.predicted_class,
+                    entropy=excluded.entropy
 
-                         """
+            """
         )
         self.sqlalchemy_engine.execute(query)
 
@@ -108,9 +108,7 @@ class ModelScorer:
                 if len(df):
                     pred_df = self.run_model_on_dataframe(df)
                     self.write_preds_to_db(pred_df)
-                    logger.info(
-                        f"Wrote predictions for {len(df)} records into model_predictions."
-                    )  # TODO: set up logging
+                    logger.info(f"Wrote predictions for {len(df)} records into model_predictions.")
 
             # TODO: fix duplicates better
             except IntegrityError as e:
@@ -120,7 +118,8 @@ class ModelScorer:
             finally:
                 # There're max ~180 news per day, and the parser get's 50 at a time,
                 # so it's fine to sleep for a quarter of a day a day
-                sleep(21600)
+                # TODO: replace this with crontab service
+                sleep(10)
 
 
 def main():

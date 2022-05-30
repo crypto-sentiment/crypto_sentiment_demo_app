@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from time import sleep
 from typing import Any, Dict, List
@@ -18,6 +19,7 @@ from crypto_sentiment_demo_app.utils import (
     get_db_connection_engine,
     get_logger,
     load_config_params,
+    parse_time,
 )
 
 logger = get_logger(Path(__file__).name)
@@ -81,7 +83,7 @@ class Crawler:
                     sources.append(title_metadata.title_detail["base"])
                 else:
                     sources.append("missing")
-                pub_times.append(title_metadata.published)
+                pub_times.append(parse_time(title_metadata.published))
 
         df = pd.DataFrame(
             {
@@ -201,17 +203,38 @@ class Crawler:
 
         return (lang == "en") and (confidence >= min_confidence)
 
-    def filter_titles(self, df: pd.DataFrame, text_col_name: str = "title") -> pd.DataFrame:
+    @staticmethod
+    def __filter_on_publication_date(
+        df: pd.DataFrame, min_date: str, pub_timestamp_col_name: str = "pub_time"
+    ) -> pd.DataFrame:
+        """
+        Leave only texts in `text_col_name` column of the DataFrame `df` that are longer than
+        `min_length_words` words.
+        :param df: a DataFrame
+        :param min_date: date formatted as YYYY-MM-DD
+        :param pub_timestamp_col_name: column name to filter on
+        :return: bool
+        """
+        return df.loc[df[pub_timestamp_col_name] >= parse_time(min_date)]
+
+    def filter_titles(
+        self, df: pd.DataFrame, min_date: str, text_col_name: str = "title", pub_timestamp_col_name: str = "pub_time"
+    ) -> pd.DataFrame:
         """
 
         Applies filters on `text_col_name` column of the DataFrame `df`.
         :param df: a crawled pandas DataFrame
-        :param text_col_name: column name to filter on
+        :param min_date: oldest publication date to keep, formatted as YYYY-MM-DD
+        :param text_col_name: column name with text to filter on
+        :param pub_timestamp_col_name: column name with publication date to filter on
         :return: a filtered DataFrame
         """
 
-        tmp_df = self.__filter_out_question_marks(df=df, text_col_name=text_col_name)
-        tmp_df2 = self.__filter_on_text_length(df=tmp_df, text_col_name=text_col_name)
+        tmp_df = self.__filter_on_publication_date(
+            df=df, pub_timestamp_col_name=pub_timestamp_col_name, min_date=min_date
+        )
+        tmp_df1 = self.__filter_out_question_marks(df=tmp_df, text_col_name=text_col_name)
+        tmp_df2 = self.__filter_on_text_length(df=tmp_df1, text_col_name=text_col_name)
         tmp_df3 = self.__filter_verbs_spacy(df=tmp_df2, text_col_name=text_col_name)
         result_df = self.__filter_out_non_english_spacy(df=tmp_df3, text_col_name=text_col_name)
 
@@ -270,9 +293,14 @@ class Crawler:
         while 1:
             df = self.parse_rss_feeds()
 
-            filtered_df = self.filter_titles(df=df, text_col_name="title")
+            logger.info(f"Crawled {len(df)} records.")
 
-            logger.info(f"Crawled {len(df)} records, left {len(filtered_df)} after filtering.")
+            # we'll keep only today's news
+            today = datetime.today().strftime("%Y-%m-%d")
+
+            filtered_df = self.filter_titles(df=df, text_col_name="title", min_date=today)
+
+            logger.info(f"{len(filtered_df)} records left after filtering.")
 
             try:
                 self.write_news_to_db(df=filtered_df, table_name=content_table_name)
@@ -289,7 +317,9 @@ class Crawler:
             finally:
                 # There're max ~180 news per day, and the parser get's 50 at a time,
                 # so it's fine to sleep for a quarter of a day a day
-                sleep(21600)
+                # TODO: replace this with crontab service
+                # sleep(21600)
+                sleep(10)
 
 
 def main():

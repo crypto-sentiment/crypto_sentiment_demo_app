@@ -1,4 +1,5 @@
 beautifulsoup4 >= 4.11.1
+delorean >= 1.0.0
 feedparser >= 6.0.8
 hydra-core==1.1.2
 langid >= 1.1.6
