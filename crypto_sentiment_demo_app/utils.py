@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Any, Dict, cast
 
 import numpy as np
-import pandas as pd
 import pytz
 from dateutil import parser as dateutil_parser
 from delorean import parse as delorean_date_parse
