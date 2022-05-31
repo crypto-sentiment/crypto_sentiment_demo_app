@@ -58,7 +58,7 @@ class LabelStudioProject:
 
         return project
 
-    def _collect_tasks_from_df(self, content_df: pd.DataFrame, model_score_column_name: str) -> List[Dict[str, Any]]:
+    def _collect_tasks_from_df(self, content_df: pd.DataFrame) -> List[Dict[str, Any]]:
         """Create labelling tasks.
 
         :param content_df: dataframe with samples from db
@@ -68,10 +68,8 @@ class LabelStudioProject:
         tasks: List[Dict[str, Any]] = []
         predicted_mapping = {0: "Negative", 1: "Neutral", 2: "Positive"}
 
-        if "predicted_class" not in content_df.columns or model_score_column_name not in content_df.columns:
-            raise ValueError(
-                f"Dataframe with samples should contain 'predicted_class' and {model_score_column_name} columns"
-            )
+        if "predicted_class" not in content_df.columns:
+            raise ValueError("Dataframe with samples should contain 'predicted_class' column")
 
         for _, row in content_df.iterrows():
             task = {
@@ -91,7 +89,7 @@ class LabelStudioProject:
                                 "value": {"choices": [predicted_mapping[row["predicted_class"]]]},
                             }
                         ],
-                        "score": row[model_score_column_name],
+                        # "score": row[model_score_column_name],
                     }
                 ],
             }
@@ -100,7 +98,7 @@ class LabelStudioProject:
 
         return tasks
 
-    def import_tasks(self, data: pd.DataFrame, model_score_column_name: str = "model_score"):
+    def import_tasks(self, data: pd.DataFrame):
         """Import tasks to the project.
 
         :param data: samples with titles to annotate
@@ -115,7 +113,7 @@ class LabelStudioProject:
         data = data.loc[~data["title_id"].isin(existing_tasks_ids)]
 
         if len(data) != 0:
-            tasks: List[Dict[str, Any]] = self._collect_tasks_from_df(data, model_score_column_name)
+            tasks: List[Dict[str, Any]] = self._collect_tasks_from_df(data)
 
             self.project.import_tasks(tasks)
 
