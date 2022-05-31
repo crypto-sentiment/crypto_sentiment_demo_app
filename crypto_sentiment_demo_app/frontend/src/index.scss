@@ -5,6 +5,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #e5e5e5;
 }
+
 .wrapper {
   background: #e5e5e5;
   max-width: 1280px;
@@ -18,19 +19,30 @@ body {
       top: 0px;
       background: #75715c;
     }
+
     .headerInfo {
       width: 100%;
       height: 80px;
       background: #ffffff;
-      img {
-        margin-left: 15px;
-      }
     }
   }
+
   .description {
     width: 100%;
     background: #ffffff;
+
+    .label {
+      background: #75715c;
+      width: 50px;
+      height: 30px;
+      border-radius: 8px;
+
+      svg {
+        margin-left: 5px;
+      }
+    }
   }
+
   p {
     font-size: 18px;
   }
@@ -38,31 +50,56 @@ body {
   .indexPlot {
     background: #ffffff;
     height: auto;
+
     button {
       margin-top: 20px;
       margin-left: 20px;
       border: none;
       background: none;
+
       img {
         width: 90px;
         height: 27px;
       }
     }
   }
+
   .basement {
+    width: 100%;
+
     .basementInfo {
       width: 100%;
       height: auto;
-      background: #ffffff;
-      img {
-        margin-right: 15px;
+      background: linear-gradient(45deg, #75715C, #bdb693);
+
+      .basementInfoItem {
+        width: 100%;
+        padding-left: 20px;
+
+        p {
+          font-size: 15px;
+          color: #ffffff;
+          margin-right: 20px;
+        }
+
+        b {
+          color: #ffffff;
+        }
+
+        .authorsHeader {
+          font-weight: bold;
+        }
+
+      }
+
+      .basementInfoItem:last-child {
+        margin-left: auto;
       }
     }
-    .basementRectangle {
-      width: 100%;
-      height: 40px;
-      top: 0px;
-      background: #75715c;
+
+    img {
+      margin-right: 15px;
     }
   }
+
 }

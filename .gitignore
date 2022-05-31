@@ -175,3 +175,6 @@ db_setup/postgres/
 .npm
 !data/bitcoin_ticker_5rows.csv
 .env
+
+#node modules
+node_modules/

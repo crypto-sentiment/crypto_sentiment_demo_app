@@ -10,11 +10,19 @@ function IndexLine(props) {
     }else{
         circleColor="#C17416"
     };
+    var indexLabel;
+    if (props.value<=33){
+        indexLabel="Negative"
+    }else if(props.value > 33 && props.value <= 66){
+        indexLabel="Neutral"
+    }else{
+        indexLabel="Positive"
+    };
   return (
     <div className="d-flex flex-row justify-between">
     <div className="ml-20">
       <p>{props.name}</p>
-      <h3>Neutral</h3>
+      <h3>{indexLabel}</h3>
     </div>
     <svg
       width={50}

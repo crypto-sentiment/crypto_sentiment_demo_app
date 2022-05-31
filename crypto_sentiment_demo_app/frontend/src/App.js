@@ -22,26 +22,17 @@ function App() {
       <header className="d-flex flex-column">
         <div className="headerRectangle d-flex"></div>
         <div className="headerInfo d-flex align-center">
-          <img width={60} height={60} src="/img/logo.png" alt="logo" />
+          <img className="ml-15 mr-15" width={60} height={60} src="/img/logo.png" alt="logo" />
           <h1>Cryptosentiment</h1>
         </div>
       </header>
       <div className="description d-flex flex-column mt-50">
         <div className="d-flex align-center">
-          <img
-            className="mr-15"
-            width={60}
-            height={30}
-            src="/img/label.png"
-            alt="label"
-          />
-          <h2>Crypto Sentiment Index</h2>
+          <h2 className="ml-20">Crypto Sentiment Index</h2>
         </div>
-        <p className="pr-15 pl-15">
+        <p className="pr-15 pl-20">
           The Crypto Sentiment Index presents the emotions and sentiments of
-          Bitcoin and other cryptocurrencies. The Crypto Sentiment Index varies
-          in the range from 0 to 100, where a value of 0 means "Extreme
-          Negative" while a value of 100 represents "Extreme Positive".
+          Bitcoin and other cryptocurrencies. It ranges from 0 to 100, with 0 meaning totally negative, and 100 meaning clearly positive.
         </p>
       </div>
       <div className="indexCards d-flex flex-row justify-between mt-50">
@@ -57,19 +48,10 @@ function App() {
       </div>
       <div className="description d-flex flex-column mt-50">
         <div className="d-flex align-center">
-          <img
-            className="mr-15"
-            width={60}
-            height={30}
-            src="/img/label.png"
-            alt="label"
-          />
-          <h2>Crypto Sentiment Index Over Time</h2>
+          <h2 className="ml-20">Crypto Sentiment Index Over Time</h2>
         </div>
-        <p className="pr-15 pl-15">
-          This is a plot of the Crypto Sentiment Index over time, where a value
-          of 0 means "Extreme Negative" while a value of 100 represents "Extreme
-          Positive".
+        <p className="pr-15 pl-20">
+          This is a plot of the Crypto Sentiment Index over time, with 0 meaning totally negative, and 100 meaning clearly positive.
         </p>
       </div>
       <div className="indexPlot d-flex justify-center">
@@ -77,16 +59,35 @@ function App() {
           <Chart chartData={item.graph} />
         ))}
       </div>
-      <div className="basement d-flex flex-column mt-50">
-        <div className="basementInfo align-center">
-          <ul className="d-flex flex-raw align-center p-20 cu-p">
-            <a href="https://github.com/crypto-sentiment">
-              <img width={24} height={24} src="/img/git.png" alt="git" />
+      <div className="basement d-flex mt-50">
+        <div className="basementInfo d-flex flex-column pt-20">
+          <ul className="basementInfoItem cu-p ">
+            <a className="d-flex flex-raw align-center" href="https://github.com/crypto-sentiment">
+              <img width={26} height={26} src="/img/github_white.svg" alt="git" />
               <b>Crypto Sentiment Project</b>
             </a>
           </ul>
+          <li className="basementInfoItem d-flex flex-raw">
+            <p className="authorsHeader">Authors</p>
+            <a className="cu-p" href="https://github.com/Yorko">
+              <p>Yury Kashnitsky</p>
+            </a>
+            <a className="cu-p" href="https://github.com/Arsenaut">
+              <p>Arseniy Glotov</p>
+            </a>
+            <a className="cu-p" href="https://github.com/aleksandrinvictor">
+              <p>Victor Aleksandrin</p>
+            </a>
+            <a className="cu-p" href="https://github.com/LinkaG">
+              <p>Zalina Rusinova</p>
+            </a>
+          </li>
+          <li className="basementInfoItem mb-20">
+            <p>We express our gratitude to Nikita Zaharov and Ekaterina Kryukova for the help in the project</p>
+          </li>
+
+
         </div>
-        {/* <div className="basementRectangle d-flex"></div> */}
       </div>
     </div>
   );
