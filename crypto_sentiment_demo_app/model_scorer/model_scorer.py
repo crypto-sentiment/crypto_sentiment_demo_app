@@ -99,7 +99,7 @@ class ModelScorer:
 
     def run(self):
 
-        # TODO: run with crontab instead
+        # # TODO: run with crontab instead
         while 1:
 
             try:
@@ -110,10 +110,8 @@ class ModelScorer:
                     self.write_preds_to_db(pred_df)
                     logger.info(f"Wrote predictions for {len(df)} records into model_predictions.")
 
-            # TODO: fix duplicates better
             except IntegrityError as e:
                 logger.error(e)
-                pass
 
             finally:
                 # There're max ~180 news per day, and the parser get's 50 at a time,

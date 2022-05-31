@@ -6,7 +6,7 @@ data:
   class_names: ["Negative", "Neutral", "Positive"]
 
 crawler:
-  path_to_feeds_list: data/crypto_rss_feeds.txt
+  path_to_feeds_list: data/crypto_rss_feeds_toy.txt
   spacy_model_name: en_core_web_sm
 
 inference_api:
