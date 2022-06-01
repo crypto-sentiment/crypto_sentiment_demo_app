@@ -1,4 +1,3 @@
-from time import sleep
 from typing import Any, Dict
 
 import pandas as pd
@@ -114,29 +113,21 @@ class BitcointickerCrawler:
         :return: None
         """
 
-        # TODO: run with crontab instead
-        while 1:
-            #df = self.dummy_parse()
-            df = self.parse_bitcointicker()
+        df = self.parse_bitcointicker()
 
-            try:
-                self.write_news_to_db(df=df, table_name=content_table_name)
-                self.write_ids_to_db(
-                    df=df,
-                    table_name=model_pred_table_name,
-                    index_name=content_index_name,
-                )
-                print(f"Wrote {len(df)} records")  # TODO: set up logging
+        try:
+            self.write_news_to_db(df=df, table_name=content_table_name)
+            self.write_ids_to_db(
+                df=df,
+                table_name=model_pred_table_name,
+                index_name=content_index_name,
+            )
+            print(f"Wrote {len(df)} records")  # TODO: set up logging
 
-            # TODO: fix duplicates better
-            except IntegrityError as e:
-                print(e)
-                pass
-
-            finally:
-                # There're max ~180 news per day, and the parser get's 50 at a time,
-                # so it's fine to sleep for a quarter of a day a day
-                sleep(21600)
+        # TODO: fix duplicates better
+        except IntegrityError as e:
+            print(e)
+            pass
 
 
 def main():
