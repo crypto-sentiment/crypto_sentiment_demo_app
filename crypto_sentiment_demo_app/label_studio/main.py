@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
         label_studio.import_tasks(data_to_import)
 
-        logger.info(f"{len(data_to_import)} tasks are imported to the label studio")
+        logger.info(f"{len(data_to_import)} tasks were imported to the label studio")
 
     elif args.mode == "export":
         tasks: pd.DataFrame = label_studio.export_tasks(export_type="JSON_MIN")
@@ -45,4 +45,6 @@ if __name__ == "__main__":
         if len(tasks) != 0:
             write_data_to_db(tasks, "labeled_news_titles")
 
-            logger.info(f"{len(tasks)} tasks are exported from the label studio")
+            logger.info(f"{len(tasks)} tasks were exported from the label studio")
+        else:
+            logger.info("There are no annotated tasks to export from the label studio")
