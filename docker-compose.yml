@@ -42,9 +42,10 @@ services:
     depends_on:
       model_inference_api:
         condition: service_healthy
-    depends_on:
-      - crawler
-      - db
+      crawler:
+        condition: service_started
+      db:
+        condition: service_started
     links:
       - model_inference_api
     profiles:
