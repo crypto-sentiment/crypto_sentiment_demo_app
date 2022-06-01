@@ -37,11 +37,9 @@ class LeastConfidenceSampler(Sampler):
         predicted_label_prob = data[["positive", "negative", "neutral"]].max(axis=1)
 
         data_copy = deepcopy(data)
-        data_copy["predicted_label_prob"] = predicted_label_prob
+        data_copy["criterion_score"] = predicted_label_prob
 
-        new_samples = data_copy.sort_values("predicted_label_prob", ascending=True).head(num_samples)
-
-        new_samples = new_samples.drop(columns=["predicted_label_prob"])
+        new_samples = data_copy.sort_values("criterion_score", ascending=True).head(num_samples)
 
         return new_samples
 
@@ -65,11 +63,9 @@ class EntropySampler(Sampler):
         pred_entropy = entropy(prediction_probs.squeeze())
 
         data_copy = deepcopy(data)
-        data_copy["pred_entropy"] = pred_entropy
+        data_copy["criterion_score"] = pred_entropy
 
-        new_samples = data_copy.sort_values("pred_entropy", ascending=False).head(num_samples)
-
-        new_samples = new_samples.drop(columns=["pred_entropy"])
+        new_samples = data_copy.sort_values("criterion_score", ascending=False).head(num_samples)
 
         return new_samples
 

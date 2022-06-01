@@ -90,7 +90,7 @@ class LabelStudioProject:
                                 "value": {"choices": [predicted_mapping[row["predicted_class"]]]},
                             }
                         ],
-                        # "score": row[model_score_column_name],
+                        "score": row["criterion_score"],
                     }
                 ],
             }
@@ -103,8 +103,6 @@ class LabelStudioProject:
         """Import tasks to the project.
 
         :param data: samples with titles to annotate
-        :param model_score_column_name: name of the column with the score used for selecting samples,
-            defaults to "model_score"
         """
         existing_tasks = self.project.get_tasks()
 
