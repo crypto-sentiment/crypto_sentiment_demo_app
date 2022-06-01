@@ -136,7 +136,7 @@ To launch the service:
 - run the app: `docker compose -f docker-compose.yml --profile production up --build`
 - This will launch Label Studio at http://\<server-ip\>:8080/
 - Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
-- Put the Access token into the `.env` file as LABEL_STUDIO_ACCESS_TOKEN
+- Put the Access token into the `.env` file as LABEL_STUDIO_ACCESS_TOKEN, also specify LabelStudio port there (e.g. 8080)
 - To create new annotation project and add tasks from the model_predictions table run:
 
     `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m import -c <model_score_column_name>`.
