@@ -173,6 +173,7 @@ services:
     image: mcuadros/ofelia:latest
     depends_on:
       - crawler
+      - model_scorer
     command: daemon --docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
