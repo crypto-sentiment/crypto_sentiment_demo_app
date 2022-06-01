@@ -1,7 +1,6 @@
 import logging
 import logging.config
-
-# import os
+import os
 import time
 from contextlib import contextmanager
 from pathlib import Path
@@ -69,26 +68,16 @@ def timer(name, logger):
     logger.info(f"[{name}] done in {time.time() - t0:.0f} s")
 
 
-# def get_db_connection_engine(
-#     user: str = os.getenv("POSTGRES_USER"),
-#     pwd: str = os.getenv("POSTGRES_PASSWORD"),
-#     database: str = os.getenv("POSTGRES_DB"),
-#     host: str = os.getenv("POSTGRES_HOST"),
-# ) -> Engine:
+def get_db_connection_engine(
+    user: str = os.getenv("POSTGRES_USER"),
+    pwd: str = os.getenv("POSTGRES_PASSWORD"),
+    database: str = os.getenv("POSTGRES_DB"),
+    host: str = os.getenv("POSTGRES_HOST"),
+) -> Engine:
 
-#     conn_string = f"postgresql://{user}:{pwd}@{host}/{database}"
+    conn_string = f"postgresql://{user}:{pwd}@{host}/{database}"
 
-#     engine = create_engine(conn_string)
-
-#     return engine
-
-
-def get_db_connection_engine() -> Engine:
-
-    params = load_config_params()
-    with open(params["database"]["path_to_connection_param_file"]) as f:
-        conn_string = f.read().strip()
-        engine = create_engine(conn_string)
+    engine = create_engine(conn_string)
 
     return engine
 

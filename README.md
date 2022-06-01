@@ -133,15 +133,16 @@ Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/la
 Label Studio service allows us to annotate additional data.
 
 To launch the service:
-- add a DB connection string `postgresql://<user>:<pwd>@<host>:<port>/<database>` to the `db_connection.ini` file (for the exact connection string, refer to [this](https://www.notion.so/d8eaed6d640640e59704771f6b12b603) Notion page, limited to project contributors);
-- run: `docker compose --profile label up --build`. This will launch Label Studio at http://\<server-ip\>:8080/
+- run the app: `docker compose -f docker-compose.yml --profile production up --build`
+- This will launch Label Studio at http://\<server-ip\>:8080/
 - Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
+- Put the Access token into the `.env` file as LABEL_STUDIO_ACCESS_TOKEN
 - To create new annotation project and add tasks from the model_predictions table run:
 
-    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -a <access_token> -p <project_name> -m import -c <model_score_column_name>`.
+    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m import -c <model_score_column_name>`.
 
     model_score_column_name is hardcoded like "model_score" by now. It should be defined in the model_predictions table in the future.
 - Create the table labeled_title if it doesn't exist:
     1. `psql -U mlooops -d cryptotitles_db -W`
     2. `create table labeled_title (title_id BIGINT PRIMARY KEY, label VARCHAR(8));`
-- To export annotated tasks from the label studio run `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -a <access_token> -p <project_name> -m export`
+- To export annotated tasks from the label studio run `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m export`

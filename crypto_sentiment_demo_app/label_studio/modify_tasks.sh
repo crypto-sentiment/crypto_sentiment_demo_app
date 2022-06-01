@@ -1,10 +1,14 @@
 #!/bin/bash
 
+# read in the env variables defined in .env file
+export $(grep -v '^#' .env | xargs -d '\n')
+
 project_name="Crypto Sentiment project"
 mode="import"
 criterion="entropy"
 num_samples=10
-
+api_key=$LABEL_STUDIO_ACCESS_TOKEN
+label_studio_port=$LABEL_STUDIO_PORT
 
 while getopts ":a:p:m:c:n:s:" opt; do
     case $opt in
@@ -33,4 +37,4 @@ docker exec -w /home/crypto_sentiment_demo_app crypto_sentiment_demo_app-label_s
     --num_samples "$num_samples" \
     --project_title "$project_name" \
     --api_key "$api_key" \
-    --label_studio_url "http://127.0.0.1:8080/"
+    --label_studio_url "http://127.0.0.1:$label_studio_port/"
