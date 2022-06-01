@@ -7,31 +7,30 @@ from crypto_sentiment_demo_app.utils import entropy
 
 
 class Sampler:
-    """Least confidence sampling strategy.
+    """Least confidence sampling strategy."""
 
-    :param num_samples: number of items to sample, defaults to 0
-    """
+    def get_samples(self, data: pd.DataFrame, num_samples: int) -> pd.DataFrame:
+        """Get samples to annotate.
 
-    def __init__(self, num_samples: int = 0) -> None:
-        """Init sampler."""
-        self.num_samples = num_samples
-
-    def get_samples(self, data: pd.DataFrame) -> pd.DataFrame:
+        :param data: dataframe from where new chunk will be sampled.
+            Should contain ("positive", "negative", "neutral") columns
+        :param num_samples: num items to sample
+        :return: selected samples
+        """
         raise NotImplementedError
 
 
 class LeastConfidenceSampler(Sampler):
-    """Least confidence sampling strategy.
+    """Least confidence sampling strategy."""
 
-    :param num_samples: number of items to sample, defaults to 0
-    """
-
-    def get_samples(self, data: pd.DataFrame) -> pd.DataFrame:
+    def get_samples(self, data: pd.DataFrame, num_samples: int) -> pd.DataFrame:
         """Select samples to pass for annotation.
 
         New samples are least confident predictions.
 
-        :param data: data from where new chunk will be sampled
+        :param data: dataframe from where new chunk will be sampled.
+            Should contain ("positive", "negative", "neutral") columns
+        :param num_samples: num items to sample
         :return: selected samples
         """
         # [num_samples, 1]
@@ -40,7 +39,7 @@ class LeastConfidenceSampler(Sampler):
         data_copy = deepcopy(data)
         data_copy["predicted_label_prob"] = predicted_label_prob
 
-        new_samples = data_copy.sort_values("predicted_label_prob", ascending=True).head(self.num_samples)
+        new_samples = data_copy.sort_values("predicted_label_prob", ascending=True).head(num_samples)
 
         new_samples = new_samples.drop(columns=["predicted_label_prob"])
 
@@ -50,12 +49,14 @@ class LeastConfidenceSampler(Sampler):
 class EntropySampler(Sampler):
     """Entropy based sampling strategy."""
 
-    def get_samples(self, data: pd.DataFrame) -> pd.DataFrame:
+    def get_samples(self, data: pd.DataFrame, num_samples: int) -> pd.DataFrame:
         """Select samples to pass for annotation.
 
         New samples are the ones with the highest predictive entropy.
 
-        :param data: data from where new chunk will be sampled
+        :param data: dataframe from where new chunk will be sampled.
+            Should contain ("positive", "negative", "neutral") columns
+        :param num_samples: num items to sample
         :return: selected samples
         """
 
@@ -66,7 +67,7 @@ class EntropySampler(Sampler):
         data_copy = deepcopy(data)
         data_copy["pred_entropy"] = pred_entropy
 
-        new_samples = data_copy.sort_values("pred_entropy", ascending=False).head(self.num_samples)
+        new_samples = data_copy.sort_values("pred_entropy", ascending=False).head(num_samples)
 
         new_samples = new_samples.drop(columns=["pred_entropy"])
 
@@ -76,14 +77,13 @@ class EntropySampler(Sampler):
 SAMPLERS: Dict[str, object] = {"least_confidence": LeastConfidenceSampler, "entropy": EntropySampler}
 
 
-def get_sampler(sampler_name: str, num_samples: int) -> Sampler:
+def get_sampler(sampler_name: str) -> Sampler:
     """Build selected sampler.
 
     :param sampler_name: sampler name
-    :param num_samples: number of items to sample
     :return: selected sampler
     """
     if sampler_name in SAMPLERS:
-        return cast(Callable, SAMPLERS[sampler_name])(num_samples=num_samples)
+        return cast(Callable, SAMPLERS[sampler_name])()
     else:
         raise ValueError(f"sampler name: {sampler_name} not found, {SAMPLERS.keys()} are available")

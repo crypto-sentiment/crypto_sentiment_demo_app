@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 import pandas as pd
 
@@ -8,6 +9,9 @@ from crypto_sentiment_demo_app.label_studio.data import (
 )
 from crypto_sentiment_demo_app.label_studio.label_studio import LabelStudioProject
 from crypto_sentiment_demo_app.label_studio.sampler import SAMPLERS, get_sampler
+from crypto_sentiment_demo_app.utils import get_logger
+
+logger = get_logger(Path(__file__).name)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--mode", type=str, default="import", choices=["import", "export"])
@@ -24,17 +28,21 @@ if __name__ == "__main__":
         api_key=args.api_key, label_studio_url=args.label_studio_url, project_title=args.project_title
     )
 
-    sampler = get_sampler(args.criterion, num_samples=args.num_samples)
-
     if args.mode == "import":
         data = read_data_from_db()
 
-        data_to_import = sampler.get_samples(data)
+        sampler = get_sampler(args.criterion)
+
+        data_to_import = sampler.get_samples(data, num_samples=args.num_samples)
 
         label_studio.import_tasks(data_to_import)
+
+        logger.info(f"{len(data_to_import)} tasks are imported to the label studio")
 
     elif args.mode == "export":
         tasks: pd.DataFrame = label_studio.export_tasks(export_type="JSON_MIN")
 
         if len(tasks) != 0:
             write_data_to_db(tasks, "labeled_news_titles")
+
+            logger.info(f"{len(tasks)} tasks are exported from the label studio")
