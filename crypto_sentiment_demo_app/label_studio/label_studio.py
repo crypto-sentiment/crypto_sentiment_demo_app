@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 
 import pandas as pd
 import requests
+from dateutil import parser
 from label_studio_sdk import Client, Project
 
 from crypto_sentiment_demo_app.utils import get_label_studio_endpoint
@@ -147,11 +148,16 @@ class LabelStudioProject:
         """
         export_tasks = self.project.export_tasks(export_type)
 
-        export_data: Dict[str, list] = {"title_id": [], "label": []}
+        export_data: Dict[str, list] = {"title_id": [], "label": [], "annot_time": []}
+
+        labels_mapping: Dict[str, int] = {"Negative": 0, "Neutral": 1, "Positive": 2}
 
         for task in export_tasks:
             export_data["title_id"].append(task["title_id"])
-            export_data["label"].append(task["sentiment"])
+            export_data["label"].append(labels_mapping[task["sentiment"]])
+
+            timestamp = parser.parse(task["updated_at"]).strftime("%Y-%m-%d %H:%M:%S")
+            export_data["annot_time"].append(timestamp)
 
         if remove_tasks:
             self._remove_annotated_tasks()
