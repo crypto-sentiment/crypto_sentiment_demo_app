@@ -11,7 +11,7 @@ def read_data_from_db() -> pd.DataFrame:
     """
     sqlalchemy_engine = get_db_connection_engine()
 
-    query = """
+    read_query = """
     SELECT news_titles.title,
         model_predictions.title_id,
         model_predictions.negative,
@@ -21,17 +21,16 @@ def read_data_from_db() -> pd.DataFrame:
     FROM news_titles
     INNER JOIN model_predictions
     ON news_titles.title_id = model_predictions.title_id
-    WHERE  predicted_class IS NOT NULL;
+    WHERE  predicted_class IS NOT NULL AND is_annotating = False;
     """
 
-    df = pd.read_sql_query(query, con=sqlalchemy_engine)
+    df = pd.read_sql_query(read_query, con=sqlalchemy_engine)
 
     return df
 
 
 def write_data_to_db(df: pd.DataFrame, table_name: str):
-    """
-    Writes exported samples into a table
+    """Writes exported samples into a table.
 
     :param df: a pandas DataFrame output by the label studio export method
     :param table_name: table name to write data to
@@ -41,3 +40,16 @@ def write_data_to_db(df: pd.DataFrame, table_name: str):
     # Write news titles to the table
     df.set_index("title_id", inplace=True)
     pangres.upsert(df=df, con=sqlalchemy_engine, table_name=table_name, if_row_exists="update")
+
+
+def set_annotation_flag(df: pd.DataFrame):
+    sqlalchemy_engine = get_db_connection_engine()
+
+    title_ids = df["title_id"].values
+    insert_str = ",".join([str(title_id) for title_id in title_ids])
+
+    update_query = f"""
+    UPDATE model_predictions SET is_annotating = True
+    WHERE title_id IN ({insert_str});
+    """
+    sqlalchemy_engine.execute(update_query)

@@ -5,6 +5,7 @@ import pandas as pd
 
 from crypto_sentiment_demo_app.label_studio.data import (
     read_data_from_db,
+    set_annotation_flag,
     write_data_to_db,
 )
 from crypto_sentiment_demo_app.label_studio.label_studio import LabelStudioProject
@@ -34,6 +35,8 @@ if __name__ == "__main__":
         sampler = get_sampler(args.criterion)
 
         data_to_import = sampler.get_samples(data, num_samples=args.num_samples)
+
+        set_annotation_flag(data_to_import)
 
         label_studio.import_tasks(data_to_import)
 
