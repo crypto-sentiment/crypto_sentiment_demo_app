@@ -49,7 +49,7 @@ services:
       crawler:
         condition: service_started
       db:
-        condition: service_started
+        condition: service_healthy
     links:
       - model_inference_api
     profiles:
@@ -146,7 +146,7 @@ services:
     networks:
       - postgres
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://postgres:5432"]
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 30s
       timeout: 10s
       retries: 5
