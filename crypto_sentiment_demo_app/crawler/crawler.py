@@ -116,7 +116,7 @@ class BitcointickerCrawler:
 
         # TODO: run with crontab instead
         while 1:
-            #df = self.dummy_parse()
+            # df = self.dummy_parse()
             df = self.parse_bitcointicker()
 
             try:
