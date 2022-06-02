@@ -132,7 +132,7 @@ class Crawler:
         :param text_col_name: column name to filter on
         :return: bool
         """
-        return df.loc[~df[text_col_name].str.contains("\?")]
+        return df.loc[~df[text_col_name].str.contains(r"\?")]
 
     def __filter_verbs_spacy(self, df: pd.DataFrame, text_col_name: str = "title") -> pd.DataFrame:
         """
