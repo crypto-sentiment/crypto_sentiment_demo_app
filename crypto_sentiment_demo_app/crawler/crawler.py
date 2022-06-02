@@ -8,12 +8,11 @@ import pandas as pd
 import pangres
 import spacy
 from mmh3 import hash as mmh3_hash
-from spacy.lang.en import English as SpacyEnglishPipeline
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import IntegrityError
 from tqdm import tqdm
 
-from crypto_sentiment_demo_app.processor import TitleProcessor
+from crypto_sentiment_demo_app.crawler.processor import TitleProcessor
 from crypto_sentiment_demo_app.utils import (
     get_db_connection_engine,
     get_logger,
