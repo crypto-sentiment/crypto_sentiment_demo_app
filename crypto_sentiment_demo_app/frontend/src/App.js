@@ -7,6 +7,44 @@ import News from "./components/News";
 function App() {
   const [items, setItems] = React.useState([]);
 
+  const [latest_news_items, setLatestNewsItems] = React.useState([]);
+
+
+  // simple example of fetch
+  // fetch(
+  //   "/news/top_k_news_titles",
+  //   {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     }
+  //   }
+  // )
+  //   .then(res => res.json())
+  //   .then(data => {
+  //     console.log(data);
+  //   })
+  //   .catch(rejected => {
+  //     console.log(rejected);
+  //   });
+
+  React.useEffect(() => {
+    fetch(
+      "/news/top_k_news_titles", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    }).then((res) => {
+      return res.json();
+    })
+      .then((json) => {
+        setLatestNewsItems(json);
+      });
+  }, []);
+
+  console.log(latest_news_items)
+
   React.useEffect(() => {
     fetch("https://6267e06101dab900f1c65f2c.mockapi.io/indexes")
       .then((res) => {
