@@ -143,7 +143,7 @@ To launch the service:
 
     That command will create label studio project, load samples from the model_predictions table and create annotation tasks. Visit http://\<server-ip\>:8080/ to find your new project there.
 
-    Two sampling strategies are availabe: `least_confidence` and `entropy`.
+    Two sampling strategies are available: `least_confidence` and `entropy`.
 
     Also the model_predictions table will be modified so that is_annotation flag will be set to True for the imported samples.
 
