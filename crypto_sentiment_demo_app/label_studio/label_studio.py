@@ -63,7 +63,6 @@ class LabelStudioProject:
         """Create labelling tasks.
 
         :param content_df: dataframe with samples from db
-        :param model_score_column_name: name of the column with the score used for selecting samples
         :return: list of tasks in the format supported by label studio
         """
         tasks: List[Dict[str, Any]] = []
@@ -138,7 +137,7 @@ class LabelStudioProject:
     def export_tasks(self, export_type: str, remove_tasks: bool = True) -> pd.DataFrame:
         """Export tasks from the project.
 
-        Also removes exported tasks from the project.
+        Also removes exported tasks from the project if remove_tasks is True.
 
         :param export_type: export type format
         :param remove_tasks: whether to remove exporting tasks from the project

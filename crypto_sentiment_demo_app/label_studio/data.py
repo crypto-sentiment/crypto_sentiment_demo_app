@@ -30,7 +30,7 @@ def read_data_from_db() -> pd.DataFrame:
 
 
 def write_data_to_db(df: pd.DataFrame, table_name: str):
-    """Writes exported samples into a table.
+    """Write exported samples into a table.
 
     :param df: a pandas DataFrame output by the label studio export method
     :param table_name: table name to write data to
@@ -43,6 +43,12 @@ def write_data_to_db(df: pd.DataFrame, table_name: str):
 
 
 def set_annotation_flag(df: pd.DataFrame):
+    """Update model_predictions table.
+
+    Set is_annotating to True for the given samples.
+
+    :param df: set is_annotating = True for that samples
+    """
     sqlalchemy_engine = get_db_connection_engine()
 
     title_ids = df["title_id"].values
