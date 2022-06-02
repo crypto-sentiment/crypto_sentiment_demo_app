@@ -122,7 +122,7 @@ def parse_time(ts: str, named_timezones=("EST", "GMT", "UTC")) -> datetime.datet
         return dateutil_parser.parse(ts, tzinfos=tzinfos)
 
     # if instead an offset is specified like +0100, we use the delorean parser
-    elif re.match(pattern="[\+\-]\d{4}", string=ts[-5:]):
+    elif re.match(pattern=r"[\+\-]\d{4}", string=ts[-5:]):
         return delorean_date_parse(ts).datetime
 
     # otherwise we return UTC time
