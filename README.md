@@ -139,10 +139,16 @@ To launch the service:
 - Put the Access token into the `.env` file as LABEL_STUDIO_ACCESS_TOKEN, also specify LabelStudio port there (e.g. 8080)
 - To create new annotation project and add tasks from the model_predictions table run:
 
-    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m import -c <model_score_column_name>`.
+    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project name> -m import -c <active learning sampling strategy> -n <number of items to sample>`.
 
-    model_score_column_name is hardcoded like "model_score" by now. It should be defined in the model_predictions table in the future.
-- Create the table labeled_title if it doesn't exist:
-    1. `psql -U mlooops -d cryptotitles_db -W`
-    2. `create table labeled_title (title_id BIGINT PRIMARY KEY, label VARCHAR(8));`
-- To export annotated tasks from the label studio run `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m export`
+    That command will create label studio project, load samples from the model_predictions table and create annotation tasks. Visit http://\<server-ip\>:8080/ to find your new project there.
+
+    Two sampling strategies are availabe: `least_confidence` and `entropy`.
+
+    Also the model_predictions table will be modified so that is_annotation flag will be set to True for the imported samples.
+
+- To export annotated tasks from the label studio run:
+
+    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m export`
+
+    That command will export annotated and submitted tasks from the label studio project and write them to the labeled_news_titles table.

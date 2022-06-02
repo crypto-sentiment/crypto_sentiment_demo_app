@@ -10,14 +10,13 @@ num_samples=10
 api_key=$LABEL_STUDIO_ACCESS_TOKEN
 label_studio_port=$LABEL_STUDIO_PORT
 
-while getopts ":a:p:m:c:n:s:" opt; do
+while getopts ":a:p:m:c:n:" opt; do
     case $opt in
         a) api_key="$OPTARG";;
         p) project_name="$OPTARG";;
         m) mode="$OPTARG";;
         c) criterion="$OPTARG";;
         n) num_samples="$OPTARG";;
-        s) select_top_percent="$OPTARG";;
         \?) echo "Invalid option -$OPTARG" >&2
         exit 1
         ;;
