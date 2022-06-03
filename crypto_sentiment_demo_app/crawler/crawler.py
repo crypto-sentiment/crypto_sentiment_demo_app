@@ -163,19 +163,14 @@ class Crawler:
 
         logger.info(f"{len(filtered_df)} records left after filtering.")
 
-        try:
-            self.write_news_to_db(df=df, table_name=content_table_name)
-            self.write_ids_to_db(
-                df=df,
-                table_name=model_pred_table_name,
-                index_name=content_index_name,
-            )
-            print(f"Wrote {len(df)} records")  # TODO: set up logging
-
-        # TODO: fix duplicates better
-        except IntegrityError as e:
-            print(e)
-            pass
+        # write data to db
+        self.write_news_to_db(df=filtered_df, table_name=content_table_name)
+        self.write_ids_to_db(
+            df=filtered_df,
+            table_name=model_pred_table_name,
+            index_name=content_index_name,
+        )
+        logger.info(f"Wrote {len(df)} records")
 
 
 def main():
