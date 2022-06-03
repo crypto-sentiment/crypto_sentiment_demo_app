@@ -100,7 +100,7 @@ class ModelScorer:
             if len(df):
                 pred_df = self.run_model_on_dataframe(df)
                 self.write_preds_to_db(pred_df)
-                print(f"Wrote predictions for {len(df)} records into model_predictions.")  # TODO: set up logging
+                logger.info(f"Wrote predictions for {len(df)} records into model_predictions.")
 
         # TODO: fix duplicates better
         except IntegrityError as e:
