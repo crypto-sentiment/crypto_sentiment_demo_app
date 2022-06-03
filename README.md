@@ -125,3 +125,30 @@ Curently, the streamlit app looks like this:
 The frontend itself talks to the database to get the average `positive` score for today's news titles (this will be changed in the future).
 
 This is to be superseded by a more advanced React front end service ([Notion ticket](https://www.notion.so/a74951e4e815480584dea7d61ddce6cc?v=dbfdb1207d0e451b827d3c5041ed0cfd&p=31d73280a5d547bdb8852d3d63d73060)).
+
+
+### Label Studio
+Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)
+
+Label Studio service allows us to annotate additional data.
+
+To launch the service:
+- run the app: `docker compose -f docker-compose.yml --profile production up --build`
+- This will launch Label Studio at http://\<server-ip\>:8080/
+- Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
+- Put the Access token into the `.env` file as LABEL_STUDIO_ACCESS_TOKEN, also specify LabelStudio port there (e.g. 8080)
+- To create new annotation project and add tasks from the model_predictions table run:
+
+    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project name> -m import -c <active learning sampling strategy> -n <number of items to sample>`.
+
+    That command will create label studio project, load samples from the model_predictions table and create annotation tasks. Visit http://\<server-ip\>:8080/ to find your new project there.
+
+    Two sampling strategies are available: `least_confidence` and `entropy`.
+
+    Also the model_predictions table will be modified so that is_annotation flag will be set to True for the imported samples.
+
+- To export annotated tasks from the label studio run:
+
+    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m export`
+
+    That command will export annotated and submitted tasks from the label studio project and write them to the labeled_news_titles table.
