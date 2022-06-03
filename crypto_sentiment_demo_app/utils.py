@@ -1,12 +1,17 @@
+import datetime
 import logging
 import logging.config
 import os
+import re
 import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, cast
 
 import numpy as np
+import pytz
+from dateutil import parser as dateutil_parser
+from delorean import parse as delorean_date_parse
 from dotenv import load_dotenv
 from hydra import compose
 from omegaconf import OmegaConf
@@ -119,7 +124,22 @@ def entropy(probs: np.ndarray) -> float:
     return (-probs * np.log2(probs)).sum(axis=axis)
 
 
-if __name__ == "__main__":
-    print(get_project_root().absolute())
-    params = load_config_params()
-    print(params)
+def parse_time(ts: str, named_timezones=("EST", "GMT", "UTC")) -> datetime.datetime:
+    """
+    Parses a time string with either offsets like +0000 of timezones like EST, GMT, UTC.
+    :param ts: a string formatted like 'Mon, 25 Apr 2022 13:47:46 +0000' or with time zone in the end
+    :param named_timezones: a fixed tuple of timezones to map to those known to PyTZ
+    :return: a timezone-aware datetime.datetime object
+    """
+    # if one of EST, GMT, UTC is specified as a timezone, parse it with dateutils
+    tzinfos = {tz: pytz.timezone(tz) for tz in named_timezones}
+    if ts[-3:] in named_timezones:
+        return dateutil_parser.parse(ts, tzinfos=tzinfos)
+
+    # if instead an offset is specified like +0100, we use the delorean parser
+    elif re.match(pattern=r"[\+\-]\d{4}", string=ts[-5:]):
+        return delorean_date_parse(ts).datetime
+
+    # otherwise we return UTC time
+    else:
+        return delorean_date_parse(ts).datetime

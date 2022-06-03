@@ -1,3 +1,4 @@
+from pathlib import Path
 from time import sleep
 from typing import Any, Dict, List
 
@@ -9,11 +10,13 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import IntegrityError
 
 from crypto_sentiment_demo_app.utils import (
-    entropy,
     get_db_connection_engine,
+    get_logger,
     get_model_inference_api_endpoint,
     load_config_params,
 )
+
+logger = get_logger(Path(__file__).name)
 
 
 class ModelScorer:
@@ -86,7 +89,6 @@ class ModelScorer:
                             neutral=excluded.neutral,
                             positive=excluded.positive,
                             predicted_class=excluded.predicted_class
-
             """
         )
         self.sqlalchemy_engine.execute(query)
@@ -102,16 +104,17 @@ class ModelScorer:
                 if len(df):
                     pred_df = self.run_model_on_dataframe(df)
                     self.write_preds_to_db(pred_df)
-                    print(f"Wrote predictions for {len(df)} records into model_predictions.")  # TODO: set up logging
+                    logger.info(f"Wrote predictions for {len(df)} records into model_predictions.")
 
             # TODO: fix duplicates better
             except IntegrityError as e:
-                print(e)
+                logger.error(e)
                 pass
 
             finally:
                 # There're max ~180 news per day, and the parser get's 50 at a time,
                 # so it's fine to sleep for a quarter of a day a day
+                # TODO: replace this with crontab service
                 sleep(21600)
 
 

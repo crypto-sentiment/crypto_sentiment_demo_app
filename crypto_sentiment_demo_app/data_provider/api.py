@@ -1,6 +1,7 @@
+from typing import Optional
+
 from fastapi import FastAPI
 from fastapi_health import health
-from typing import Optional
 
 from crypto_sentiment_demo_app.data_provider.db_connector import DBConnection
 from crypto_sentiment_demo_app.data_provider.schemas import (

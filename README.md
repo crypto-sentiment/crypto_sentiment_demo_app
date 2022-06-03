@@ -48,7 +48,7 @@ To launch the whole application:
 The app includes prototypes of the following components:
 
 - PostgreSQL database for raw, labeled, and model-scored news titles: see `docker-compose.yml`;
-- primitive crawler: see [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/);
+- RSS-feed crawler: see [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/);
 - model API endpoint: see [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/);
 - model scoring the news: see [`crypto_sentiment_demo_app/model_scorer/`](crypto_sentiment_demo_app/model_scorer/);
 - data provider: see [`crypto_sentiment_demo_app/data_provider/`](crypto_sentiment_demo_app/data_provider/);
@@ -88,9 +88,9 @@ Once the app is running (`docker compose -f docker-compose.yml --profile product
 
 Source: [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/)
 
-The 1st version of the crawler uses BeautifulSoup to parse 50 news at a time from [https://bitcointicker.co/news/](https://bitcointicker.co/news/). It then writes news titles to the `news_titles` table and title IDs – to the `model_prediction` table.
+Crawler reads ~100 RSS feeds defined in `data/crypto_rss_feeds.txt`, and further filters out non-English text, news without a verb, questions and short news (refer to the analysis performed [here](https://github.com/crypto-sentiment/crypto_sentiment_notebooks/tree/main/notebooks/20220530_get_rss_feed_news_perform_eda.ipynb)).
 
-This is to be superseded by a more advanced crawler ([Notion ticket](https://www.notion.so/a74951e4e815480584dea7d61ddce6cc?v=dbfdb1207d0e451b827d3c5041ed0cfd&p=d5d0948bde5f43c7b77c5e9329d52980)).
+Then it puts the data (title IDs, titles, source, publication timestamps) into the `news_titles` table, and puts titles IDs into the `model_predictions` table to be later picked up by the `model_scorer` service.
 
 ### Model inference API
 

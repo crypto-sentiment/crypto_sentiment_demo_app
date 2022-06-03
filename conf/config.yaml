@@ -6,7 +6,8 @@ data:
   class_names: ["Negative", "Neutral", "Positive"]
 
 crawler:
-  url: "https://bitcointicker.co/news/"
+  path_to_feeds_list: data/crypto_rss_feeds.txt
+  spacy_model_name: en_core_web_sm
 
 inference_api:
   host_name: model_inference_api
