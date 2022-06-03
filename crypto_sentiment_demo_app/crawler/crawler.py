@@ -170,7 +170,7 @@ class Crawler:
             table_name=model_pred_table_name,
             index_name=content_index_name,
         )
-        logger.info(f"Wrote {len(df)} records")
+        logger.info(f"Wrote/updated {len(filtered_df)} records")
 
 
 def main():
