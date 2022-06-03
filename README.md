@@ -74,6 +74,7 @@ The app includes the following components:
 | Primitive front end    | [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)                       |         `frontend`         |
 | Scheduler              | ---                                                                                                |         `scheduler`        |
 
+
 Below, we go through each one individually.
 
 ### Database
@@ -112,9 +113,9 @@ Once the app is running (`docker compose -f docker-compose.yml --profile product
 
 Source: [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/)
 
-The 1st version of the crawler uses BeautifulSoup to parse 50 news at a time from [https://bitcointicker.co/news/](https://bitcointicker.co/news/). It then writes news titles to the `news_titles` table and title IDs – to the `model_prediction` table.
+Crawler reads ~100 RSS feeds defined in `data/crypto_rss_feeds.txt`, and further filters out non-English text, news without a verb, questions and short news (refer to the analysis performed [here](https://github.com/crypto-sentiment/crypto_sentiment_notebooks/tree/main/notebooks/20220530_get_rss_feed_news_perform_eda.ipynb)).
 
-This is to be superseded by a more advanced crawler ([Notion ticket](https://www.notion.so/a74951e4e815480584dea7d61ddce6cc?v=dbfdb1207d0e451b827d3c5041ed0cfd&p=d5d0948bde5f43c7b77c5e9329d52980)).
+Then it puts the data (title IDs, titles, source, publication timestamps) into the `news_titles` table, and puts titles IDs into the `model_predictions` table to be later picked up by the `model_scorer` service.
 
 ### Model inference API
 
@@ -164,7 +165,31 @@ To see it in action:
 - check scheduler logs: `docker-compose logs scheduler`
 - additionally, you can check the number of records in the `news_titles` and `model_predictions` tables (they will be growing in time). For that, launch [PGAdmin](), navigate to Servers -> <SERVER_NAME> (e.g. "Docker Compose") -> Databases -> <DB_NAME> (e.g. "cryptotitles_db"), then select Tools -> Query Tool and type your SQL: `select count(*) from news_titles`.
 
+### Label Studio
+Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)
 
+Label Studio service allows us to annotate additional data.
+
+To launch the service:
+- run the app: `docker compose -f docker-compose.yml --profile production up --build`
+- This will launch Label Studio at http://\<server-ip\>:8080/
+- Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
+- Put the Access token into the `.env` file as LABEL_STUDIO_ACCESS_TOKEN, also specify LabelStudio port there (e.g. 8080)
+- To create new annotation project and add tasks from the model_predictions table run:
+
+    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project name> -m import -c <active learning sampling strategy> -n <number of items to sample>`.
+
+    That command will create label studio project, load samples from the model_predictions table and create annotation tasks. Visit http://\<server-ip\>:8080/ to find your new project there.
+
+    Two sampling strategies are available: `least_confidence` and `entropy`.
+
+    Also the model_predictions table will be modified so that is_annotation flag will be set to True for the imported samples.
+
+- To export annotated tasks from the label studio run:
+
+    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m export`
+
+    That command will export annotated and submitted tasks from the label studio project and write them to the labeled_news_titles table.
 
 ## Acknowledgements
 
