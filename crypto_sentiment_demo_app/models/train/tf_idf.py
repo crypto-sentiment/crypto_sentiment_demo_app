@@ -8,6 +8,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import Pipeline
+import mlflow
+from crypto_sentiment_demo_app.models.train.bert import model
 
 from crypto_sentiment_demo_app.utils import get_logger, timer
 
@@ -35,8 +37,14 @@ class TfidfLogisticRegression(IModelTrain):
         :param X: train data
         :param y: train labels
         """
+        
+        mlflow.set_experiment("tf_idf")
+        mlflow.sklearn.autolog()
+
         self.train_sample = X[:1]
-        self.model.fit(X, y)
+
+        with mlflow.start_run():
+            self.model.fit(X, y)
 
         if self.model_cfg["cross_validation"]["cv_perform_cross_val"]:
             cross_val_params = self.model_cfg["cross_validation"]
@@ -60,12 +68,14 @@ class TfidfLogisticRegression(IModelTrain):
 
                 avg_cross_score = round(100 * cv_results.mean(), 2)
                 print("Average cross-validation {}: {}%.".format(cross_val_params["cv_scoring"], avg_cross_score))
-
+        
     def _save_model(self, env: str = "dev"):
         if env == "dev":
             with open(self.model_cfg["checkpoint_path"], "wb") as f:
                 pickle.dump(self.model, f)
+            mlflow.sklearn.log_model(self.model)
         elif env == "prod":
+            mlflow.sklearn.log_model(self.model)
             model_onnx = to_onnx(self.model, self.train_sample)
 
             with open(self.model_cfg["path_to_model"], "wb") as f:
