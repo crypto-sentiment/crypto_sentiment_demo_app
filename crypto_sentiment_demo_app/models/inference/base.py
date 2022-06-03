@@ -1,5 +1,10 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Callable, Dict, cast
+
+from crypto_sentiment_demo_app.utils import get_logger
+
+logger = get_logger(Path(__file__).name)
 
 
 class IModelInference(ABC):
@@ -30,7 +35,7 @@ class InferenceRegistry:
         ) -> IModelInference:
 
             if name in cls.registry:
-                print(f"Model {name} already exists. " "It will be replaced")
+                logger.info(f"Model {name} already exists. " "It will be replaced")
 
             cls.registry[name] = wrapped_class
             return wrapped_class

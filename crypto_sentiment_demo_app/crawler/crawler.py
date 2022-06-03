@@ -1,59 +1,85 @@
-from time import sleep
-from typing import Any, Dict
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
 
+import feedparser
 import pandas as pd
-import requests
-from bs4 import BeautifulSoup
+import pangres
+import spacy
 from mmh3 import hash as mmh3_hash
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.exc import IntegrityError
+from tqdm import tqdm
 
-from crypto_sentiment_demo_app.utils import get_db_connection_engine, load_config_params
+from crypto_sentiment_demo_app.crawler.processor import TitleProcessor
+from crypto_sentiment_demo_app.utils import (
+    get_db_connection_engine,
+    get_logger,
+    load_config_params,
+    parse_time,
+)
+
+logger = get_logger(Path(__file__).name)
 
 
-class BitcointickerCrawler:
-    def __init__(self, sqlalchemy_engine: Engine, url: str):
+class Crawler:
+    def __init__(self, sqlalchemy_engine: Engine, path_to_rss_feeds: str, processor: TitleProcessor):
         """
-
         :param sqlalchemy_engine: SQLAlchemy engine to connect to a database
-        :param url: URL to scrape, this crawler only works with "https://bitcointicker.co/news/"
+        :param path_to_rss_feeds: path to a file with a list of RSS feeds to parse
+        :param processor: processor for the parsed content, see `processor.py`
         """
-        self.url = url
         self.sqlalchemy_engine = sqlalchemy_engine
+        self.path_to_rss_feeds = path_to_rss_feeds
+        self.processor = processor
 
-    def dummy_parse(self) -> pd.DataFrame:
+    def parse_rss_feeds(self) -> pd.DataFrame:
+        """
+        Goes through all RSS feeds, calls `__parse_rss_feed` for each one of them to fetch
+        titles, sources, and publication timestamps.
+        :return: a DataFrame with titles, sources, and publication timestamps
+        """
+        urls = self.__get_rss_urls(path_to_rss_feed_list=self.path_to_rss_feeds)
+        dataframes_per_url: List[pd.DataFrame] = []
 
-        df = pd.read_csv("data/bitcoin_ticker_5rows.csv", index_col="title_id")
+        for url in tqdm(urls, total=len(urls)):
+            feed: List[feedparser.util.FeedParserDict] = feedparser.parse(url)["entries"]
+            curr_df: pd.DataFrame = self.__parse_rss_feed(feed)
+            dataframes_per_url.append(curr_df)
+            logger.info(f"Parsed feed {url} with {len(feed)} records.")
 
+        df = pd.concat(dataframes_per_url).drop_duplicates(subset="title_id")
+
+        df.set_index("title_id", inplace=True)
+        logger.info(f"Parsed {len(urls)} feeds with {len(df)} records in total.")
         return df
 
-    def parse_bitcointicker(self) -> pd.DataFrame:
+    @staticmethod
+    def __parse_rss_feed(feed: List[feedparser.util.FeedParserDict]) -> pd.DataFrame:
         """
-        Parse 50 latest news and return a dataframe with 50 rows and columns:
-        title_id, title, source, pub_time (these are hardcoded).
-
-        :return: a pandas DataFrame
+        Parses a single RSS feed and fetches
+        titles, sources, and publication timestamps.
+        :param feed: a list of dictionaries, output of feedparser.parse(<RSS_FEED_URL>)['entries']
+        :return: a DataFrame with titles, sources, and publication timestamps
         """
-        page = requests.get(self.url)
-        soup_object = BeautifulSoup(page.content, "html.parser")
 
         ids, parsed_titles, sources, pub_times = [], [], [], []
 
-        # getting titles and sources
-        for el in soup_object.find_all("div", attrs={"style": "overflow:hidden;"}):
-            elem_text = el.get_text()
-            title = elem_text.split(" - ")[0].strip()
-            source = elem_text.split(" - ")[-1].strip()
-            parsed_titles.append(title)
-            sources.append(source)
-            ids.append(mmh3_hash(title, seed=17))  # strange, Python hashes are different from time to time
-
-        # getting publication times
-        for el in soup_object.find_all("div", attrs={"style": "margin-left:30px"}):
-            elem_text = el.get_text()
-            if "Posted" in elem_text:  # e.g. "Posted: 2022-04-15 06:00:19\n0 Comments"
-                pub_time = elem_text.strip().split("\n")[0].replace("Posted:", "").strip()
-                pub_times.append(pub_time)
+        for title_metadata in feed:
+            # "title", "published" are obligatory fields
+            if ("title" not in title_metadata.keys()) or ("published" not in title_metadata.keys()):
+                continue
+            else:
+                #  obligatory fields are there
+                ids.append(mmh3_hash(title_metadata.title, seed=17))
+                parsed_titles.append(title_metadata.title)
+                if "summary_detail" in title_metadata.keys():
+                    sources.append(title_metadata.summary_detail["base"])
+                elif "title_detail" in title_metadata.keys():
+                    sources.append(title_metadata.title_detail["base"])
+                else:
+                    sources.append("missing")
+                pub_times.append(parse_time(title_metadata.published))
 
         df = pd.DataFrame(
             {
@@ -62,14 +88,8 @@ class BitcointickerCrawler:
                 "source": sources,
                 "pub_time": pub_times,
             }
-        ).drop_duplicates(
-            subset="title_id"
-        )  # TODO resolve duplications better
+        )
 
-        # TODO apply filters
-        pass
-
-        df.set_index("title_id", inplace=True)
         return df
 
     def write_news_to_db(self, df: pd.DataFrame, table_name: str):
@@ -81,23 +101,41 @@ class BitcointickerCrawler:
         :return: None
         """
 
-        # Write news titles to the table
-        df.to_sql(name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=True)
+        # pandas `to_sql` doesn't yet support updating records ("upsert")
+        # https://github.com/pandas-dev/pandas/issues/15988
+        # hence using Pangres upsert https://github.com/ThibTrip/pangres/wiki/Upsert
+
+        pangres.upsert(df=df, con=self.sqlalchemy_engine, table_name=table_name, if_row_exists="update")
+
+    @staticmethod
+    def __get_rss_urls(path_to_rss_feed_list: str) -> List[str]:
+        """
+        Gets a list of URLs form a text file
+        :param path_to_rss_feed_list: path to a text file
+        :return: a list of strings
+        """
+        with open(path_to_rss_feed_list) as f:
+            urls = [line.strip() for line in f.readlines()]
+        return urls
 
     def write_ids_to_db(self, df: pd.DataFrame, index_name: str, table_name: str):
         """
-        Writes news IDs into a table for model predictions to be furtherpicked up by the
+        Writes news IDs into a table for model predictions to be further picked up by the
         `model_scorer` service.
 
-        :param df: a pandas DataFrame output by the `parse_bitcointicker` method
+        :param df: a pandas DataFrame output by the `parse_rss_feeds` method
         :param index_name: index name of a table to write data to
         :param table_name: table name to write IDs to
         :return: None
         """
 
         # write news title IDs to a table for predictions
+        # pandas `to_sql` doesn't yet support updating records ("upsert")
+        # https://github.com/pandas-dev/pandas/issues/15988
+        # hence using Pangres upsert https://github.com/ThibTrip/pangres/wiki/Upsert
         df[index_name] = df.index
-        df[index_name].to_sql(name=table_name, con=self.sqlalchemy_engine, if_exists="append", index=False)
+        # index can not be ignored, hence a workaround with an empty list of columns
+        pangres.upsert(df=df[[]], con=self.sqlalchemy_engine, table_name=table_name, if_row_exists="update")
 
     def run(
         self,
@@ -114,29 +152,30 @@ class BitcointickerCrawler:
         :return: None
         """
 
-        # TODO: run with crontab instead
-        while 1:
-            # df = self.dummy_parse()
-            df = self.parse_bitcointicker()
+        df = self.parse_rss_feeds()
 
-            try:
-                self.write_news_to_db(df=df, table_name=content_table_name)
-                self.write_ids_to_db(
-                    df=df,
-                    table_name=model_pred_table_name,
-                    index_name=content_index_name,
-                )
-                print(f"Wrote {len(df)} records")  # TODO: set up logging
+        logger.info(f"Crawled {len(df)} records.")
 
-            # TODO: fix duplicates better
-            except IntegrityError as e:
-                print(e)
-                pass
+        # we'll keep only today's news
+        today = datetime.today().strftime("%Y-%m-%d")
 
-            finally:
-                # There're max ~180 news per day, and the parser get's 50 at a time,
-                # so it's fine to sleep for a quarter of a day a day
-                sleep(21600)
+        filtered_df = self.processor.filter_titles(df=df, text_col_name="title", min_date=today)
+
+        logger.info(f"{len(filtered_df)} records left after filtering.")
+
+        try:
+            self.write_news_to_db(df=df, table_name=content_table_name)
+            self.write_ids_to_db(
+                df=df,
+                table_name=model_pred_table_name,
+                index_name=content_index_name,
+            )
+            print(f"Wrote {len(df)} records")  # TODO: set up logging
+
+        # TODO: fix duplicates better
+        except IntegrityError as e:
+            print(e)
+            pass
 
 
 def main():
@@ -148,8 +187,16 @@ def main():
     # load project-wide params
     params: Dict[str, Any] = load_config_params()
 
+    # load the spacy model and create a TitleProcessor instance
+    spacy_model = spacy.load(params["crawler"]["spacy_model_name"])
+    title_processor = TitleProcessor(spacy_model=spacy_model)
+
+    # initialize the DB connection object and the crawler
     engine = get_db_connection_engine()
-    crawler = BitcointickerCrawler(sqlalchemy_engine=engine, url=params["crawler"]["url"])
+
+    crawler = Crawler(
+        sqlalchemy_engine=engine, path_to_rss_feeds=params["crawler"]["path_to_feeds_list"], processor=title_processor
+    )
 
     # run crawler specifying database params to write content to
     crawler.run(
