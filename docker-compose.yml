@@ -4,7 +4,7 @@ services:
   crawler:
     image: basic_image_crawler
     build: crypto_sentiment_demo_app/crawler
-    command: python3 -m crypto_sentiment_demo_app.crawler.crawler
+    command: tail -f /dev/null  # a dummy command to keep the container alive
     volumes:
       - ./:/root
     profiles:
@@ -13,6 +13,10 @@ services:
       - db
     networks:
       - postgres
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.crawler.schedule: "@every 2m"
+      ofelia.job-exec.crawler.command: "python3 -m crypto_sentiment_demo_app.crawler.crawler"
 
   model_inference_api:
     image: basic_image_model_fast_api
@@ -36,7 +40,7 @@ services:
   model_scorer:
     image: basic_image_model_scorer
     build: crypto_sentiment_demo_app/model_scorer
-    command: python3 -m crypto_sentiment_demo_app.model_scorer.model_scorer
+    command: tail -f /dev/null  # a dummy command to keep the container alive
     volumes:
       - ./:/root
     depends_on:
@@ -45,7 +49,7 @@ services:
       crawler:
         condition: service_started
       db:
-        condition: service_started
+        condition: service_healthy
     links:
       - model_inference_api
     profiles:
@@ -53,6 +57,10 @@ services:
     networks:
       - model_inference
       - postgres
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.model_scorer.schedule: "@every 2m"
+      ofelia.job-exec.model_scorer.command: "python3 -m crypto_sentiment_demo_app.model_scorer.model_scorer"
 
   data_provider:
     image: basic_image_data_provider
@@ -64,7 +72,8 @@ services:
       - ./:/root
     hostname: data_provider
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://data_provider:8002/health"]
       interval: 10s
@@ -134,16 +143,27 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
       PGDATA: /data/postgres
     volumes:
       - ./db_setup/postgres:/data/postgres
       - ./db_setup/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+      - type: tmpfs  # to shut up some permission errors, taken from here https://tinyurl.com/4y773dyv
+        target: /var/lib/postgresql/data/pg_stat_tmp
+        tmpfs:
+          # 256 Mb - beware the default, it's infinity(!)
+          size: 268435456
     ports:
       - "8432:5432"
     profiles:
       - production
     networks:
       - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   pgadmin:
       container_name: pgadmin
@@ -167,6 +187,15 @@ services:
         - "/bin/sh"
         - "-c"
         - "/bin/echo 'postgres:5432:*:${POSTGRES_USER}:${POSTGRES_PASSWORD}' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
+
+  scheduler:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - crawler
+      - model_scorer
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
 networks:
   postgres:

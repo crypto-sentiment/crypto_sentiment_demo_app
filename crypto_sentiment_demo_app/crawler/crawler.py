@@ -1,6 +1,5 @@
 from datetime import datetime
 from pathlib import Path
-from time import sleep
 from typing import Any, Dict, List
 
 import feedparser
@@ -153,36 +152,30 @@ class Crawler:
         :return: None
         """
 
-        # TODO: run with crontab instead
-        while 1:
-            df = self.parse_rss_feeds()
+        df = self.parse_rss_feeds()
 
-            logger.info(f"Crawled {len(df)} records.")
+        logger.info(f"Crawled {len(df)} records.")
 
-            # we'll keep only today's news
-            today = datetime.today().strftime("%Y-%m-%d")
+        # we'll keep only today's news
+        today = datetime.today().strftime("%Y-%m-%d")
 
-            filtered_df = self.processor.filter_titles(df=df, text_col_name="title", min_date=today)
+        filtered_df = self.processor.filter_titles(df=df, text_col_name="title", min_date=today)
 
-            logger.info(f"{len(filtered_df)} records left after filtering.")
+        logger.info(f"{len(filtered_df)} records left after filtering.")
 
-            try:
-                self.write_news_to_db(df=filtered_df, table_name=content_table_name)
-                self.write_ids_to_db(
-                    df=filtered_df,
-                    table_name=model_pred_table_name,
-                    index_name=content_index_name,
-                )
-                logger.info(f"Wrote {len(filtered_df)} records")
+        try:
+            self.write_news_to_db(df=df, table_name=content_table_name)
+            self.write_ids_to_db(
+                df=df,
+                table_name=model_pred_table_name,
+                index_name=content_index_name,
+            )
+            print(f"Wrote {len(df)} records")  # TODO: set up logging
 
-            except IntegrityError as e:
-                logger.error(e)
-
-            finally:
-                # There're max ~180 news per day, and the parser get's 50 at a time,
-                # so it's fine to sleep for a quarter of a day a day
-                # TODO: replace this with crontab service
-                sleep(21600)
+        # TODO: fix duplicates better
+        except IntegrityError as e:
+            print(e)
+            pass
 
 
 def main():
