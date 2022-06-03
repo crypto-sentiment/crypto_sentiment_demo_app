@@ -112,6 +112,20 @@ services:
     profiles:
       - train
 
+  label_studio:
+    image: basic_image_label_studio
+    build: crypto_sentiment_demo_app/label_studio
+    container_name: crypto_sentiment_demo_app-label_studio
+    hostname: label_studio_api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/home/crypto_sentiment_demo_app
+    profiles:
+      - production
+    networks:
+      - postgres
+
   db:
     container_name: postgres
     image: postgres

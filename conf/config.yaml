@@ -14,6 +14,10 @@ inference_api:
   port: 8001
   endpoint_name: classify
 
+label_studio_api:
+  host_name: 127.0.0.1
+  port: 8080
+
 database:
   path_to_connection_param_file: db_connection.ini
   content_table_name: news_titles

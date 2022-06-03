@@ -100,13 +100,28 @@ def get_model_inference_api_endpoint() -> str:
     return f"http://{hostname}:{port}/{endpoint_name}"
 
 
+def get_label_studio_endpoint(endpoint_name: str) -> str:
+
+    params = load_config_params()
+
+    label_studio_params = params["label_studio_api"]
+
+    hostname = label_studio_params["host_name"]
+    port = label_studio_params["port"]
+
+    return f"http://{hostname}:{port}/{endpoint_name}"
+
+
 def entropy(probs: np.ndarray) -> float:
     """
     Calculates classic entropy given a vector of probabilities.
     :param probs: an array of probabilities
     :return: float
     """
-    return (-probs * np.log2(probs)).sum()
+
+    axis = 1 if probs.ndim == 2 else 0
+
+    return (-probs * np.log2(probs)).sum(axis=axis)
 
 
 def parse_time(ts: str, named_timezones=("EST", "GMT", "UTC")) -> datetime.datetime:
