@@ -30,4 +30,4 @@ jobs:
       - name: Check out source repository
         uses: actions/checkout@v2
       - name: Build containers
-        run: docker compose --file docker-compose.yml --file docker-compose.test.yml --profile test up --build
+        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml --profile test up --build
