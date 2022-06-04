@@ -4,4 +4,4 @@ services:
   model_inference_api:
     image: basic_image_model_fast_api_test
     build: crypto_sentiment_demo_app/model_inference_api
-    command: ls -la && pytest tests/model_inference_api
+    command: ls -la && pytest ../../tests/model_inference_api
