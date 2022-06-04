@@ -7,6 +7,6 @@ services:
     command: ls -la
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - $PWD:/root
+      - /opt/workdir:/root
     # volumes:
     #   - /home/runner/_work/crypto_sentiment_demo_app/crypto_sentiment_demo_app:/root
