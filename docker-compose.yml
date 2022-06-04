@@ -146,8 +146,8 @@ services:
       POSTGRES_HOST: ${POSTGRES_HOST}
       PGDATA: /data/postgres
     volumes:
-      - ./db_setup/postgres:/data/postgres
-      - ./db_setup/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+      - ./volumes/postgres:/data/postgres
+      - ./crypto_sentiment_demo_app/database/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
       - type: tmpfs  # to shut up some permission errors, taken from here https://tinyurl.com/4y773dyv
         target: /var/lib/postgresql/data/pg_stat_tmp
         tmpfs:
@@ -175,8 +175,8 @@ services:
         PGADMIN_CONFIG_SERVER_MODE: "False"
         PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
       volumes:
-        - ./db_setup/pgadmin/:/var/lib/pgadmin
-        - ./db_setup/docker_pgadmin_servers.json:/pgadmin4/servers.json
+        - ./volumes/pgadmin/:/var/lib/pgadmin
+        - ./crypto_sentiment_demo_app/database/docker_pgadmin_servers.json:/pgadmin4/servers.json
       ports:
         - "8050:80"
       profiles:
