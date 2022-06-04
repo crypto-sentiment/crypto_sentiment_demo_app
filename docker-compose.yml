@@ -201,6 +201,7 @@ services:
 
   runner:
     image: tcardonne/github-runner:ubuntu-20.04
+    container_name: crypto_sentiment_demo_app-runner
     environment:
       RUNNER_NAME: "mlooops-runner"
       RUNNER_REPOSITORY_URL: ${RUNNER_REPOSITORY_URL}
