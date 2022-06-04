@@ -207,6 +207,7 @@ services:
       GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/root
     profiles:
       - production
 
