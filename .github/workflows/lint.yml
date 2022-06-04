@@ -1,4 +1,4 @@
-name: Lint
+name: Dev
 
 on:
   push:
@@ -25,9 +25,9 @@ jobs:
         run: pre-commit run --from-ref origin/main --to-ref HEAD
   unit-tests:
     runs-on: self-hosted
-    name: Unit test
+    name: Unit tests
     steps:
-        - name: Check out source repository
-          uses: actions/checkout@v2
-        - name: Build containers
-          run: docker compose -f docker-compose.yml -f docker-compose.test.yml --profile test up --build
+      - name: Check out source repository
+        uses: actions/checkout@v2
+      - name: Build containers
+        run: docker compose -f docker-compose.yml -f docker-compose.test.yml --profile test up --build
