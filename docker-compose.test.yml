@@ -6,6 +6,6 @@ services:
     build: crypto_sentiment_demo_app/model_inference_api
     command: ls -la
     volumes:
-      - ./:/root
+      - /home/runner/_work/crypto_sentiment_demo_app:/root
     # volumes:
     #   - /home/runner/_work/crypto_sentiment_demo_app/crypto_sentiment_demo_app:/root
