@@ -172,8 +172,8 @@ services:
       environment:
         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-        PGADMIN_CONFIG_SERVER_MODE: "False"
-        PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+        PGADMIN_CONFIG_SERVER_MODE: "True"
+        PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "True"
       volumes:
         - ./volumes/pgadmin/:/var/lib/pgadmin
         - ./crypto_sentiment_demo_app/database/docker_pgadmin_servers.json:/pgadmin4/servers.json
