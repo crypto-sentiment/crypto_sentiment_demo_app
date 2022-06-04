@@ -2,9 +2,8 @@ version: '3.9'
 
 services:
   model_inference_api:
+    image: basic_image_model_fast_api
+    build: crypto_sentiment_demo_app/model_inference_api
     command: pytest tests/model_inference_api
-    hostname: model_inference_api
-    profiles:
-      - test
-    networks:
-      - model_inference
+    volumes:
+      - ./:/root
