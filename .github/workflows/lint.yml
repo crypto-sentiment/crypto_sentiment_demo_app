@@ -28,7 +28,7 @@ jobs:
     name: Unit tests
     steps:
       - name: Check out source repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
       - name: Install docker compose plugin
         run: apt-get update && apt-get install docker-compose-plugin
       - name: Run tests
