@@ -194,6 +194,8 @@ services:
       - crawler
       - model_scorer
     command: daemon --docker
+    profiles:
+      - production
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 

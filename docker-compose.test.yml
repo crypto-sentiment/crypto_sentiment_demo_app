@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  model_inference_api:
+    command: pytest tests/model_inference_api
+    hostname: model_inference_api
+    profiles:
+      - test
+    networks:
+      - model_inference
