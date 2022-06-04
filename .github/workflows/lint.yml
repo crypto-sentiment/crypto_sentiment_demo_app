@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, linux, ARM64]
+    runs-on: self-hosted
     name: Lint
     steps:
       - name: Check out source repository
