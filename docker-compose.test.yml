@@ -7,3 +7,9 @@ services:
     command: ls -la
     volumes:
       - ./:/root
+    networks:
+      - model_inference_test
+
+networks:
+  model_inference_test:
+    driver: bridge
