@@ -198,12 +198,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   runner:
-    image: tcardonne/github-runner:latest
+    image: tcardonne/github-runner:ubuntu-20.04
     environment:
       RUNNER_NAME: "mlooops-runner"
       RUNNER_REPOSITORY_URL: ${RUNNER_REPOSITORY_URL}
       GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
-      AGENT_TOOLSDIRECTORY: ${AGENT_TOOLSDIRECTORY}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     profiles:
