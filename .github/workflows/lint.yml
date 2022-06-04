@@ -31,5 +31,5 @@ jobs:
         uses: actions/checkout@v1
       - name: Install docker compose plugin
         run: apt-get update && apt-get install docker-compose-plugin
-      - name: Build containers
+      - name: Run tests
         run: docker compose -f docker-compose.test.yml -p test up --build
