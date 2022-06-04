@@ -197,6 +197,17 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
+  runner:
+    image: tcardonne/github-runner:latest
+    environment:
+      RUNNER_NAME: "mlooops-runner"
+      RUNNER_REPOSITORY_URL: ${RUNNER_REPOSITORY_URL}
+      GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    profiles:
+      - production
+
 networks:
   postgres:
     driver: bridge
