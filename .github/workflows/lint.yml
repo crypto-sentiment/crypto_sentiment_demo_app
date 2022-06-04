@@ -28,6 +28,6 @@ jobs:
     name: Unit tests
     steps:
       - name: Check out source repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
       - name: Build containers
-        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml --profile test up --build
+        run: docker compose -f docker-compose.yml -f docker-compose.test.yml --profile test up --build -d
