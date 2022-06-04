@@ -32,4 +32,4 @@ jobs:
       - name: Install docker compose plugin
         run: apt-get update && apt-get install docker-compose-plugin
       - name: Build containers
-        run: docker compose -f docker-compose.yml -f docker-compose.test.yml --profile test up --build -d
+        run: docker compose -f docker-compose.yml -f docker-compose.test.yml --profile test up --build
