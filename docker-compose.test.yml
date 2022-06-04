@@ -6,5 +6,4 @@ services:
     build: crypto_sentiment_demo_app/model_inference_api
     command: ls -la
     volumes:
-      - ./:/root
-    network_mode: "host"
+      - /home/runner/_work/crypto_sentiment_demo_app/crypto_sentiment_demo_app:/root
