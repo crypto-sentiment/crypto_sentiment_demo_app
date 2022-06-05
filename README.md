@@ -205,7 +205,13 @@ We are using setup-python action to setup a python environment. The following st
 - Run: `sudo chown <user name>:<user group> /opt/hostedtoolcache/`
 
 To launch the runner:
-`./run.sh` from the `actions-runner` folder.
+- `cd actions-runner`
+- `sudo ./svc.sh install root`
+- `sudo ./svc.sh start`
+
+To stop the runner:
+`sudo ./svc.sh stop`
+
 
 
 ## Acknowledgements
