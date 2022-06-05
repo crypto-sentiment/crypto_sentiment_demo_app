@@ -1,4 +1,4 @@
-name: Lint
+name: Dev
 
 on:
   push:
@@ -23,3 +23,11 @@ jobs:
         run: pip install pre-commit==2.17.0
       - name: Run pre-commit
         run: pre-commit run --from-ref origin/main --to-ref HEAD
+  unit-tests:
+    runs-on: self-hosted
+    name: Unit tests
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+      - name: Run tests
+        run: docker compose -f docker-compose.test.yml -p test up --build
