@@ -30,6 +30,7 @@ jobs:
       - name: Check out source repository
         uses: actions/checkout@v3
       - name: Run tests
-        run: docker compose -f docker-compose.test.yml -p test \
-          --exit-code-from model_inference_api \
+        run: >
+          docker compose -f docker-compose.test.yml -p test
+          --exit-code-from model_inference_api
           --abort-on-container-exit up --build
