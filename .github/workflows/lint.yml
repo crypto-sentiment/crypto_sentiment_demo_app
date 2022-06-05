@@ -10,13 +10,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Lint
     steps:
       - name: Check out source repository
         uses: actions/checkout@v1
       - name: Set up Python environment
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: "3.9"
       - name: Install dependencies

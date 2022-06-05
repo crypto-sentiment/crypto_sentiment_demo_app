@@ -192,6 +192,22 @@ To launch the service:
 
     That command will export annotated and submitted tasks from the label studio project and write them to the labeled_news_titles table.
 
+### Github runner (dev)
+
+To add self-hosted Github runner:
+- Navigate to the main page of the repository
+- **Settings** -> **Actions** -> **Runners**
+- Click **New self-hosted runner** and follow the instructions to download and configure the GitHub Actions Runner
+
+We are using setup-python action to setup a python environment. The following steps required for this action to work with a self-hosted runner:
+- Put the variable `AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache` into the `.env` file.
+- Create a directory called `hostedtoolcache` inside `/opt`
+- Run: `sudo chown <user name>:<user group> /opt/hostedtoolcache/`
+
+To launch the runner:
+`./run.sh` from the `actions-runner` folder.
+
+
 ## Acknowledgements
 
 We are very grateful to [Hostkey](https://www.hostkey.ru/) and [dstack.ai](https://dstack.ai/) for providing computational resources, both GPU and CPU, for the project.
