@@ -137,9 +137,9 @@ services:
     labels:
       ofelia.enabled: "true"
       ofelia.job-exec.label_studio_import.schedule: "@every 2m"
-      ofelia.job-exec.label_studio_import.command: "bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p crypto_label_project -m import -c entropy -n 8"
+      ofelia.job-exec.label_studio_import.command: "bash /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p crypto_label_project -m import -c entropy -n 8"
       ofelia.job-exec.label_studio_export.schedule: "@every 2m"
-      ofelia.job-exec.label_studio_export.command: "bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p crypto_label_project -m export"
+      ofelia.job-exec.label_studio_export.command: "bash /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p crypto_label_project -m export"
 
   db:
     container_name: postgres
