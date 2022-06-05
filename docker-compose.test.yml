@@ -7,3 +7,10 @@ services:
     command: pytest tests/model_inference_api
     volumes:
       - ./:/root
+
+  model_scorer:
+    image: basic_image_model_scorer
+    build: crypto_sentiment_demo_app/model_scorer
+    command: pytest tests/model_scorer
+    volumes:
+      - ./:/root

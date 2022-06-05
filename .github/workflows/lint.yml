@@ -31,6 +31,6 @@ jobs:
         uses: actions/checkout@v3
       - name: Run tests
         run: >
-          docker compose -f docker-compose.test.yml -p test
+          docker compose -f docker-compose.test.yml -p test up --build
           --exit-code-from model_inference_api
-          --abort-on-container-exit up --build
+          --exit-code-from model_scorer
