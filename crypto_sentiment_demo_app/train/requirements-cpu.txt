@@ -1,6 +1,7 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 transformers==4.18.0
 datasets==2.0.0
+delorean >= 1.0.0
 scikit-learn==1.0.2
 hydra-core==1.1.2
 SQLAlchemy==1.4.36
