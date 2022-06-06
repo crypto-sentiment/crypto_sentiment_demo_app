@@ -149,7 +149,7 @@ function App() {
                   Hostkey
                 </a>
                 and
-                <a className="cu-p mr-5  ml-5" href="https://hostkey.ru/">
+                <a className="cu-p mr-5  ml-5" href="https://dstack.ai/">
                   dstack.ai
                 </a>
                 for providing computational resources
