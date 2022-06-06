@@ -16,9 +16,10 @@ logger = get_logger(Path(__file__).name)
 @click.option("--path_to_csv", help="Path to a CSV file to write to a database.")
 @click.option("--table_name", help="Table name to write data into.")
 @click.option("--index_col_name", default="title_id", help="Index column name")
-def write_news_to_db(path_to_csv: str, table_name: str, engine: Engine, index_col_name: str = "title_id"):
+def write_df_to_db(path_to_csv: str, table_name: str, engine: Engine = engine, index_col_name: str = "title_id"):
     """
-    Writes scraped content into a table
+    Writes scraped content into a table.
+    This is a naive implementation: columns in the CSV file must match table columns in `table_name` exactly.
 
     :param path_to_csv: Path to a CSV file to write to a database
     :param table_name: table name to write data into
@@ -38,3 +39,7 @@ def write_news_to_db(path_to_csv: str, table_name: str, engine: Engine, index_co
         pangres.upsert(df=df, con=engine, table_name=table_name, if_row_exists="update")
     except ProgrammingError:
         logger.info("Column names don't match")
+
+
+if __name__ == "__main__":
+    write_df_to_db()

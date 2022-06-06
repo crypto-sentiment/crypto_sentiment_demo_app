@@ -1,5 +1,7 @@
 #!/bin/bash
 
+docker_image=crypto_sentiment_demo_app-crawler-1
+
 while getopts ":p:t:i:" opt; do
     case $opt in
         p) path_to_csv="$OPTARG";;
@@ -17,8 +19,10 @@ while getopts ":p:t:i:" opt; do
     esac
 done
 
-docker exec crypto_sentiment_demo_app-crawler-1 \
+docker cp $path_to_csv $docker_image:/root/data
+
+docker exec $docker_image \
     python3 crypto_sentiment_demo_app/database/write_df_to_db.py \
-    --path_to_csv "$path_to_csv" \
+    --path_to_csv /root/data/"$(basename -- $path_to_csv)" \
     --table_name "$table_name" \
     --index_col_name "$index_col_name"
