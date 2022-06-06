@@ -172,5 +172,9 @@ db_setup/postgres/
 *.onnx
 *.pkl
 *.csv
+.npm
 !data/bitcoin_ticker_5rows.csv
 .env
+
+#node modules
+node_modules/

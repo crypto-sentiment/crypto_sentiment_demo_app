@@ -1,0 +1,117 @@
+body {
+  margin: 0;
+  font-family: system-ui;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #e5e5e5;
+}
+
+.wrapper {
+  background: #e5e5e5;
+  max-width: 1280px;
+  margin: 0 auto;
+
+  header {
+    .headerRectangle {
+      width: 100%;
+      height: 40px;
+      top: 0px;
+      background: #75715c;
+    }
+
+    .headerInfo {
+      width: 100%;
+      height: 80px;
+      background: #ffffff;
+    }
+  }
+
+  .description {
+    width: 100%;
+    background: #ffffff;
+
+    .label {
+      background: #75715c;
+      width: 50px;
+      height: 30px;
+      border-radius: 8px;
+
+      svg {
+        margin-left: 5px;
+      }
+    }
+  }
+
+  p {
+    font-size: 18px;
+  }
+
+  .indexPlot {
+    background: #ffffff;
+    height: auto;
+
+    button {
+      margin-top: 20px;
+      margin-left: 20px;
+      border: none;
+      background: none;
+
+      img {
+        width: 90px;
+        height: 27px;
+      }
+    }
+  }
+
+  .basement {
+    width: 100%;
+
+    .basementInfo {
+      width: 100%;
+      height: auto;
+      background: linear-gradient(45deg, #75715c, #bdb693);
+
+      .basementInfoItem {
+        width: 100%;
+        padding-left: 20px;
+
+        a:hover {
+          text-decoration: underline;
+          text-decoration-color: #ffffff;
+        }
+
+        p {
+          font-size: 15px;
+          color: #ffffff;
+          margin-right: 20px;
+        }
+
+        b {
+          color: #ffffff;
+        }
+
+        .authorsHeader {
+          font-weight: bold;
+        }
+      }
+
+      .basementInfoItem:last-child {
+        margin-left: auto;
+        .Acknowledgements {
+          color: #ffffff;
+          margin-top: 10px;
+          li {
+            list-style: circle;
+            font-size: 15px;
+            margin-bottom: 5px;
+            margin-left: 20px;
+          }
+        }
+      }
+    }
+
+    img {
+      margin-right: 15px;
+    }
+  }
+}

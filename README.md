@@ -33,7 +33,7 @@ All components except for the database are packed together and managed by `docke
 docker compose -f docker-compose.yml --profile production up --build
 ```
 
-This will open a streamlit app `http://<hostname>:8501` in your browser, see a screenshot below in the [Frontend](#frontend) section.
+This will open a React app `http://<hostname>:3000` in your browser, see a screenshot below in the [Frontend](#frontend) section.
 
 **To train the model:**
 
@@ -141,15 +141,16 @@ FastAPI service which aggregates the necessary data for our frontend from the da
 
 Source: [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)
 
-Curently, the streamlit app looks like this:
+Curently, the React app looks like this:
 
 <center>
-<img src='static/img/streamlit_demo_app.png' width=500>
+<img src='static/img/react_front_app1.png' width=500>
+<img src='static/img/react_front_app2.png' width=500>
 </center>
 
-The frontend itself talks to the database to get the average `positive` score for today's news titles (this will be changed in the future).
 
-This is to be superseded by a more advanced React front end service ([Notion ticket](https://www.notion.so/a74951e4e815480584dea7d61ddce6cc?v=dbfdb1207d0e451b827d3c5041ed0cfd&p=31d73280a5d547bdb8852d3d63d73060)).
+The frontend itself talks to the database to get the average `positive` score for today's news titles (this will be changed in the future, TODO: describe how Frontend talks to the data provider service to get metrics to visualize.).
+
 
 ### Scheduler
 
@@ -166,6 +167,7 @@ To see it in action:
 - additionally, you can check the number of records in the `news_titles` and `model_predictions` tables (they will be growing in time). For that, launch [PGAdmin](), navigate to Servers -> <SERVER_NAME> (e.g. "Docker Compose") -> Databases -> <DB_NAME> (e.g. "cryptotitles_db"), then select Tools -> Query Tool and type your SQL: `select count(*) from news_titles`.
 
 ### Label Studio
+
 Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)
 
 Label Studio service allows us to annotate additional data.

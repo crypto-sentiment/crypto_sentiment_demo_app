@@ -3,6 +3,7 @@ repos:
     rev: v4.0.1
     hooks:
     -   id: check-added-large-files
+        args: ['--maxkb=1500']
     -   id: check-docstring-first
     -   id: check-yaml
     -   id: end-of-file-fixer
