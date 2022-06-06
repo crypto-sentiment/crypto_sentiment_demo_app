@@ -99,6 +99,13 @@ Some commands are:
 - `select count(*) from model_predictions`
 - etc. see psql shortcuts [here](https://www.geeksforgeeks.org/postgresql-psql-commands/).
 
+The data can be injested from CSV files into Postgres tables with a custom script [`crypto_sentiment_demo_app/database/write_df_to_db.sh`](crypto_sentiment_demo_app/database/write_df_to_db.sh). In particular, ~4750 labeled titles are populated this way into tables `news_titles` and `labeled_news_titles`:
+
+- `sh crypto_sentiment_demo_app/database/write_df_to_db.sh -p data/20220606_news_titles_to_import.csv -t news_titles`
+- `sh crypto_sentiment_demo_app/database/write_df_to_db.sh -p data/20220606_labeled_news_titles_to_import.csv -t labeled_news_titles`
+
+Where files `data/20220606_*_news_titles_to_import.csv` are produced [here](https://github.com/crypto-sentiment/crypto_sentiment_notebooks/pull/13) – those are basically all the labeled data we have, with the only fields left that are matching those in the database.
+
 ### Pgadmin
 
 Source: `pgadmin` service defined in [`docker-compose.yml`](docker-compose.yml)
@@ -166,6 +173,7 @@ To see it in action:
 - additionally, you can check the number of records in the `news_titles` and `model_predictions` tables (they will be growing in time). For that, launch [PGAdmin](), navigate to Servers -> <SERVER_NAME> (e.g. "Docker Compose") -> Databases -> <DB_NAME> (e.g. "cryptotitles_db"), then select Tools -> Query Tool and type your SQL: `select count(*) from news_titles`.
 
 ### Label Studio
+
 Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)
 
 Label Studio service allows us to annotate additional data.
@@ -184,7 +192,7 @@ To launch the service:
 
     Two sampling strategies are available: `least_confidence` and `entropy`.
 
-    Also the model_predictions table will be modified so that is_annotation flag will be set to True for the imported samples.
+    Also the `model_predictions` table will be modified so that `is_annotation` flag will be set to True for the imported samples.
 
 - To export annotated tasks from the label studio run:
 
