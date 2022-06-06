@@ -1,5 +1,6 @@
 #!/bin/bash
 
+index_col_name=title_id
 docker_image=crypto_sentiment_demo_app-crawler-1
 
 while getopts ":p:t:i:" opt; do

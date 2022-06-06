@@ -32,11 +32,10 @@ def write_df_to_db(path_to_csv: str, table_name: str, engine: Engine = engine, i
     # hence using Pangres upsert https://github.com/ThibTrip/pangres/wiki/Upsert
 
     try:
-        df = pd.read_csv(path_to_csv)
-        df[index_col_name] = df.index
+        df = pd.read_csv(path_to_csv).drop_duplicates(subset=[index_col_name])
         df.set_index(index_col_name, inplace=True, drop=True)  # pangres obliges a df to have an index name provided
-        logger.info(df.head(2))
         pangres.upsert(df=df, con=engine, table_name=table_name, if_row_exists="update")
+        logger.info(f"Wrote/updated {len(df)} records in table {table_name}.")
     except ProgrammingError:
         logger.info("Column names don't match")
 
