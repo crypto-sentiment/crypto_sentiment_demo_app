@@ -1,7 +1,7 @@
 CREATE TABLE news_titles (
     title_id BIGINT PRIMARY KEY,
     title VARCHAR(511) NOT NULL,
-    source VARCHAR(72),
+    source VARCHAR(255),
     pub_time TIMESTAMP
 );
 CREATE TABLE model_predictions (
