@@ -25,7 +25,7 @@ All components except for the database are packed together and managed by `docke
  - install [`docker`](https://docs.docker.com/engine/install/ubuntu/) and [`docker-compose`](https://docs.docker.com/compose/install/). Tested with Docker version 20.10.14 and docker-compose v2.4.1 (make sure it's docker-compose v2 not v1, we had to add the path to docker-compose to the PATH env variable: `export PATH=/usr/libexec/docker/cli-plugins/:$PATH`);
  - put variables from [this Notion page](https://www.notion.so/d8eaed6d640640e59704771f6b12b603) (section "Project env variables", limited to project contributors) in the `.env` file, see `.env.example`
  - check `volumes/pgadmin` and `volumes/postgres` permissions, if they are root-only, run `sudo chown -R <username> <folder_name>; sudo chmod -R 777 <folder_name>`for both folders (otherwise, they won't be accessible inside docker);
- - put the model pickle file into `static/models` (later this will be superseded by MLFlow registry), at the moment the model file `/artifacts/models.logit_tfidf_btc_sentiment.pkl` is stored on the Hostkey machine (limited to project contributors) ;
+ - put the model pickle file into `static/models` (later this will be superseded by MLFlow registry), at the moment the model file `/artifacts/models.logit_tfidf_btc_sentiment.` is stored on the Hostkey machine (limited to project contributors) ;
 
 **To launch the whole application:**
 
@@ -34,6 +34,17 @@ docker compose -f docker-compose.yml --profile production up --build
 ```
 
 This will open a React app `http://<hostname>:3000` in your browser, see a screenshot below in the [Frontend](#frontend) section.
+
+**To set up labeling with LabelStudio:**
+
+There's one non-automated step: to label data, one needs a LabelStudio access token. This token can not be read with LabelStudio API but rather needs to be communicated to the app manually. To provide this token:
+
+- go to LabelStudio (https//:\<server-ip\>:8080);
+- create an account (in needs to be created from scratch each time `docker-compose` is relaunched);
+- go to Accounts & Settings (upper-right corner in the LabelStudio interface) and copy the access token;
+- put the access token into the `.env` file as LABEL\_STUDIO\_ACCESS\_TOKEN.
+
+For more details, see the [Label Studio](#label-studio) section.
 
 **To train the model:**
 
@@ -185,6 +196,15 @@ To launch the service:
 - This will launch Label Studio at http://\<server-ip\>:8080/
 - Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
 - Put the Access token into the `.env` file as LABEL\_STUDIO\_ACCESS\_TOKEN, also specify LabelStudio port there (e.g. 8080)
+
+
+Further, the scheduler picks it up, creates a LabelStudio project and performs imports of data into and exports on schedule. See the "label_studio" service definition in the [`docker-compose.yml`](docker-compose.yml) file.
+
+
+#### Importing/exporting data
+
+It's also possible to import unlabeled data into LabelStudio and to export labeled data from LabelStudio manually.
+
 - To create new annotation project and add tasks from the model_predictions table run:
 
     `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project name> -m import -c <active learning sampling strategy> -n <number of items to sample>`.
