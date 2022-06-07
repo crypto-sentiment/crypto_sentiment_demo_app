@@ -24,7 +24,7 @@ All components except for the database are packed together and managed by `docke
 
  - install [`docker`](https://docs.docker.com/engine/install/ubuntu/) and [`docker-compose`](https://docs.docker.com/compose/install/). Tested with Docker version 20.10.14 and docker-compose v2.4.1 (make sure it's docker-compose v2 not v1, we had to add the path to docker-compose to the PATH env variable: `export PATH=/usr/libexec/docker/cli-plugins/:$PATH`);
  - put variables from [this Notion page](https://www.notion.so/d8eaed6d640640e59704771f6b12b603) (section "Project env variables", limited to project contributors) in the `.env` file, see `.env.example`
- - check `db_setup/pgadmin` and `db_setup/postgres` permissions, if they are root-only, run `sudo chown -R <username> <folder_name>; sudo chmod -R 777 <folder_name>`for both folders (otherwise, they won't be accessible inside docker);
+ - check `volumes/pgadmin` and `volumes/postgres` permissions, if they are root-only, run `sudo chown -R <username> <folder_name>; sudo chmod -R 777 <folder_name>`for both folders (otherwise, they won't be accessible inside docker);
  - put the model pickle file into `static/models` (later this will be superseded by MLFlow registry), at the moment the model file `/artifacts/models.logit_tfidf_btc_sentiment.pkl` is stored on the Hostkey machine (limited to project contributors) ;
 
 **To launch the whole application:**
@@ -33,7 +33,7 @@ All components except for the database are packed together and managed by `docke
 docker compose -f docker-compose.yml --profile production up --build
 ```
 
-This will open a streamlit app `http://<hostname>:8501` in your browser, see a screenshot below in the [Frontend](#frontend) section.
+This will open a React app `http://<hostname>:3000` in your browser, see a screenshot below in the [Frontend](#frontend) section.
 
 **To train the model:**
 
@@ -99,6 +99,13 @@ Some commands are:
 - `select count(*) from model_predictions`
 - etc. see psql shortcuts [here](https://www.geeksforgeeks.org/postgresql-psql-commands/).
 
+The data can be injested from CSV files into Postgres tables with a custom script [`crypto_sentiment_demo_app/database/write_df_to_db.sh`](crypto_sentiment_demo_app/database/write_df_to_db.sh). In particular, ~4750 labeled titles are populated this way into tables `news_titles` and `labeled_news_titles`:
+
+- `sh crypto_sentiment_demo_app/database/write_df_to_db.sh -p data/20220606_news_titles_to_import.csv -t news_titles`
+- `sh crypto_sentiment_demo_app/database/write_df_to_db.sh -p data/20220606_labeled_news_titles_to_import.csv -t labeled_news_titles`
+
+Where files `data/20220606_*_news_titles_to_import.csv` are produced [here](https://github.com/crypto-sentiment/crypto_sentiment_notebooks/pull/13) – those are basically all the labeled data we have, with the only fields left that are matching those in the database.
+
 ### Pgadmin
 
 Source: `pgadmin` service defined in [`docker-compose.yml`](docker-compose.yml)
@@ -141,15 +148,16 @@ FastAPI service which aggregates the necessary data for our frontend from the da
 
 Source: [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)
 
-Curently, the streamlit app looks like this:
+Curently, the React app looks like this:
 
 <center>
-<img src='static/img/streamlit_demo_app.png' width=500>
+<img src='static/img/react_front_app1.png' width=500>
+<img src='static/img/react_front_app2.png' width=500>
 </center>
 
-The frontend itself talks to the database to get the average `positive` score for today's news titles (this will be changed in the future).
 
-This is to be superseded by a more advanced React front end service ([Notion ticket](https://www.notion.so/a74951e4e815480584dea7d61ddce6cc?v=dbfdb1207d0e451b827d3c5041ed0cfd&p=31d73280a5d547bdb8852d3d63d73060)).
+The frontend itself talks to the database to get the average `positive` score for today's news titles (this will be changed in the future, TODO: describe how Frontend talks to the data provider service to get metrics to visualize.).
+
 
 ### Scheduler
 
@@ -166,6 +174,7 @@ To see it in action:
 - additionally, you can check the number of records in the `news_titles` and `model_predictions` tables (they will be growing in time). For that, launch [PGAdmin](), navigate to Servers -> <SERVER_NAME> (e.g. "Docker Compose") -> Databases -> <DB_NAME> (e.g. "cryptotitles_db"), then select Tools -> Query Tool and type your SQL: `select count(*) from news_titles`.
 
 ### Label Studio
+
 Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)
 
 Label Studio service allows us to annotate additional data.
@@ -184,7 +193,7 @@ To launch the service:
 
     Two sampling strategies are available: `least_confidence` and `entropy`.
 
-    Also the model_predictions table will be modified so that is_annotation flag will be set to True for the imported samples.
+    Also the `model_predictions` table will be modified so that `is_annotation` flag will be set to True for the imported samples.
 
 - To export annotated tasks from the label studio run:
 
