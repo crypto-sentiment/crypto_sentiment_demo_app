@@ -4,6 +4,7 @@ services:
   crawler:
     image: basic_image_crawler
     build: crypto_sentiment_demo_app/crawler
+    container_name: crypto_sentiment_demo_app-crawler-1
     command: tail -f /dev/null  # a dummy command to keep the container alive
     volumes:
       - ./:/root
