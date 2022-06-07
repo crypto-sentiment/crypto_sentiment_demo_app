@@ -90,9 +90,11 @@ services:
     image: react_frontend_image
     build: crypto_sentiment_demo_app/frontend
     hostname: frontend
-    command: npm start
+    command: npm run start
+    environment:
+      - PORT=${REACT_FRONTEND_PORT}
     ports:
-      - "3000:3000"
+      - "${REACT_FRONTEND_PORT}:${REACT_FRONTEND_PORT}"
     volumes:
       - ./:/root
     depends_on:
