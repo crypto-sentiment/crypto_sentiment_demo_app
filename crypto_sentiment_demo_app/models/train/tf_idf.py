@@ -2,6 +2,7 @@ import pickle
 from pathlib import Path
 from typing import Any, Dict
 
+import mlflow
 import numpy as np
 from skl2onnx import to_onnx
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -36,13 +37,8 @@ class TfidfLogisticRegression(IModelTrain):
         :param y: train labels
         """
         
-        mlflow.set_experiment("tf_idf")
-        mlflow.sklearn.autolog()
-
         self.train_sample = X[:1]
-
-        with mlflow.start_run():
-            self.model.fit(X, y)
+        self.model.fit(X, y)
 
         if self.model_cfg["cross_validation"]["cv_perform_cross_val"]:
             cross_val_params = self.model_cfg["cross_validation"]
@@ -73,11 +69,13 @@ class TfidfLogisticRegression(IModelTrain):
         if env == "dev":
             with open(self.model_cfg["checkpoint_path"], "wb") as f:
                 pickle.dump(self.model, f)
-            mlflow.sklearn.log_model(self.model)
         elif env == "prod":
-            mlflow.sklearn.log_model(self.model)
             model_onnx = to_onnx(self.model, self.train_sample)
-
+            mlflow.onnx.log_model(
+                onnx_model=model_onnx,
+                artifact_path="tf_idf",
+                registered_model_name="tf_idf"
+                )
             with open(self.model_cfg["path_to_model"], "wb") as f:
                 f.write(model_onnx.SerializeToString())
         else:
@@ -115,3 +113,7 @@ class TfidfLogisticRegression(IModelTrain):
         model = Pipeline([("tfidf", text_transformer), ("logreg", logreg)])
 
         return model
+    
+    def enable_mlflow_logging(self) -> None:
+        mlflow.set_experiment("tf_idf")
+        mlflow.sklearn.autolog()

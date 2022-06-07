@@ -1,14 +1,16 @@
 import os
-import subprocess
 from pathlib import Path
 from typing import Any, Dict, cast
 
+import mlflow
+import onnx
 import numpy as np
 import torch
 import transformers
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
 from transformers.modeling_utils import PreTrainedModel
+from transformers.onnx import FeaturesManager, export, validate_model_outputs
 
 from crypto_sentiment_demo_app.models.train.base import IModelTrain, TrainRegistry
 
@@ -69,7 +71,7 @@ class Bert(IModelTrain):
         )
 
         gpus = 1 if self.device.type == "cuda" and torch.cuda.is_available() else 0
-
+        
         self.trainer = Trainer(
             max_epochs=self.model_cfg["epochs"],
             gpus=gpus,
@@ -78,12 +80,13 @@ class Bert(IModelTrain):
             enable_checkpointing=True,
             logger=False,
         )
-
+        
         self.trainer.fit(
             self.model,
             train_dataloaders=train_dataloader,
             val_dataloaders=val_dataloader,
         )
+
 
     def save(self) -> None:
         """Save model."""
@@ -92,27 +95,48 @@ class Bert(IModelTrain):
 
         pt_path = save_dir / f"{filename}.pt"
         onnx_path = save_dir / f"{filename}.onnx"
-        onnx_path.touch(exist_ok=True)
+
+        self._onnx_export(onnx_path)
+        onnx_model = onnx.load_model(onnx_path)
+        mlflow.onnx.log_model(
+            onnx_model=onnx_model,
+            artifact_path="bert",
+            registered_model_name="bert"
+            )
 
         self.model = SentimentPipeline.load_from_checkpoint(self.model_cfg["checkpoint_path"], cfg=self.model_cfg)
         cast(PreTrainedModel, self.model.model).eval()
         cast(PreTrainedModel, self.model.tokenizer).save_pretrained(pt_path)
         cast(PreTrainedModel, self.model.model).save_pretrained(pt_path)
 
-        # That hack is applied because there is no easy way to export huggingface model from the code
-        subprocess.call(
-            [
-                "python3",
-                "-m",
-                "transformers.onnx",
-                "--feature",
-                "sequence-classification",
-                "--model",
-                pt_path,
-                onnx_path,
-            ]
-        )
 
     def load(self) -> None:
         """Load model checkpoint."""
         self.model = SentimentPipeline.load_from_checkpoint(self.model_cfg["checkpoint_path"], cfg=self.model_cfg)
+
+
+    def _onnx_export(self, path: Path):
+        model_kind, model_onnx_config = FeaturesManager.check_supported_model_or_raise(
+            self.model.model,
+            feature="sequence-classification"
+            )
+        onnx_config = model_onnx_config(self.model.model.config)
+        onnx_inputs, onnx_outputs = export(
+            self.model.tokenizer,
+            self.model.model,
+            onnx_config,
+            onnx_config.default_onnx_opset,
+            path
+        )
+        validate_model_outputs(
+            onnx_config,
+            self.model.tokenizer,
+            self.model.model,
+            path,
+            onnx_outputs,
+            onnx_config.atol_for_validation
+            )
+
+    def enable_mlflow_logging(self) -> None:
+        mlflow.set_experiment('bert')
+        mlflow.pytorch.autolog()

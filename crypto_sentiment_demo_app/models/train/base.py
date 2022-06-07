@@ -34,6 +34,11 @@ class IModelTrain(ABC):
         """Load model."""
         pass
 
+    @abstractmethod
+    def enable_mlflow_logging(self) -> None:
+        """Calls mlflow.framework.autolog()"""
+        pass
+
 
 class TrainRegistry:
     registry: Dict[str, IModelTrain] = {}

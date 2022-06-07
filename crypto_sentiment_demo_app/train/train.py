@@ -2,6 +2,7 @@ from typing import Any, Dict, cast
 
 from hydra import compose
 from omegaconf import OmegaConf
+import mlflow
 
 from crypto_sentiment_demo_app.models.train import IModelTrain, TrainRegistry
 from crypto_sentiment_demo_app.train.read_data import read_train_data
@@ -25,9 +26,10 @@ def main():
     train_texts = train_df[cfg_data["text_field_name"]].values
     train_targets = train_df[cfg_data["label_field_name"]].values
 
-    model.fit(train_texts, train_targets)
-
-    model.save()
+    model.enable_mlflow_logging()
+    with mlflow.start_run():
+        model.fit(train_texts, train_targets)
+        model.save()
 
 
 if __name__ == "__main__":

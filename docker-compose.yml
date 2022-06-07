@@ -128,6 +128,7 @@ services:
       - MLFLOW_S3_ENDPOINT_URL=http://nginx:9000
     networks:
       - mlflow
+      - s3
     volumes:
       - ./:/root
     profiles:

@@ -12,3 +12,5 @@ torch==1.10.0+cu113
 pytorch-lightning==1.6.0
 protobuf<4.21.0
 mlflow==1.26.1
+boto3==1.24.3
+Delorean==1.0.0
