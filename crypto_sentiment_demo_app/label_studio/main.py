@@ -36,11 +36,14 @@ if __name__ == "__main__":
 
         data_to_import = sampler.get_samples(data, num_samples=args.num_samples)
 
-        set_annotation_flag(data_to_import)
+        if len(data_to_import) != 0:
+            set_annotation_flag(data_to_import)
 
-        label_studio.import_tasks(data_to_import)
+            label_studio.import_tasks(data_to_import)
 
-        logger.info(f"{len(data_to_import)} tasks were imported to the label studio")
+            logger.info(f"{len(data_to_import)} tasks were imported to the label studio")
+        else:
+            logger.info("There are no tasks to import to the label studio")
 
     elif args.mode == "export":
         tasks: pd.DataFrame = label_studio.export_tasks(export_type="JSON_MIN")
