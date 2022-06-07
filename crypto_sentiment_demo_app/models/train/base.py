@@ -36,7 +36,7 @@ class IModelTrain(ABC):
 
     @abstractmethod
     def enable_mlflow_logging(self) -> None:
-        """Calls mlflow.framework.autolog()"""
+        """Set the experiment and log parameters."""
         pass
 
 

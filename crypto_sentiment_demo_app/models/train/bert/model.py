@@ -1,4 +1,5 @@
 import os
+import gc
 from pathlib import Path
 from typing import Any, Dict, cast
 
@@ -103,6 +104,8 @@ class Bert(IModelTrain):
             artifact_path="bert",
             registered_model_name="bert"
             )
+        del onnx_model
+        gc.collect()
 
         self.model = SentimentPipeline.load_from_checkpoint(self.model_cfg["checkpoint_path"], cfg=self.model_cfg)
         cast(PreTrainedModel, self.model.model).eval()
@@ -119,7 +122,7 @@ class Bert(IModelTrain):
         model_kind, model_onnx_config = FeaturesManager.check_supported_model_or_raise(
             self.model.model,
             feature="sequence-classification"
-            )
+        )
         onnx_config = model_onnx_config(self.model.model.config)
         onnx_inputs, onnx_outputs = export(
             self.model.tokenizer,
@@ -135,7 +138,7 @@ class Bert(IModelTrain):
             path,
             onnx_outputs,
             onnx_config.atol_for_validation
-            )
+        )
 
     def enable_mlflow_logging(self) -> None:
         mlflow.set_experiment('bert')
