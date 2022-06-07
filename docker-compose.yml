@@ -89,11 +89,12 @@ services:
       - postgres
 
   frontend:
-    image: basic_image_streamlit
+    image: react_frontend_image
     build: crypto_sentiment_demo_app/frontend
-    command: streamlit run crypto_sentiment_demo_app/frontend/streamlit_app.py
+    hostname: frontend
+    command: npm start
     ports:
-      - "8501:8501"
+      - "3000:3000"
     volumes:
       - ./:/root
     depends_on:

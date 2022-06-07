@@ -1,0 +1,25 @@
+.indexCard {
+  background: #ffffff;
+  width: 410px;
+  height: 370px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 30px;
+  p,
+  h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+  img {
+    margin-right: 15px;
+  }
+  svg {
+    margin-right: 15px;
+  }
+  tspan {
+    font-weight: 700;
+    font-stretch: condensed;
+    font-size: 12px;
+  }
+}
