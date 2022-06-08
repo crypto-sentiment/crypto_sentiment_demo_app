@@ -8,6 +8,9 @@ on:
   pull_request:
     branches:
       - main
+    tags:
+      - 'v*'
+
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
@@ -19,9 +22,6 @@ jobs:
           - context: ./crypto_sentiment_demo_app/crawler
             image: alxvct/cryptosentiment/basic_image_crawler
             name: crawler
-          - context: ./crypto_sentiment_demo_app/model_inference_api
-            image: alxvct/cryptosentiment/basic_image_model_fast_api
-            name: fast_api
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -36,11 +36,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ matrix.image }}
+          images: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptosentiment
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: ${{ matrix.context }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptosentiment:${{ matrix.name }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
