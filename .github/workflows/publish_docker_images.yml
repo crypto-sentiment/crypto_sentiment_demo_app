@@ -6,6 +6,11 @@ on:
       - main
     tags:
       - 'v*'
+  pull_request:
+    branches:
+      - main
+    tags:
+      - 'v*'
 
 jobs:
   push_to_registry:
