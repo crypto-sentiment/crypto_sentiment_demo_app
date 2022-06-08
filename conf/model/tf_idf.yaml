@@ -1,5 +1,5 @@
 name: "tf_idf"                       # TODO replace this with setting up MLFlow tracking
-version: 1
+version: "latest"
 
 path_to_model: static/models/prod/logit_tfidf_btc_sentiment.onnx # TODO replace this with setting up MLFlow tracking
 checkpoint_path: static/models/dev/logit_tfidf_btc_sentiment.pkl
