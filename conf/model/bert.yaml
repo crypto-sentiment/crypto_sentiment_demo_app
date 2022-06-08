@@ -1,7 +1,8 @@
+name: bert
+version: "latest"
+
 path_to_model: static/models/prod/bert.onnx
 checkpoint_path: static/models/dev/bert.ckpt
-name: bert
-model_version: 0.0.1
 
 epochs: 3
 train_batch_size: 8
@@ -37,3 +38,6 @@ scheduler:
     params:
         name: linear
         num_warmup_steps: 500
+
+onnx_config:
+  output_names: ["logits"]
