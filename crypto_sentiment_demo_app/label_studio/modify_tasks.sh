@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # read in the env variables defined in .env file
-export $(grep -v '^#' .env | xargs -d '\n')
+export $(grep -v '^#' /home/crypto_sentiment_demo_app/.env | xargs -d '\n')
 
-project_name="Crypto Sentiment project"
+project_name="crypto_label_project"
 mode="import"
 criterion="entropy"
 num_samples=10
@@ -29,8 +29,7 @@ while getopts ":a:p:m:c:n:" opt; do
     esac
 done
 
-docker exec -w /home/crypto_sentiment_demo_app crypto_sentiment_demo_app-label_studio \
-    python3 crypto_sentiment_demo_app/label_studio/main.py \
+python3 /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/main.py \
     --mode "$mode" \
     --criterion "$criterion" \
     --num_samples "$num_samples" \
