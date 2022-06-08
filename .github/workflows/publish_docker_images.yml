@@ -20,8 +20,9 @@ jobs:
       matrix:
         include:
           - context: ./crypto_sentiment_demo_app/crawler
-            image: alxvct/cryptosentiment/basic_image_crawler
             name: crawler
+          - context: ./crypto_sentiment_demo_app/data_provider
+            name: data_provider
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -38,10 +39,10 @@ jobs:
         with:
           images: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptosentiment
           tags: |
-            type=ref,event=branch,prefix=${{ matrix.name }}
-            type=ref,event=pr,prefix=${{ matrix.name }}
-            type=semver,pattern={{version}},prefix=${{ matrix.name }}
-            type=semver,pattern={{major}}.{{minor}},prefix=${{ matrix.name }}
+            type=ref,event=branch,suffix=-${{ matrix.name }}
+            type=ref,event=pr,suffix=-${{ matrix.name }}
+            type=semver,pattern={{version}},suffix=-${{ matrix.name }}
+            type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.name }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
