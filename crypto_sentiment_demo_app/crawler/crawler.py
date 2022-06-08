@@ -8,7 +8,6 @@ import pangres
 import spacy
 from mmh3 import hash as mmh3_hash
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.exc import IntegrityError
 from tqdm import tqdm
 
 from crypto_sentiment_demo_app.crawler.processor import TitleProcessor
@@ -79,7 +78,7 @@ class Crawler:
                     sources.append(title_metadata.title_detail["base"])
                 else:
                     sources.append("missing")
-                pub_times.append(parse_time(title_metadata.published))
+                pub_times.append(str(parse_time(title_metadata.published)))
 
         df = pd.DataFrame(
             {
