@@ -26,8 +26,8 @@ jobs:
             name: data_provider
           - context: ./crypto_sentiment_demo_app/frontend
             name: frontend
-          - context: ./crypto_sentiment_demo_app/model_inferenece_api
-            name: model_inferenece_api
+          - context: ./crypto_sentiment_demo_app/model_inference_api
+            name: model_inference_api
           - context: ./crypto_sentiment_demo_app/model_scorer
             name: model_scorer
     steps:
