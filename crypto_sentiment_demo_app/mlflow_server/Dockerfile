@@ -1,5 +1,8 @@
 FROM python:3.9-slim
 
+WORKDIR /mlflow
+COPY create_bucket.py create_bucket.py
+COPY start.sh start.sh
 
-# Install python packages
-RUN pip install mlflow boto3 psycopg2-binary
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt

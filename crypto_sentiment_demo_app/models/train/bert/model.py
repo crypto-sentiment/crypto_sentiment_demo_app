@@ -88,7 +88,6 @@ class Bert(IModelTrain):
             val_dataloaders=val_dataloader,
         )
 
-
     def save(self) -> None:
         """Save model."""
         save_dir = Path(self.model_cfg["path_to_model"]).parent
@@ -112,11 +111,9 @@ class Bert(IModelTrain):
         cast(PreTrainedModel, self.model.tokenizer).save_pretrained(pt_path)
         cast(PreTrainedModel, self.model.model).save_pretrained(pt_path)
 
-
     def load(self) -> None:
         """Load model checkpoint."""
         self.model = SentimentPipeline.load_from_checkpoint(self.model_cfg["checkpoint_path"], cfg=self.model_cfg)
-
 
     def _onnx_export(self, path: Path):
         model_kind, model_onnx_config = FeaturesManager.check_supported_model_or_raise(

@@ -242,16 +242,24 @@ services:
     container_name: mlflow_server
     hostname: mlflow
     ports:
-      - "5000:5000"
+      - "8500:5000"
     networks:
       - postgres
       - s3
       - mlflow
+    depends_on:
+      - minio
+      - nginx
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
       - MLFLOW_S3_ENDPOINT_URL=http://nginx:9000
-    command: mlflow server --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB} --default-artifact-root s3://${AWS_S3_BUCKET}/ --host 0.0.0.0
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+    command: /mlflow/start.sh
 
 networks:
   postgres:
