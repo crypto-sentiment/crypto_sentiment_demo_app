@@ -1,11 +1,7 @@
 name: Publish Docker image
 
-# TODO replace with release event trigger
 on:
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
     tags:
@@ -23,6 +19,12 @@ jobs:
             name: crawler
           - context: ./crypto_sentiment_demo_app/data_provider
             name: data_provider
+          - context: ./crypto_sentiment_demo_app/frontend
+            name: frontend
+          - context: ./crypto_sentiment_demo_app/model_inferenece_api
+            name: model_inferenece_api
+          - context: ./crypto_sentiment_demo_app/model_scorer
+            name: model_scorer
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
