@@ -8,30 +8,16 @@ function App() {
   const [items, setItems] = React.useState([]);
 
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
-
-  // simple example of fetch
-  // fetch(
-  //   "/news/top_k_news_titles",
-  //   {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     }
-  //   }
-  // )
-  //   .then(res => res.json())
-  //   .then(data => {
-  //     console.log(data);
-  //   })
-  //   .catch(rejected => {
-  //     console.log(rejected);
-  //   });
+  const [average_last_hours, setAvarageLastHours] = React.useState([]);
 
   React.useEffect(() => {
     fetch("/news/top_k_news_titles", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+      },
+      body: {
+        "k": 4,
       },
     })
       .then((res) => {
@@ -43,6 +29,24 @@ function App() {
   }, []);
 
   console.log(latest_news_items);
+
+  React.useEffect(() => {
+    fetch("/positive_score/average_last_hours", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setAvarageLastHours(json);
+      });
+  }, []);
+
+  console.log(latest_news_items);
+
 
   React.useEffect(() => {
     fetch("https://6267e06101dab900f1c65f2c.mockapi.io/indexes")
@@ -80,8 +84,8 @@ function App() {
         </p>
       </div>
       <div className="indexCards d-flex flex-row justify-between mt-50">
-        {items.map((item) => (
-          <Manometer sentIndex={item.day_index} />
+        {items.map((average_last_hours) => (
+          <Manometer sentIndex={average_last_hours} />
         ))}
         {items.map((item) => (
           <HistoricalValues indexesForPeriods={item.historical_values} />
