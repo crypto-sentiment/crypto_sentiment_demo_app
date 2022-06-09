@@ -129,6 +129,7 @@ services:
     image: basic_image_label_studio
     build: crypto_sentiment_demo_app/label_studio
     container_name: crypto_sentiment_demo_app-label_studio
+    command: label-studio --username ${LABEL_STUDIO_USER} --password ${LABEL_STUDIO_PASSSWORD} --user-token ${LABEL_STUDIO_ACCESS_TOKEN}
     hostname: label_studio_api
     ports:
       - "8080:8080"
