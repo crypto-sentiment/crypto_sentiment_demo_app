@@ -165,9 +165,9 @@ cython_debug/
 .local
 .bash_history
 .python_history
-db_setup/pgadmin/
-db_setup/postgres/
 minio/
+volumes/pgadmin/
+volumes/postgres/
 *.pt
 *.ckpt
 *.onnx

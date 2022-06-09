@@ -3,8 +3,6 @@ from spacy.lang.en import English as SpacyEnglishPipeline
 from spacy.language import Language
 from spacy_langdetect import LanguageDetector
 
-from crypto_sentiment_demo_app.utils import parse_time
-
 
 class TitleProcessor:
     def __init__(self, spacy_model: SpacyEnglishPipeline):
@@ -126,7 +124,7 @@ class TitleProcessor:
         :param pub_timestamp_col_name: column name to filter on
         :return: bool
         """
-        return df.loc[df[pub_timestamp_col_name] >= parse_time(min_date)]
+        return df.loc[df[pub_timestamp_col_name] >= min_date]
 
     def filter_titles(
         self, df: pd.DataFrame, min_date: str, text_col_name: str = "title", pub_timestamp_col_name: str = "pub_time"

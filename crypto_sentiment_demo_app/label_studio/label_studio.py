@@ -156,7 +156,7 @@ class LabelStudioProject:
             timestamp = parser.parse(task["updated_at"]).strftime("%Y-%m-%d %H:%M:%S")
             export_data["annot_time"].append(timestamp)
 
-        if remove_tasks:
+        if remove_tasks and len(export_tasks) != 0:
             self._remove_annotated_tasks()
 
         return pd.DataFrame(export_data)
