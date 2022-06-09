@@ -203,7 +203,7 @@ Further, the scheduler picks it up, creates a LabelStudio project and performs i
 
 #### Importing/exporting data
 
-It's also possible to import unlabeled data into LabelStudio and to export labeled data from LabelStudio manually. For that, you need to log into the running container with Label Studio: `docker ps` show running containers, there you can copy the Label Studio container ID and run `docker exec -it \<container_id\> /bin/bash`. 
+It's also possible to import unlabeled data into LabelStudio and to export labeled data from LabelStudio manually. For that, you need to log into the running container with Label Studio: `docker ps` show running containers, there you can copy the Label Studio container ID and run `docker exec -it \<container_id\> /bin/bash`.
 
 **Importing data into Label Studio**
 
