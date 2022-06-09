@@ -167,6 +167,7 @@ cython_debug/
 .python_history
 db_setup/pgadmin/
 db_setup/postgres/
+minio/
 *.pt
 *.ckpt
 *.onnx
