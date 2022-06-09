@@ -1,0 +1,55 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - context: ./crypto_sentiment_demo_app/crawler
+            name: crawler
+          - context: ./crypto_sentiment_demo_app/data_provider
+            name: data_provider
+          - context: ./crypto_sentiment_demo_app/frontend
+            name: frontend
+          - context: ./crypto_sentiment_demo_app/model_inference_api
+            name: model_inference_api
+          - context: ./crypto_sentiment_demo_app/model_scorer
+            name: model_scorer
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ secrets.DOCKER_HUB_USERNAME }}/cryptosentiment
+          tags: |
+            type=ref,event=branch,suffix=-${{ matrix.name }}
+            type=ref,event=pr,suffix=-${{ matrix.name }}
+            type=semver,pattern={{version}},suffix=-${{ matrix.name }}
+            type=semver,pattern={{major}}.{{minor}},suffix=-${{ matrix.name }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
