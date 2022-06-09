@@ -51,3 +51,4 @@ COPY requirements-gpu.txt /root
 RUN pip install -r requirements-gpu.txt --no-cache-dir
 
 ENV PYTHONPATH "${PYTHONPATH}:/root/crypto_sentiment_demo_app"
+ENV PYTHONPYCACHEPREFIX=/tmp/cpython/
