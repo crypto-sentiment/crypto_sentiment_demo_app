@@ -31,4 +31,3 @@ class TfidfLogisticRegressionInference(IModelInference):
         response_dict = {k: round(v, self.model_cfg["inference"]["round_prob"]) for k, v in pred_onnx.items()}
 
         return response_dict
-        

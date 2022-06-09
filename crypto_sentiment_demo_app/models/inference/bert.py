@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict
 import numpy as np
 
 from crypto_sentiment_demo_app.models.utils import build_object
+
 from .base import IModelInference, InferenceRegistry, load_model_pred_func
 
 
@@ -51,8 +52,8 @@ class BertInference(IModelInference):
         tokenizer = build_object(self.model_cfg["tokenizer"], is_hugging_face=True)
         tokenizer_call_params = deepcopy(self.model_cfg["tokenizer"]["call_params"])
         tokenizer_call_params["return_tensors"] = "np"
-        
+
         def tokenize_func(input_text):
             return tokenizer(input_text, **tokenizer_call_params)
-        
+
         return tokenize_func

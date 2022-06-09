@@ -1,8 +1,8 @@
 from typing import Any, Dict, cast
 
+import mlflow
 from hydra import compose
 from omegaconf import OmegaConf
-import mlflow
 
 from crypto_sentiment_demo_app.models.train import IModelTrain, TrainRegistry
 from crypto_sentiment_demo_app.train.read_data import read_train_data

@@ -1,11 +1,11 @@
-import os
 import gc
+import os
 from pathlib import Path
 from typing import Any, Dict, cast
 
 import mlflow
-import onnx
 import numpy as np
+import onnx
 import torch
 import transformers
 from pytorch_lightning import Trainer, seed_everything
@@ -72,7 +72,7 @@ class Bert(IModelTrain):
         )
 
         gpus = 1 if self.device.type == "cuda" and torch.cuda.is_available() else 0
-        
+
         self.trainer = Trainer(
             max_epochs=self.model_cfg["epochs"],
             gpus=gpus,
@@ -81,7 +81,7 @@ class Bert(IModelTrain):
             enable_checkpointing=True,
             logger=False,
         )
-        
+
         self.trainer.fit(
             self.model,
             train_dataloaders=train_dataloader,
@@ -98,11 +98,7 @@ class Bert(IModelTrain):
 
         self._onnx_export(onnx_path)
         onnx_model = onnx.load_model(onnx_path)
-        mlflow.onnx.log_model(
-            onnx_model=onnx_model,
-            artifact_path="bert",
-            registered_model_name="bert"
-            )
+        mlflow.onnx.log_model(onnx_model=onnx_model, artifact_path="bert", registered_model_name="bert")
         del onnx_model
         gc.collect()
 
@@ -117,26 +113,16 @@ class Bert(IModelTrain):
 
     def _onnx_export(self, path: Path):
         model_kind, model_onnx_config = FeaturesManager.check_supported_model_or_raise(
-            self.model.model,
-            feature="sequence-classification"
+            self.model.model, feature="sequence-classification"
         )
         onnx_config = model_onnx_config(self.model.model.config)
         onnx_inputs, onnx_outputs = export(
-            self.model.tokenizer,
-            self.model.model,
-            onnx_config,
-            onnx_config.default_onnx_opset,
-            path
+            self.model.tokenizer, self.model.model, onnx_config, onnx_config.default_onnx_opset, path
         )
         validate_model_outputs(
-            onnx_config,
-            self.model.tokenizer,
-            self.model.model,
-            path,
-            onnx_outputs,
-            onnx_config.atol_for_validation
+            onnx_config, self.model.tokenizer, self.model.model, path, onnx_outputs, onnx_config.atol_for_validation
         )
 
     def enable_mlflow_logging(self) -> None:
-        mlflow.set_experiment('bert')
+        mlflow.set_experiment("bert")
         mlflow.pytorch.autolog()

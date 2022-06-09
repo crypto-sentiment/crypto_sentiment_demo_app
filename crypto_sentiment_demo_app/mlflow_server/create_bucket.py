@@ -1,6 +1,8 @@
 import os
-from minio import Minio
+
 from minio.error import S3Error
+
+from minio import Minio
 
 
 def main():
@@ -9,7 +11,7 @@ def main():
         os.getenv("MLFLOW_S3_ENDPOINT_URL").split("/")[-1],
         access_key=os.getenv("AWS_ACCESS_KEY_ID"),
         secret_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        secure=False
+        secure=False,
     )
 
     bucket_name = os.getenv("AWS_S3_BUCKET")

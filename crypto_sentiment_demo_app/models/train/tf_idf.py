@@ -36,7 +36,7 @@ class TfidfLogisticRegression(IModelTrain):
         :param X: train data
         :param y: train labels
         """
-        
+
         self.train_sample = X[:1]
         self.model.fit(X, y)
 
@@ -71,11 +71,7 @@ class TfidfLogisticRegression(IModelTrain):
                 pickle.dump(self.model, f)
         elif env == "prod":
             model_onnx = to_onnx(self.model, self.train_sample)
-            mlflow.onnx.log_model(
-                onnx_model=model_onnx,
-                artifact_path="tf_idf",
-                registered_model_name="tf_idf"
-                )
+            mlflow.onnx.log_model(onnx_model=model_onnx, artifact_path="tf_idf", registered_model_name="tf_idf")
             with open(self.model_cfg["path_to_model"], "wb") as f:
                 f.write(model_onnx.SerializeToString())
         else:
@@ -113,7 +109,7 @@ class TfidfLogisticRegression(IModelTrain):
         model = Pipeline([("tfidf", text_transformer), ("logreg", logreg)])
 
         return model
-    
+
     def enable_mlflow_logging(self) -> None:
         mlflow.set_experiment("tf_idf")
         mlflow.sklearn.autolog()
