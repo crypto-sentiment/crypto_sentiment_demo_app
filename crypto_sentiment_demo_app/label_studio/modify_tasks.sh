@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# read in the env variables defined in .env file
-export $(grep -v '^#' /home/crypto_sentiment_demo_app/.env | xargs -d '\n')
+# read in the env variables defined in the .env file
+source /home/crypto_sentiment_demo_app/.env
+
 
 project_name="crypto_label_project"
 mode="import"
