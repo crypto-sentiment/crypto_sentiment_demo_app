@@ -134,10 +134,10 @@ services:
       - -c
       - |
         export LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK=true
-        label-studio --username ${LABEL_STUDIO_USER} --password ${LABEL_STUDIO_PASSSWORD} --user-token ${LABEL_STUDIO_ACCESS_TOKEN}
+        label-studio --username ${LABEL_STUDIO_USER} --password ${LABEL_STUDIO_PASSWORD} --user-token ${LABEL_STUDIO_ACCESS_TOKEN}
     hostname: label_studio_api
     ports:
-      - "8080:8080"
+      - "${LABEL_STUDIO_PORT}:${LABEL_STUDIO_PORT}"
     volumes:
       - ./:/home/crypto_sentiment_demo_app
     profiles:
