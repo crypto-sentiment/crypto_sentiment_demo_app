@@ -1,4 +1,4 @@
-name: Lint
+name: Dev
 
 on:
   push:
@@ -10,16 +10,24 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Lint
     steps:
       - name: Check out source repository
         uses: actions/checkout@v1
       - name: Set up Python environment
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: "3.9"
       - name: Install dependencies
         run: pip install pre-commit==2.17.0
       - name: Run pre-commit
         run: pre-commit run --from-ref origin/main --to-ref HEAD
+  unit-tests:
+    runs-on: self-hosted
+    name: Unit tests
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+      - name: Run tests
+        run: bash run_tests.sh

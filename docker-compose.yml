@@ -91,7 +91,6 @@ services:
     build: crypto_sentiment_demo_app/frontend
     hostname: frontend
     command: serve -s build -l ${REACT_FRONTEND_PORT}
-    command: npm run start
     environment:
       - PORT=${REACT_FRONTEND_PORT}
     ports:
