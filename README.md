@@ -185,6 +185,10 @@ To see it in action:
 - check scheduler logs: `docker-compose logs scheduler`
 - additionally, you can check the number of records in the `news_titles` and `model_predictions` tables (they will be growing in time). For that, launch [PGAdmin](), navigate to Servers -> <SERVER_NAME> (e.g. "Docker Compose") -> Databases -> <DB_NAME> (e.g. "cryptotitles_db"), then select Tools -> Query Tool and type your SQL: `select count(*) from news_titles`.
 
+### MLflow
+
+You can check your ML experiments and models by visiting http://<server-ip>:8500/.
+
 ### Label Studio
 
 Source: [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)
@@ -200,11 +204,6 @@ To launch the service:
 
 
 Further, the scheduler picks it up, creates a LabelStudio project and performs imports of data into and exports on schedule. See the "label_studio" service definition in the [`docker-compose.yml`](docker-compose.yml) file.
-
-
-### MLflow
-
-You can check your ML experiments and models by visiting http://<server-ip>:8500/.
 
 
 #### Importing/exporting data
