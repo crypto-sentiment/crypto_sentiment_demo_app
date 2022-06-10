@@ -201,45 +201,59 @@ Further, the scheduler picks it up, creates a LabelStudio project and performs i
 
 #### Importing/exporting data
 
-It's also possible to import unlabeled data into LabelStudio and to export labeled data from LabelStudio manually.
+It's also possible to import unlabeled data into LabelStudio and to export labeled data from LabelStudio manually. For that, you need to log into the running container with Label Studio: `docker ps` show running containers, there you can copy the Label Studio container ID and run `docker exec -it \<container_id\> /bin/bash`.
 
-- To create new annotation project and add tasks from the model_predictions table run:
+**Importing data into Label Studio**
 
-    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project name> -m import -c <active learning sampling strategy> -n <number of items to sample>`.
+From inside the running container,
 
-    That command will create label studio project, load samples from the model_predictions table and create annotation tasks. Visit http://\<server-ip\>:8080/ to find your new project there.
+```
+bash /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/modify_tasks.sh \
+-p <project name> \
+-m import \
+-c <active learning sampling strategy> \
+-n <number of items to sample>
+```
 
-    Two sampling strategies are available: `least_confidence` and `entropy`.
+creates a new Label Studio project, loads samples from the `model_predictions` table and also creates annotation tasks. Visit http://\<server-ip\>:8080/ to find your new project there.
 
-    Also the `model_predictions` table will be modified so that `is_annotation` flag will be set to True for the imported samples.
+Two sampling strategies are available: `least_confidence` and `entropy`. Also, the `model_predictions` table will be modified so that `is_annotation` flag will be set to `True` for the imported samples.
 
-- To export annotated tasks from the label studio run:
+**Exporting data from Label Studio**
 
-    `bash crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p <project_name> -m export`
 
-    That command will export annotated and submitted tasks from the label studio project and write them to the labeled_news_titles table.
+From inside the running container,
+
+```
+bash /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/modify_tasks.sh \
+ -p <project_name> \
+ -m export
+```
+
+exports the annotated and submitted tasks from the Label Studio project and writes them to the `labeled_news_titles` table.
 
 ### Github runner (dev)
 
 To add self-hosted Github runner:
+
 - Navigate to the main page of the repository
 - **Settings** -> **Actions** -> **Runners**
 - Click **New self-hosted runner** and follow the instructions to download and configure the GitHub Actions Runner
 
 We are using setup-python action to setup a python environment. The following steps required for this action to work with a self-hosted runner:
+
 - Put the variable `AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache` into the `.env` file.
 - Create a directory called `hostedtoolcache` inside `/opt`
 - Run: `sudo chown <user name>:<user group> /opt/hostedtoolcache/`
 
 To launch the runner:
+
 - `cd actions-runner`
 - `sudo ./svc.sh install root`
 - `sudo ./svc.sh start`
 
 To stop the runner:
 `sudo ./svc.sh stop`
-
-
 
 ## Acknowledgements
 
