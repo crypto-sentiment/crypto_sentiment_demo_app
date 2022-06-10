@@ -194,8 +194,6 @@ To launch the service:
 
 - run the app: `docker compose -f docker-compose.yml --profile production up --build`
 - This will launch Label Studio at http://\<server-ip\>:8080/
-- Visit http://\<server-ip\>:8080/ -> Account and Setting and copy Access Token
-- Put the Access token into the `.env` file as LABEL\_STUDIO\_ACCESS\_TOKEN, also specify LabelStudio port there (e.g. 8080)
 
 
 Further, the scheduler picks it up, creates a LabelStudio project and performs imports of data into and exports on schedule. See the "label_studio" service definition in the [`docker-compose.yml`](docker-compose.yml) file.
