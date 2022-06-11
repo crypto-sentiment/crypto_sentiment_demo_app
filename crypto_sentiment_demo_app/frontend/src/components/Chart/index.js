@@ -68,12 +68,12 @@ function Chart({chartData}) {
       }}
     >
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="date" />
+      <XAxis dataKey="pub_date" />
       <YAxis />
       <Tooltip />
       <Line
         type="monotone"
-        dataKey="index"
+        dataKey="average_positive"
         stroke="#8884d8"
         dot={<CustomizedDot />}
       />

@@ -7,7 +7,7 @@ function News({lastNews}) {
     <div className={styles.indexCard}>
       <h2 className="ml-20">Latest News</h2>
       {lastNews.map((obj) => (
-          <NewsLine news={obj.news} value={obj.value} />
+          <NewsLine news={obj.title} value={Math.round(100 * obj.positive)} />
         ))}
     </div>
   );

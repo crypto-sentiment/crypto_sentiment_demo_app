@@ -8,17 +8,23 @@ function App() {
   const [items, setItems] = React.useState([]);
 
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
-  const [average_last_hours, setAvarageLastHours] = React.useState([]);
+  const [average_last_hours, setAverageLastHours] = React.useState([]);
+  const [average_per_days, setAveragePerDays] = React.useState([]);
+
+
+  var date = new Date();
+  var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
+  var today = date.toISOString().slice(0, 10);
 
   React.useEffect(() => {
-    fetch("/news/top_k_news_titles", {
+    fetch("/news/top_k_news_titles?k=4", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: {
-        "k": 4,
-      },
+      // body: JSON.stringify({
+      //   "k": 4,
+      // }),
     })
       .then((res) => {
         return res.json();
@@ -41,11 +47,31 @@ function App() {
         return res.json();
       })
       .then((json) => {
-        setAvarageLastHours(json);
+        setAverageLastHours(json);
       });
   }, []);
 
-  console.log(latest_news_items);
+  console.log(average_last_hours);
+
+  React.useEffect(() => {
+    fetch("/positive_score/average_per_days?" + new URLSearchParams({
+            "start_date": lastweek,
+            "end_date": today
+}), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setAveragePerDays(json);
+      });
+  }, []);
+
+  console.log(average_per_days);
 
 
   React.useEffect(() => {
@@ -57,6 +83,8 @@ function App() {
         setItems(json);
       });
   }, []);
+
+  // console.log(items);
 
   return (
     <div className="wrapper clear">
@@ -91,7 +119,7 @@ function App() {
           <HistoricalValues indexesForPeriods={item.historical_values} />
         ))}
         {items.map((item) => (
-          <News lastNews={item.last_news} />
+          <News lastNews={latest_news_items} />
         ))}
       </div>
       <div className="description d-flex flex-column mt-50">
@@ -105,7 +133,7 @@ function App() {
       </div>
       <div className="indexPlot d-flex justify-center">
         {items.map((item) => (
-          <Chart chartData={item.graph} />
+          <Chart chartData={average_per_days} />
         ))}
       </div>
       <div className="basement d-flex mt-50">
