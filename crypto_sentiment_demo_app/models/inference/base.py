@@ -12,7 +12,13 @@ from crypto_sentiment_demo_app.utils import get_logger
 logger = get_logger(Path(__file__).name)
 
 
-def load_mlflow_model(model_name: str, model_version: Union[str, int]):
+def load_mlflow_model(model_name: str, model_version: Union[str, int]) -> Callable[..., Any]:
+    """Load model from MLflow models registry based on the passed params.
+
+    :param model_name: Model name from MLflow registry – str
+    :param model_version: Model version from MLflow registry – str or int
+    :return: Model with mlflow.pyfunc interface – Callable[..., Any]
+    """
     client = MlflowClient()
     model = client.get_registered_model(model_name)
     if model_version == "latest":
@@ -20,7 +26,12 @@ def load_mlflow_model(model_name: str, model_version: Union[str, int]):
     return mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_version}")
 
 
-def load_model_pred_func(model_cfg: Dict[str, Any]):
+def load_model_pred_func(model_cfg: Dict[str, Any]) -> Callable[..., Any]:
+    """Create model inference session either from MLflow models registry or local onnx model.
+
+    :param model_cfg: Model config – Dict[str, Any]
+    :return: Callable model inference function – Callable[..., Any]
+    """
     model_name = model_cfg["name"]
     model_version = model_cfg["version"]
 
