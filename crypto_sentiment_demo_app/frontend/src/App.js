@@ -8,6 +8,8 @@ import News from "./components/News";
 
 function App() {
   const host = process.env.REACT_APP_HOST
+
+  const [items, setItems] = React.useState([]);
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
   const [average_last_hours, setAverageLastHours] = React.useState([]);
   const [average_per_days, setAveragePerDays] = React.useState([]);
@@ -113,6 +115,16 @@ function App() {
   }, []);
 
   console.log(average_per_days);
+
+  React.useEffect(() => {
+    fetch("https://6267e06101dab900f1c65f2c.mockapi.io/indexes")
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setItems(json);
+      });
+  }, []);
 
   return (
     <div className="wrapper clear">
