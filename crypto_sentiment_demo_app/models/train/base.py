@@ -34,6 +34,11 @@ class IModelTrain(ABC):
         """Load model."""
         pass
 
+    @abstractmethod
+    def enable_mlflow_logging(self) -> None:
+        """Set the experiment and log parameters."""
+        pass
+
 
 class TrainRegistry:
     registry: Dict[str, IModelTrain] = {}

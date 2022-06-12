@@ -1,5 +1,5 @@
-name: "Tf-Idf & logreg"                       # TODO replace this with setting up MLFlow tracking
-version: 0.1.0
+name: "tf_idf"                       # TODO replace this with setting up MLFlow tracking
+version: "latest"
 
 path_to_model: static/models/prod/logit_tfidf_btc_sentiment.onnx # TODO replace this with setting up MLFlow tracking
 checkpoint_path: static/models/dev/logit_tfidf_btc_sentiment.pkl
@@ -29,3 +29,6 @@ cross_validation:                             # Params of cross-validation
 
 inference:
   round_prob: 4
+
+onnx_config:
+  output_names: None
