@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "recharts";
 
-function Chart({chartData}) {
+function Chart({ chartData }) {
   const data = chartData;
   console.log(chartData);
   const CustomizedDot = (props) => {

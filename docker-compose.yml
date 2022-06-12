@@ -67,6 +67,8 @@ services:
     image: basic_image_data_provider
     build: crypto_sentiment_demo_app/data_provider
     command: uvicorn crypto_sentiment_demo_app.data_provider.api:app --host data_provider --port 8002 --reload
+    environment:
+      - HOST=${HOST}
     ports:
       - "8002:8002"
     volumes:
@@ -88,7 +90,10 @@ services:
 
   frontend:
     image: react_frontend_image
-    build: crypto_sentiment_demo_app/frontend
+    build:
+      context: crypto_sentiment_demo_app/frontend
+      args:
+       - HOST=${HOST}
     hostname: frontend
     command: npm run start
     environment:
@@ -129,9 +134,15 @@ services:
     image: basic_image_label_studio
     build: crypto_sentiment_demo_app/label_studio
     container_name: crypto_sentiment_demo_app-label_studio
+    command:
+      - /bin/bash
+      - -c
+      - |
+        export LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK=true
+        label-studio --username ${LABEL_STUDIO_USER} --password ${LABEL_STUDIO_PASSWORD} --user-token ${LABEL_STUDIO_ACCESS_TOKEN}
     hostname: label_studio_api
     ports:
-      - "8080:8080"
+      - "${LABEL_STUDIO_PORT}:${LABEL_STUDIO_PORT}"
     volumes:
       - ./:/home/crypto_sentiment_demo_app
     profiles:

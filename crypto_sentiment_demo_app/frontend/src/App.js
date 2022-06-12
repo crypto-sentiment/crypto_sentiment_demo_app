@@ -4,28 +4,28 @@ import Chart from "./components/Chart";
 import HistoricalValues from "./components/HistoricalValues";
 import News from "./components/News";
 
-function App() {
-  const [items, setItems] = React.useState([]);
 
+
+function App() {
+  const host = process.env.REACT_APP_HOST
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
   const [average_last_hours, setAverageLastHours] = React.useState([]);
   const [average_per_days, setAveragePerDays] = React.useState([]);
-
 
   var date = new Date();
   var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
   var today = date.toISOString().slice(0, 10);
 
   React.useEffect(() => {
-    fetch("/news/top_k_news_titles?k=4", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // body: JSON.stringify({
-      //   "k": 4,
-      // }),
-    })
+    fetch(
+      `${host}:8002/news/top_k_news_titles?k=4`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+      }
+    )
       .then((res) => {
         return res.json();
       })
@@ -35,6 +35,47 @@ function App() {
   }, []);
 
   console.log(latest_news_items);
+
+  React.useEffect(() => {
+    fetch(
+      `${host}:8002/positive_score/average_last_hours`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      // body: JSON.stringify({
+      //   "k": 4,
+      // }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setAverageLastHours(json);
+      });
+  }, []);
+
+  console.log(average_last_hours);
+
+  React.useEffect(() => {
+    fetch(`${host}:8002/positive_score/average_per_days?` + new URLSearchParams({
+      "start_date": lastweek,
+      "end_date": today
+    }), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setAveragePerDays(json);
+      });
+  }, []);
+
+  console.log(average_per_days);
 
   React.useEffect(() => {
     fetch("/positive_score/average_last_hours", {
@@ -72,19 +113,6 @@ function App() {
   }, []);
 
   console.log(average_per_days);
-
-
-  React.useEffect(() => {
-    fetch("https://6267e06101dab900f1c65f2c.mockapi.io/indexes")
-      .then((res) => {
-        return res.json();
-      })
-      .then((json) => {
-        setItems(json);
-      });
-  }, []);
-
-  // console.log(items);
 
   return (
     <div className="wrapper clear">
