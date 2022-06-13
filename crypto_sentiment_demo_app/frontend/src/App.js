@@ -77,43 +77,6 @@ function App() {
   console.log(average_per_days);
 
   React.useEffect(() => {
-    fetch("/positive_score/average_last_hours", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((json) => {
-        setAverageLastHours(json);
-      });
-  }, []);
-
-  console.log(average_last_hours);
-
-  React.useEffect(() => {
-    fetch("/positive_score/average_per_days?" + new URLSearchParams({
-            "start_date": lastweek,
-            "end_date": today
-}), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((json) => {
-        setAveragePerDays(json);
-      });
-  }, []);
-
-  console.log(average_per_days);
-
-  React.useEffect(() => {
     fetch("https://6267e06101dab900f1c65f2c.mockapi.io/indexes")
       .then((res) => {
         return res.json();
