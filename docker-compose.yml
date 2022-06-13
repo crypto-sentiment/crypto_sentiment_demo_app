@@ -102,7 +102,7 @@ services:
     build:
       context: crypto_sentiment_demo_app/frontend
       args:
-       - HOST=${HOST}
+        - HOST=${HOST}
     hostname: frontend
     command: serve -s build -l ${REACT_FRONTEND_PORT}
     environment:

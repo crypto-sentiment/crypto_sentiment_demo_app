@@ -10,7 +10,6 @@ function App() {
   const host = process.env.REACT_APP_HOST
 
   const [items, setItems] = React.useState([]);
-
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
   const [average_last_hours, setAverageLastHours] = React.useState([]);
   const [average_per_days, setAveragePerDays] = React.useState([]);
@@ -18,21 +17,6 @@ function App() {
   var date = new Date();
   var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
   var today = date.toISOString().slice(0, 10);
-
-  console.log(lastweek)
-  console.log(today)
-
-  // simple example of fetch
-  // fetch(
-  //   `${host}:8002/news/top_k_news_titles?k=10`,
-  //   {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       'Accept': 'application/json',
-  //     },
-  //   }
-  // ).then(res => res.json()).then(data => { console.log(data); })
 
   React.useEffect(() => {
     fetch(
@@ -56,7 +40,7 @@ function App() {
 
   React.useEffect(() => {
     fetch(
-      `${host}:8002/positive_score/average_last_hours`, {
+      `${host}:8002/positive_score/average_last_hours?n=4`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"
@@ -80,6 +64,43 @@ function App() {
       method: "GET",
       headers: {
         "Content-Type": "application/json"
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setAveragePerDays(json);
+      });
+  }, []);
+
+  console.log(average_per_days);
+
+  React.useEffect(() => {
+    fetch("/positive_score/average_last_hours", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setAverageLastHours(json);
+      });
+  }, []);
+
+  console.log(average_last_hours);
+
+  React.useEffect(() => {
+    fetch("/positive_score/average_per_days?" + new URLSearchParams({
+            "start_date": lastweek,
+            "end_date": today
+}), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
       },
     })
       .then((res) => {
@@ -149,7 +170,7 @@ function App() {
       </div>
       <div className="indexPlot d-flex justify-center">
         {items.map((item) => (
-          <Chart chartData={average_per_days} />
+          <Chart chartData={item.graph} />
         ))}
       </div>
       <div className="basement d-flex mt-50">
