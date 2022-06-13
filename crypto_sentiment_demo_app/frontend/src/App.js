@@ -170,7 +170,7 @@ function App() {
       </div>
       <div className="indexPlot d-flex justify-center">
         {items.map((item) => (
-          <Chart chartData={average_per_days} />
+          <Chart chartData={item.graph} />
         ))}
       </div>
       <div className="basement d-flex mt-50">
