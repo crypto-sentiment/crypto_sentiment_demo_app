@@ -1,6 +1,8 @@
+import os
 from typing import Optional
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_health import health
 
 from crypto_sentiment_demo_app.data_provider.db_connector import DBConnection
@@ -10,8 +12,28 @@ from crypto_sentiment_demo_app.data_provider.schemas import (
     PositiveScore,
 )
 
+host = os.environ.get("HOST")
+
+if host is None:
+    raise ValueError("Environment variable HOST should be defined!")
+
 db = DBConnection()
 app = FastAPI()
+
+origins = [
+    f"{host}:8000",
+    "http://localhost",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.add_api_route("/health", health([db.is_connection_alive]))
 
 

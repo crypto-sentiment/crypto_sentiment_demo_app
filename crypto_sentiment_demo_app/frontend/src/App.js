@@ -4,36 +4,46 @@ import Chart from "./components/Chart";
 import HistoricalValues from "./components/HistoricalValues";
 import News from "./components/News";
 
+
+
 function App() {
+  const host = process.env.REACT_APP_HOST
+
   const [items, setItems] = React.useState([]);
 
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
+  const [average_last_hours, setAverageLastHours] = React.useState([]);
+  const [average_per_days, setAveragePerDays] = React.useState([]);
+
+  var date = new Date();
+  var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
+  var today = date.toISOString().slice(0, 10);
+
+  console.log(lastweek)
+  console.log(today)
 
   // simple example of fetch
   // fetch(
-  //   "/news/top_k_news_titles",
+  //   `${host}:8002/news/top_k_news_titles?k=10`,
   //   {
   //     method: "GET",
   //     headers: {
   //       "Content-Type": "application/json",
-  //     }
+  //       'Accept': 'application/json',
+  //     },
   //   }
-  // )
-  //   .then(res => res.json())
-  //   .then(data => {
-  //     console.log(data);
-  //   })
-  //   .catch(rejected => {
-  //     console.log(rejected);
-  //   });
+  // ).then(res => res.json()).then(data => { console.log(data); })
 
   React.useEffect(() => {
-    fetch("/news/top_k_news_titles", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
+    fetch(
+      `${host}:8002/news/top_k_news_titles?k=4`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+      }
+    )
       .then((res) => {
         return res.json();
       })
@@ -43,6 +53,44 @@ function App() {
   }, []);
 
   console.log(latest_news_items);
+
+  React.useEffect(() => {
+    fetch(
+      `${host}:8002/positive_score/average_last_hours`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setAverageLastHours(json);
+      });
+  }, []);
+
+  console.log(average_last_hours);
+
+  React.useEffect(() => {
+    fetch(`${host}:8002/positive_score/average_per_days?` + new URLSearchParams({
+      "start_date": lastweek,
+      "end_date": today
+    }), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setAveragePerDays(json);
+      });
+  }, []);
+
+  console.log(average_per_days);
 
   React.useEffect(() => {
     fetch("https://6267e06101dab900f1c65f2c.mockapi.io/indexes")
@@ -80,14 +128,14 @@ function App() {
         </p>
       </div>
       <div className="indexCards d-flex flex-row justify-between mt-50">
-        {items.map((item) => (
-          <Manometer sentIndex={item.day_index} />
+        {items.map((average_last_hours) => (
+          <Manometer sentIndex={average_last_hours} />
         ))}
         {items.map((item) => (
           <HistoricalValues indexesForPeriods={item.historical_values} />
         ))}
         {items.map((item) => (
-          <News lastNews={item.last_news} />
+          <News lastNews={latest_news_items} />
         ))}
       </div>
       <div className="description d-flex flex-column mt-50">
@@ -101,7 +149,7 @@ function App() {
       </div>
       <div className="indexPlot d-flex justify-center">
         {items.map((item) => (
-          <Chart chartData={item.graph} />
+          <Chart chartData={average_per_days} />
         ))}
       </div>
       <div className="basement d-flex mt-50">
