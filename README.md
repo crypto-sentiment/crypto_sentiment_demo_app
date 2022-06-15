@@ -86,12 +86,15 @@ The app includes the following components:
 |------------------------|----------------------------------------------------------------------------------------------------|:--------------------------:|
 | PostgreSQL database    | ---                                                                                                |            `db`            |
 | PGAdmin                | ---                                                                                                |          `pgadmin`         |
-| Primitive crawler      | [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/)                         |          `crawler`         |
-| Model API endpoint     | [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/) |      `model_inference_api`     |
+| Crawler                | [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/)                         |          `crawler`         |
+| Model API endpoint     | [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/) |    `model_inference_api`   |
 | Model scoring the news | [`crypto_sentiment_demo_app/model_scorer/`](crypto_sentiment_demo_app/model_scorer/)               |       `model_scorer`       |
 | Data provider          | [`crypto_sentiment_demo_app/data_provider/`](crypto_sentiment_demo_app/data_provider/)             |       `data_provider`      |
-| Primitive front end    | [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)                       |         `frontend`         |
+| Frontend               | [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)                       |         `frontend`         |
 | Scheduler              | ---                                                                                                |         `scheduler`        |
+| Label studio           | [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)               |       `label_studio`       |
+| ML Flow                | ---                                                                                                |          `mlflow`          |
+| Model trainer          | [`crypto_sentiment_demo_app/train/`](crypto_sentiment_demo_app/train/)                             |           `train`          |
 
 
 Below, we go through each one individually.
