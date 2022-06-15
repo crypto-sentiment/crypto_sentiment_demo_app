@@ -129,7 +129,10 @@ function App() {
       });
   }, []);
 
-  const dataForPlot = average_per_days.map(item => ({ ...item, avg_positive: Math.round(100 * item.avg_positive) })).sort();
+  const dataForPlot = average_per_days.sort((a, b) => {
+    return new Date(a.pub_date).getTime() -
+      new Date(b.pub_date).getTime()
+  }).map(item => ({ ...item, avg_positive: Math.round(100 * item.avg_positive) }));
 
   return (
     <div className="wrapper clear">
@@ -143,7 +146,7 @@ function App() {
             src="/img/logo.png"
             alt="logo"
           />
-          <h1>Cryptosentiment</h1>
+          <h1>Cryptobarometer</h1>
         </div>
       </header>
       <div className="description d-flex flex-column mt-50">
@@ -158,10 +161,10 @@ function App() {
       </div>
       <div className="indexCards d-flex flex-row justify-between mt-50">
         <Manometer sentIndex={average_last_hours * 100} />
-        <HistoricalValues 
-        yesteyday_value={yesterday_data} 
-        last_week_value = {last_week_data}
-        last_month_value = {last_month_data}
+        <HistoricalValues
+          yesteyday_value={yesterday_data}
+          last_week_value={last_week_data}
+          last_month_value={last_month_data}
         />
         <News lastNews={latest_news_items} />
       </div>
