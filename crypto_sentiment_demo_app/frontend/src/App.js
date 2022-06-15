@@ -9,8 +9,6 @@ import News from "./components/News";
 function App() {
   const host = process.env.REACT_APP_HOST
 
-  const [items, setItems] = React.useState([]);
-
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
   const [average_last_hours, setAverageLastHours] = React.useState([]);
   const [average_per_days, setAveragePerDays] = React.useState([]);
@@ -20,9 +18,9 @@ function App() {
 
 
   var date = new Date();
-  var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
   var today = date.toISOString().slice(0, 10);
   var yesterday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).toISOString().slice(0, 10);
+  var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
   var lastmonth = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 30).toISOString().slice(0, 10);
 
   React.useEffect(() => {
@@ -78,15 +76,6 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    fetch("https://6267e06101dab900f1c65f2c.mockapi.io/indexes")
-      .then((res) => {
-        return res.json();
-      })
-      .then((json) => {
-        setItems(json);
-      });
-  }, []);
-  React.useEffect(() => {
     fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
       "start_date": yesterday,
       "end_date": yesterday
@@ -103,6 +92,7 @@ function App() {
         setYesterdayData(json);
       });
   }, []);
+
   React.useEffect(() => {
     fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
       "start_date": lastweek,
@@ -120,6 +110,7 @@ function App() {
         setLastWeekData(json);
       });
   }, []);
+
   React.useEffect(() => {
     fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
       "start_date": lastmonth,
@@ -137,7 +128,8 @@ function App() {
         setLastMonthData(json);
       });
   }, []);
-  const dataForPlot = average_per_days.map(item => ({ ...item, avg_positive: Math.round(100 * item.avg_positive) }));
+
+  const dataForPlot = average_per_days.map(item => ({ ...item, avg_positive: Math.round(100 * item.avg_positive) })).sort();
 
   return (
     <div className="wrapper clear">
