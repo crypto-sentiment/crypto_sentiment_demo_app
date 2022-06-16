@@ -8,6 +8,7 @@ import News from "./components/News";
 
 function App() {
   const host = process.env.REACT_APP_HOST
+     console.log(host);
 
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
   const [average_last_hours, setAverageLastHours] = React.useState([]);
@@ -129,7 +130,10 @@ function App() {
       });
   }, []);
 
-  const dataForPlot = average_per_days.map(item => ({ ...item, avg_positive: Math.round(100 * item.avg_positive) })).sort();
+  const dataForPlot = average_per_days.sort((a, b) => {
+    return new Date(a.pub_date).getTime() -
+      new Date(b.pub_date).getTime()
+  }).map(item => ({ ...item, avg_positive: Math.round(100 * item.avg_positive) }));
 
   return (
     <div className="wrapper clear">
@@ -143,7 +147,7 @@ function App() {
             src="/img/logo.png"
             alt="logo"
           />
-          <h1>Cryptosentiment</h1>
+          <h1>Cryptobarometer</h1>
         </div>
       </header>
       <div className="description d-flex flex-column mt-50">
