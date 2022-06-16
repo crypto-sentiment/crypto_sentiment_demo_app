@@ -10,7 +10,6 @@ import {
 
 function Chart({ chartData }) {
   const data = chartData;
-  console.log(chartData);
   const CustomizedDot = (props) => {
     const { cx, cy, value } = props;
 
@@ -68,14 +67,15 @@ function Chart({ chartData }) {
       }}
     >
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="date" />
+      <XAxis dataKey="pub_date" />
       <YAxis />
       <Tooltip />
       <Line
         type="monotone"
-        dataKey="index"
+        dataKey="avg_positive"
+        dot= {<CustomizedDot />}
         stroke="#8884d8"
-        dot={<CustomizedDot />}
+        isAnimationActive={false}
       />
     </LineChart>
   );

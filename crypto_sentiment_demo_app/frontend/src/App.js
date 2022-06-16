@@ -8,15 +8,20 @@ import News from "./components/News";
 
 function App() {
   const host = process.env.REACT_APP_HOST
+     console.log(host);
 
-  const [items, setItems] = React.useState([]);
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
   const [average_last_hours, setAverageLastHours] = React.useState([]);
   const [average_per_days, setAveragePerDays] = React.useState([]);
+  const [yesterday_data, setYesterdayData] = React.useState([]);
+  const [last_week_data, setLastWeekData] = React.useState([]);
+  const [last_month_data, setLastMonthData] = React.useState([]);
 
   var date = new Date();
-  var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
   var today = date.toISOString().slice(0, 10);
+  var yesterday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).toISOString().slice(0, 10);
+  var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
+  var lastmonth = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 30).toISOString().slice(0, 10);
 
   React.useEffect(() => {
     fetch(
@@ -36,8 +41,6 @@ function App() {
       });
   }, []);
 
-  console.log(latest_news_items);
-
   React.useEffect(() => {
     fetch(
       `${host}:8002/positive_score/average_last_hours?n=4`, {
@@ -53,8 +56,6 @@ function App() {
         setAverageLastHours(json);
       });
   }, []);
-
-  console.log(average_last_hours);
 
   React.useEffect(() => {
     fetch(`${host}:8002/positive_score/average_per_days?` + new URLSearchParams({
@@ -74,17 +75,64 @@ function App() {
       });
   }, []);
 
-  console.log(average_per_days);
-
   React.useEffect(() => {
-    fetch("https://6267e06101dab900f1c65f2c.mockapi.io/indexes")
+    fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
+      "start_date": yesterday,
+      "end_date": yesterday
+    }), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
       .then((res) => {
         return res.json();
       })
       .then((json) => {
-        setItems(json);
+        setYesterdayData(json);
       });
   }, []);
+
+  React.useEffect(() => {
+    fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
+      "start_date": lastweek,
+      "end_date": lastweek
+    }), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setLastWeekData(json);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
+      "start_date": lastmonth,
+      "end_date": lastmonth
+    }), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        setLastMonthData(json);
+      });
+  }, []);
+
+  const dataForPlot = average_per_days.sort((a, b) => {
+    return new Date(a.pub_date).getTime() -
+      new Date(b.pub_date).getTime()
+  }).map(item => ({ ...item, avg_positive: Math.round(100 * item.avg_positive) }));
 
   return (
     <div className="wrapper clear">
@@ -98,7 +146,7 @@ function App() {
             src="/img/logo.png"
             alt="logo"
           />
-          <h1>Cryptosentiment</h1>
+          <h1>Cryptobarometer</h1>
         </div>
       </header>
       <div className="description d-flex flex-column mt-50">
@@ -112,15 +160,13 @@ function App() {
         </p>
       </div>
       <div className="indexCards d-flex flex-row justify-between mt-50">
-        {items.map((average_last_hours) => (
-          <Manometer sentIndex={average_last_hours} />
-        ))}
-        {items.map((item) => (
-          <HistoricalValues indexesForPeriods={item.historical_values} />
-        ))}
-        {items.map((item) => (
-          <News lastNews={latest_news_items} />
-        ))}
+        <Manometer sentIndex={average_last_hours * 100} />
+        <HistoricalValues
+          yesteyday_value={yesterday_data}
+          last_week_value={last_week_data}
+          last_month_value={last_month_data}
+        />
+        <News lastNews={latest_news_items} />
       </div>
       <div className="description d-flex flex-column mt-50">
         <div className="d-flex align-center">
@@ -132,9 +178,7 @@ function App() {
         </p>
       </div>
       <div className="indexPlot d-flex justify-center">
-        {items.map((item) => (
-          <Chart chartData={item.graph} />
-        ))}
+        <Chart chartData={dataForPlot} />
       </div>
       <div className="basement d-flex mt-50">
         <div className="basementInfo d-flex flex-column pt-20">
