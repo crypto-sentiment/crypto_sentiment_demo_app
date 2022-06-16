@@ -69,7 +69,7 @@ services:
       - postgres
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.model_scorer.schedule: "@every 2m"
+      ofelia.job-exec.model_scorer.schedule: "@every 1m"
       ofelia.job-exec.model_scorer.command: "python3 -m crypto_sentiment_demo_app.model_scorer.model_scorer"
 
   data_provider:
@@ -102,7 +102,7 @@ services:
     build:
       context: crypto_sentiment_demo_app/frontend
       args:
-       - HOST=${HOST}
+        - HOST=${HOST}
     hostname: frontend
     command: serve -s build -l ${REACT_FRONTEND_PORT}
     environment:
@@ -170,9 +170,9 @@ services:
       - postgres
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.label_studio_import.schedule: "@every 2m"
+      ofelia.job-exec.label_studio_import.schedule: "@every 1m"
       ofelia.job-exec.label_studio_import.command: "bash /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p crypto_label_project -m import -c entropy -n 8"
-      ofelia.job-exec.label_studio_export.schedule: "@every 2m"
+      ofelia.job-exec.label_studio_export.schedule: "@every 1m"
       ofelia.job-exec.label_studio_export.command: "bash /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p crypto_label_project -m export"
 
   db:
@@ -290,6 +290,16 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     profiles: ["production", "train"]
     command: /mlflow/start.sh
+
+  scheduler:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - crawler
+      - model_scorer
+      - label_studio
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
 networks:
   postgres:

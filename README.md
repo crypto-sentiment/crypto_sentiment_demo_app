@@ -1,21 +1,28 @@
-# Cryptonews sentiment demo app
+# Cryptonews sentiment barometer application
 
-This is a demo cryptonews sentiment prediction application. Its goal is to create an MVP and also create a prototype for the interaction of all components. The components themselves are mocks at the moment, to be superseded by more advanced ones.
+This is a cryptonews sentiment prediction application [cryptobarometer.org](https://cryptobarometer.org).
 
 <center>
-<img src='static/img/demo_cryptosentiment_arch_sketch.png' width=500>
+<img src='static/img/react_front_app1.png' width=700>
+</center>
+
+Below is an architecture skecth of the application's backend.
+
+<center>
+<img src='static/img/demo_cryptosentiment_arch_sketch_v1.png' width=700>
 </center>
 
 The general idea of the workflow is the following (__bolded__ verbs below correspond to arrows in the diagram above):
 
-- `Database` (PostgreSQL) stores 3 tables: one for raw news titles (title\_id, title, source, timestamsp), one more for model predictions (title\_id, negative, neutral, positive, predicted_class, entropy), and a third one for labeled news titles (title\_id, label, timestamsp)
-- `Crawler` periodically __scrapes__ 50 latest news from [https://bitcointicker.co/news/](https://bitcointicker.co/news/) and __writes__ this data to the `Database`;
+- `Database` (PostgreSQL) stores 3 tables: one for raw news titles (title\_id, title, source, timestamps), one more for model predictions (title\_id, negative, neutral, positive, predicted_class, entropy), and a third one for labeled news titles (title\_id, label, timestamps)
+- `Crawler` periodically __scrapes__ news from RSS feeds, filters them, and __writes__ this data to the `Database`;
 - `ML model API` service hosts the ML model inference API (model training is not covered here);
 - the `Model Scorer` service periodically __reads__ those news titles from the `Database` that lack model predictions, __invokes__ `ML model API` for these fresh titles and __writes__ the result to the `Database`;
 - `Data Provider` service __reads__ news titles from the `Database` with its model predictions and provides it to `Frontend` via API;
-- `Frontend` __reads__ a metric (average sentiment score for all news titles for the last 24 hours) from the `Data Provider` and visualizes it as a barometer. Also, users __interact__ with `Frontend` by inserting news titles (i.e. free text), for which `Frontend` __invokes__ `ML model API` to show predictions for the corresponding user-input news titles;
-- `Scheduler` (not yet depicted) launches `Crawler` and `Model Scorer` on a schedule, e.g. 4 times a day.
-- `MLflow` allows to track ML experiments and provides model registry interface with models being stored in `Minio`.
+- `Frontend` __reads__ a metric (average sentiment score for all news titles for the last 24 hours) from the `Data Provider` and visualizes it as a barometer. It also gets a list of latest news from the `Data Provider` as well as historical news sentiment values and depicts them;
+- `Scheduler` launches `Crawler`, `Model Scorer`, and `LabelStudio` on a schedule, e.g. 4 times a day;
+- `MLflow` allows to track ML experiments and provides model registry interface with models being stored in `Minio`;
+- `Label Studio` __reads__ unlabeled data from the `Database` based of an active learning criterion (e.g. entropy) stored in the `model_predictions` table and imports this data into the Label Studio project. Annotator `annotate` the tasks, and then  `Label Studio` __writes__  labeled data to the `Database`, `labeled_news_titles` table.
 
 ## Running the app
 
@@ -79,12 +86,15 @@ The app includes the following components:
 |------------------------|----------------------------------------------------------------------------------------------------|:--------------------------:|
 | PostgreSQL database    | ---                                                                                                |            `db`            |
 | PGAdmin                | ---                                                                                                |          `pgadmin`         |
-| Primitive crawler      | [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/)                         |          `crawler`         |
-| Model API endpoint     | [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/) |      `model_inference_api`     |
+| Crawler                | [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/)                         |          `crawler`         |
+| Model API endpoint     | [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/) |    `model_inference_api`   |
 | Model scoring the news | [`crypto_sentiment_demo_app/model_scorer/`](crypto_sentiment_demo_app/model_scorer/)               |       `model_scorer`       |
 | Data provider          | [`crypto_sentiment_demo_app/data_provider/`](crypto_sentiment_demo_app/data_provider/)             |       `data_provider`      |
-| Primitive front end    | [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)                       |         `frontend`         |
+| Frontend               | [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)                       |         `frontend`         |
 | Scheduler              | ---                                                                                                |         `scheduler`        |
+| Label studio           | [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)               |       `label_studio`       |
+| ML Flow                | ---                                                                                                |          `mlflow`          |
+| Model trainer          | [`crypto_sentiment_demo_app/train/`](crypto_sentiment_demo_app/train/)                             |           `train`          |
 
 
 Below, we go through each one individually.
