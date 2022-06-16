@@ -17,7 +17,6 @@ function App() {
   const [last_week_data, setLastWeekData] = React.useState([]);
   const [last_month_data, setLastMonthData] = React.useState([]);
 
-
   var date = new Date();
   var today = date.toISOString().slice(0, 10);
   var yesterday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).toISOString().slice(0, 10);
@@ -44,7 +43,7 @@ function App() {
 
   React.useEffect(() => {
     fetch(
-      `${host}:8002/positive_score/average_last_hours`, {
+      `${host}:8002/positive_score/average_last_hours?n=4`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"
@@ -162,10 +161,10 @@ function App() {
       </div>
       <div className="indexCards d-flex flex-row justify-between mt-50">
         <Manometer sentIndex={average_last_hours * 100} />
-        <HistoricalValues 
-        yesteyday_value={yesterday_data} 
-        last_week_value = {last_week_data}
-        last_month_value = {last_month_data}
+        <HistoricalValues
+          yesteyday_value={yesterday_data}
+          last_week_value={last_week_data}
+          last_month_value={last_month_data}
         />
         <News lastNews={latest_news_items} />
       </div>

@@ -1,20 +1,28 @@
-# Cryptonews sentiment demo app
+# Cryptonews sentiment barometer application
 
-This is a demo cryptonews sentiment prediction application. Its goal is to create an MVP and also create a prototype for the interaction of all components. The components themselves are mocks at the moment, to be superseded by more advanced ones.
+This is a cryptonews sentiment prediction application [cryptobarometer.org](https://cryptobarometer.org).
 
 <center>
-<img src='static/img/demo_cryptosentiment_arch_sketch.png' width=500>
+<img src='static/img/react_front_app1.png' width=700>
+</center>
+
+Below is an architecture skecth of the application's backend.
+
+<center>
+<img src='static/img/demo_cryptosentiment_arch_sketch_v1.png' width=700>
 </center>
 
 The general idea of the workflow is the following (__bolded__ verbs below correspond to arrows in the diagram above):
 
-- `Database` (PostgreSQL) stores 3 tables: one for raw news titles (title\_id, title, source, timestamsp), one more for model predictions (title\_id, negative, neutral, positive, predicted_class, entropy), and a third one for labeled news titles (title\_id, label, timestamsp)
-- `Crawler` periodically __scrapes__ 50 latest news from [https://bitcointicker.co/news/](https://bitcointicker.co/news/) and __writes__ this data to the `Database`;
+- `Database` (PostgreSQL) stores 3 tables: one for raw news titles (title\_id, title, source, timestamps), one more for model predictions (title\_id, negative, neutral, positive, predicted_class, entropy), and a third one for labeled news titles (title\_id, label, timestamps)
+- `Crawler` periodically __scrapes__ news from RSS feeds, filters them, and __writes__ this data to the `Database`;
 - `ML model API` service hosts the ML model inference API (model training is not covered here);
 - the `Model Scorer` service periodically __reads__ those news titles from the `Database` that lack model predictions, __invokes__ `ML model API` for these fresh titles and __writes__ the result to the `Database`;
 - `Data Provider` service __reads__ news titles from the `Database` with its model predictions and provides it to `Frontend` via API;
-- `Frontend` __reads__ a metric (average sentiment score for all news titles for the last 24 hours) from the `Data Provider` and visualizes it as a barometer. Also, users __interact__ with `Frontend` by inserting news titles (i.e. free text), for which `Frontend` __invokes__ `ML model API` to show predictions for the corresponding user-input news titles;
-- `Scheduler` (not yet depicted) launches `Crawler` and `Model Scorer` on a schedule, e.g. 4 times a day.
+- `Frontend` __reads__ a metric (average sentiment score for all news titles for the last 24 hours) from the `Data Provider` and visualizes it as a barometer. It also gets a list of latest news from the `Data Provider` as well as historical news sentiment values and depicts them;
+- `Scheduler` launches `Crawler`, `Model Scorer`, and `LabelStudio` on a schedule, e.g. 4 times a day;
+- `MLflow` allows to track ML experiments and provides model registry interface with models being stored in `Minio`;
+- `Label Studio` __reads__ unlabeled data from the `Database` based of an active learning criterion (e.g. entropy) stored in the `model_predictions` table and imports this data into the Label Studio project. Annotator `annotate` the tasks, and then  `Label Studio` __writes__  labeled data to the `Database`, `labeled_news_titles` table.
 
 ## Running the app
 
@@ -25,7 +33,7 @@ All components except for the database are packed together and managed by `docke
  - install [`docker`](https://docs.docker.com/engine/install/ubuntu/) and [`docker-compose`](https://docs.docker.com/compose/install/). Tested with Docker version 20.10.14 and docker-compose v2.4.1 (make sure it's docker-compose v2 not v1, we had to add the path to docker-compose to the PATH env variable: `export PATH=/usr/libexec/docker/cli-plugins/:$PATH`);
  - put variables from [this Notion page](https://www.notion.so/d8eaed6d640640e59704771f6b12b603) (section "Project env variables", limited to project contributors) in the `.env` file, see `.env.example`
  - check `volumes/pgadmin` and `volumes/postgres` permissions, if they are root-only, run `sudo chown -R <username> <folder_name>; sudo chmod -R 777 <folder_name>`for both folders (otherwise, they won't be accessible inside docker);
- - put the model pickle file into `static/models` (later this will be superseded by MLFlow registry), at the moment the model file `/artifacts/models.logit_tfidf_btc_sentiment.onnx` is stored on the Hostkey machine (limited to project contributors) ;
+ - if you have trained a model with [`train`](#to-train-the-model) service before, you need to specify model name and model version in configs. Otherwise either run [`train`](#to-train-the-model) service first or put the model file into `static/models`, at the moment the model file `/artifacts/models.logit_tfidf_btc_sentiment.onnx` is stored on the Hostkey machine (limited to project contributors) ;
 
 **To launch the whole application:**
 
@@ -46,7 +54,7 @@ There's one non-automated step: to label data, one needs a LabelStudio access to
 
 For more details, see the [Label Studio](#label-studio) section.
 
-**To train the model:**
+### **To train the model:**
 
  - select model config in the conf/config.yaml file. Available configs can be found in the conf/models folder.
  - place data in the data folder. Specify the path to the data in the config (path_to_data key). This will be replaced with reading from a database.
@@ -57,7 +65,7 @@ For more details, see the [Label Studio](#label-studio) section.
 USER=$(id -u) GROUP=$(id -g) docker compose -f docker-compose.yml --profile train up --build
 ```
 
-The model checkpoint will be saved with the path specified with `checkpoint_path` key in the model config. Onnx model will be saved with the path specified with `path_to_model` key in the model config. If you would like to train a model while other services are running add `-d` option to the command shown above.
+The model checkpoint will be saved with the path specified with `checkpoint_path` key in the model config. Onnx model will be saved in `Minio` service and all metrics will be logged to `MLflow`, and another copy of onnx model will be saved locally with the path specified with `path_to_model` key in the model config. If you would like to train a model while other services are running add `-d` option to the command shown above.
 
 **Using gpu to train a model:**
 
@@ -78,12 +86,15 @@ The app includes the following components:
 |------------------------|----------------------------------------------------------------------------------------------------|:--------------------------:|
 | PostgreSQL database    | ---                                                                                                |            `db`            |
 | PGAdmin                | ---                                                                                                |          `pgadmin`         |
-| Primitive crawler      | [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/)                         |          `crawler`         |
-| Model API endpoint     | [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/) |      `model_inference_api`     |
+| Crawler                | [`crypto_sentiment_demo_app/crawler/`](crypto_sentiment_demo_app/crawler/)                         |          `crawler`         |
+| Model API endpoint     | [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/) |    `model_inference_api`   |
 | Model scoring the news | [`crypto_sentiment_demo_app/model_scorer/`](crypto_sentiment_demo_app/model_scorer/)               |       `model_scorer`       |
 | Data provider          | [`crypto_sentiment_demo_app/data_provider/`](crypto_sentiment_demo_app/data_provider/)             |       `data_provider`      |
-| Primitive front end    | [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)                       |         `frontend`         |
+| Frontend               | [`crypto_sentiment_demo_app/frontend/`](crypto_sentiment_demo_app/frontend/)                       |         `frontend`         |
 | Scheduler              | ---                                                                                                |         `scheduler`        |
+| Label studio           | [`crypto_sentiment_demo_app/label_studio/`](crypto_sentiment_demo_app/label_studio/)               |       `label_studio`       |
+| ML Flow                | ---                                                                                                |          `mlflow`          |
+| Model trainer          | [`crypto_sentiment_demo_app/train/`](crypto_sentiment_demo_app/train/)                             |           `train`          |
 
 
 Below, we go through each one individually.
@@ -139,7 +150,7 @@ Then it puts the data (title IDs, titles, source, publication timestamps) into t
 
 Source: [`crypto_sentiment_demo_app/model_inference_api/`](crypto_sentiment_demo_app/model_inference_api/)
 
-At the moment, we are running a FastAPI with tf-idf & logreg model based on [this repo](https://github.com/crypto-sentiment/crypto_sentiment_model_fast_api). Model training is not covered here, hence the model file needs to be put into the `static/model` folder prior to spinning up the API.
+At the moment, we are running a FastAPI with tf-idf & logreg model based on [this repo](https://github.com/crypto-sentiment/crypto_sentiment_model_fast_api). Model training is not covered here, hence the model file needs to be put into the `static/model` folder prior to spinning up the API or be stored in `Minio` and have been logged previosly into `MLflow`.
 
 To be superseded by a more advanced BERT model ([Notion ticket](https://www.notion.so/a74951e4e815480584dea7d61ddce6cc?v=dbfdb1207d0e451b827d3c5041ed0cfd&p=6d47b3b821524a419653151a07cb0ded)).
 
@@ -183,6 +194,10 @@ To see it in action:
 - launch the app: `docker compose -f docker-compose.yml --profile production up --build`
 - check scheduler logs: `docker-compose logs scheduler`
 - additionally, you can check the number of records in the `news_titles` and `model_predictions` tables (they will be growing in time). For that, launch [PGAdmin](), navigate to Servers -> <SERVER_NAME> (e.g. "Docker Compose") -> Databases -> <DB_NAME> (e.g. "cryptotitles_db"), then select Tools -> Query Tool and type your SQL: `select count(*) from news_titles`.
+
+### MLflow
+
+You can check your ML experiments and models by visiting http://<server-ip>:8500/.
 
 ### Label Studio
 
