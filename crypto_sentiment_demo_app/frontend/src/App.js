@@ -16,7 +16,6 @@ function App() {
   const [last_week_data, setLastWeekData] = React.useState([]);
   const [last_month_data, setLastMonthData] = React.useState([]);
 
-
   var date = new Date();
   var today = date.toISOString().slice(0, 10);
   var yesterday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).toISOString().slice(0, 10);
@@ -43,7 +42,7 @@ function App() {
 
   React.useEffect(() => {
     fetch(
-      `${host}:8002/positive_score/average_last_hours`, {
+      `${host}:8002/positive_score/average_last_hours?n=4`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"

@@ -165,6 +165,7 @@ cython_debug/
 .local
 .bash_history
 .python_history
+minio/
 volumes/pgadmin/
 volumes/postgres/
 minio

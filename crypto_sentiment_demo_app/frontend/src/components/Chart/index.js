@@ -67,7 +67,7 @@ function Chart({ chartData }) {
       }}
     >
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="pub_date" />
+      <XAxis dataKey="date" />
       <YAxis />
       <Tooltip />
       <Line
