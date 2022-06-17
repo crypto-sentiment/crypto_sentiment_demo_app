@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: pip install pre-commit==2.17.0
       - name: Run pre-commit
-        run: pre-commit run --from-ref origin/main --to-ref HEAD
+        run: pre-commit run --from-ref origin/main --to-ref HEAD --files crypto_sentiment_demo_app
   unit-tests:
     runs-on: self-hosted
     name: Unit tests
