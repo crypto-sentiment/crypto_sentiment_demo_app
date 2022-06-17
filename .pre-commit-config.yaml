@@ -26,5 +26,5 @@ repos:
     hooks:
     -   id: isort
         name: isort (python)
-        args: ["--profile", "black", "-v"]
+        args: ["--profile", "black"]
         exclude: ^crypto_sentiment_demo_app/frontend
