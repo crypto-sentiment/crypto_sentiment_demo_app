@@ -11,4 +11,4 @@ exclude = '''
 '''
 
 [tool.isort]
-sections = ['FUTURE', 'STDLIB', 'DJANGO', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER', 'WIREMOCK']
+sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
