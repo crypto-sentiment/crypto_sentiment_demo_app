@@ -8,39 +8,23 @@ repos:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
-        exclude:  |
-            (?x)^(
-                crypto_sentiment_demo_app/frontend|
-                actions-runner
-            )$
+        exclude: ^crypto_sentiment_demo_app/frontend
 -   repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:
     -   id: black
         args: ["--config=pyproject.toml"]
-        exclude:  |
-            (?x)^(
-                crypto_sentiment_demo_app/frontend|
-                actions-runner
-            )$
+        exclude: ^crypto_sentiment_demo_app/frontend
 -   repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2
     hooks:
     -   id: flake8
         args: ["--config", ".flake8"]
-        exclude:  |
-            (?x)^(
-                crypto_sentiment_demo_app/frontend|
-                actions-runner
-            )$
+        exclude: ^crypto_sentiment_demo_app/frontend
 -   repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
     -   id: isort
         name: isort (python)
         args: ["--profile", "black"]
-        exclude:  |
-            (?x)^(
-                crypto_sentiment_demo_app/frontend|
-                actions-runner
-            )$
+        exclude: ^crypto_sentiment_demo_app/frontend
