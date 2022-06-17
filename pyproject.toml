@@ -9,3 +9,6 @@ exclude = '''
   | \*venv
 )/
 '''
+
+[tool.isort]
+sections=FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER,WIREMOCK
