@@ -11,4 +11,4 @@ exclude = '''
 '''
 
 [tool.isort]
-sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
+skip = ["crypto_sentiment_demo_app/mlflow_server/create_bucket.py"]
