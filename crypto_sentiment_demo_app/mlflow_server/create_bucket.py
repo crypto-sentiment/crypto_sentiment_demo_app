@@ -1,3 +1,4 @@
+# isort: skip_file
 import os
 
 from minio.error import S3Error
