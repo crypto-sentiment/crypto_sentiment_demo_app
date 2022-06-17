@@ -22,9 +22,9 @@ repos:
         args: ["--config", ".flake8"]
         exclude: ^crypto_sentiment_demo_app/frontend
 -   repo: https://github.com/pycqa/isort
-    rev: 5.9.3
+    rev: 5.10.1
     hooks:
     -   id: isort
         name: isort (python)
-        args: ["--profile", "black"]
+        args: ["--profile", "black", "-v"]
         exclude: ^crypto_sentiment_demo_app/frontend
