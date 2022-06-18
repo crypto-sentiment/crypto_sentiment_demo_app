@@ -93,11 +93,12 @@ def get_model_inference_api_endpoint() -> str:
 
     inference_api_params = params["inference_api"]
 
-    hostname = inference_api_params["host_name"]
+    # hostname = inference_api_params["host_name"]
+    hostname = os.getenv("HOST")
     port = inference_api_params["port"]
     endpoint_name = inference_api_params["endpoint_name"]
 
-    return f"http://{hostname}:{port}/{endpoint_name}"
+    return f"{hostname}:{port}/{endpoint_name}"
 
 
 def get_label_studio_endpoint(endpoint_name: str) -> str:

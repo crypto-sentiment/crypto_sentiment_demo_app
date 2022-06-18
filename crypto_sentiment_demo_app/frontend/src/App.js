@@ -43,7 +43,7 @@ function App() {
 
   React.useEffect(() => {
     fetch(
-      `${host}:8002/positive_score/average_last_hours?n=4`, {
+      `${host}:8002/positive_score/average_last_hours?n=24`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"

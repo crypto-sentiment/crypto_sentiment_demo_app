@@ -70,7 +70,7 @@ The model checkpoint will be saved with the path specified with `checkpoint_path
 **Using gpu to train a model:**
 
  - enable gpu access with compose: `https://docs.docker.com/compose/gpu-support/`
- - set device: cuda in model's config
+ - set device: CUDA in model's config
  - run the following command
 
 ```
