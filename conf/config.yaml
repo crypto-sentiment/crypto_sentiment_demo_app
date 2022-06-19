@@ -27,7 +27,7 @@ database:
 # Hydra logging boilerplate
 defaults:
   - _self_
-  - model: tf_idf
+  - model: bert
   - logger: base
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
