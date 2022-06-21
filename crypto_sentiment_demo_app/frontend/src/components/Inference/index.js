@@ -16,10 +16,12 @@ function Inference({
           title: val,
         }),
       {
-        method: "GET",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Origin": `${host}:8000`,
         },
+        mode:'cors',
       }
     )
       .then((res) => {
