@@ -9,7 +9,7 @@ function InferenceBar(props) {
           <div className={styles.progress}>
             <span
               className={styles.progressBar}
-              style={{ width: `${props.positive * 100}%` }}
+              style={{ width: `${props.positive * 100}%`, background: 'linear-gradient(90deg, #c17416, #bbac8d)' }}
             ></span>
           </div>
           <p>positive</p>
@@ -21,7 +21,7 @@ function InferenceBar(props) {
           <div className={styles.progress}>
             <span
               className={styles.progressBar}
-              style={{ width: `${props.neutral * 100}%` }}
+              style={{ width: `${props.neutral * 100}%`, background: 'linear-gradient(90deg, #E2C35F, #e0d19d)' }}
             ></span>
           </div>
           <p>neutral</p>
@@ -33,7 +33,7 @@ function InferenceBar(props) {
           <div className={styles.progress}>
             <span
               className={styles.progressBar}
-              style={{ width: `${props.negative * 100}%` }}
+              style={{ width: `${props.negative * 100}%`, background: 'linear-gradient(90deg, #75715C, #aca99b)' }}
             ></span>
           </div>
           <p>negative</p>

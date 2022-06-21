@@ -2,13 +2,20 @@ import React from "react";
 import styles from "./Inference.module.scss";
 import InferenceBar from "./InferenceBar";
 
-function Inference({
-  inputValue,
-  setInputValue,
-  requestResult,
-  setRequestResult,
-}) {
+function Inference(
+//   {
+//   inputValue,
+//   setInputValue,
+//   requestResult,
+//   setRequestResult,
+// }
+) {
   const host = process.env.REACT_APP_HOST;
+  const [inputValue, setInputValue] = React.useState("");
+  const [requestResult, setRequestResult] = React.useState([]);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+
   const fetchData = (val) => {
     fetch(
       `${host}:8001/classify`,
@@ -26,6 +33,7 @@ function Inference({
       })
       .then((json) => {
         setRequestResult(json);
+        setIsLoaded(true);
       });
   };
   console.log(requestResult);
@@ -41,14 +49,11 @@ function Inference({
       <button className={styles.button} onClick={() => fetchData(inputValue)}>
         Compute
       </button>
-      {requestResult.map((obj) => (
-        <InferenceBar
-          negative={obj.Negative}
-          neutral={obj.Neutral}
-          positive={obj.Positive}
-        />
-      ))}
-
+      {isLoaded && <InferenceBar
+        negative={requestResult.Negative}
+        neutral={requestResult.Neutral}
+        positive={requestResult.Positive}
+      />}
     </div>
   );
 }

@@ -14,8 +14,6 @@ function App() {
   const [yesterday_data, setYesterdayData] = React.useState([]);
   const [last_week_data, setLastWeekData] = React.useState([]);
   const [last_month_data, setLastMonthData] = React.useState([]);
-  const [inputValue, setInputValue] = React.useState("");
-  const [requestResult, setRequestResult] = React.useState([]);
 
   var date = new Date();
   var today = date.toISOString().slice(0, 10);
@@ -222,8 +220,7 @@ function App() {
           The model will give probability outputs for three labels: positive,
           negative or neutral.
         </p>
-        <Inference inputValue={inputValue} setInputValue={setInputValue}
-        requestResult = {requestResult} setRequestResult = {setRequestResult}/>
+        <Inference/>
       </div>
       <div className="basement d-flex mt-50">
         <div className="basementInfo d-flex flex-column pt-20">
