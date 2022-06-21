@@ -11,17 +11,14 @@ function Inference({
   const host = process.env.REACT_APP_HOST;
   const fetchData = (val) => {
     fetch(
-      `${host}:8001/classify?` +
-        new URLSearchParams({
-          title: val,
-        }),
+      `${host}:8001/classify`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Origin": `${host}:8000`,
         },
-        mode:'cors',
+        mode: 'cors',
+        body: JSON.stringify({ title: val })
       }
     )
       .then((res) => {
