@@ -4,9 +4,13 @@ repos:
     hooks:
     -   id: check-added-large-files
         args: ['--maxkb=1500']
+        exclude: ^crypto_sentiment_demo_app/frontend
     -   id: check-docstring-first
+        exclude: ^crypto_sentiment_demo_app/frontend
     -   id: check-yaml
+        exclude: ^crypto_sentiment_demo_app/frontend
     -   id: end-of-file-fixer
+        exclude: ^crypto_sentiment_demo_app/frontend
     -   id: trailing-whitespace
         exclude: ^crypto_sentiment_demo_app/frontend
 -   repo: https://github.com/psf/black
