@@ -72,10 +72,10 @@ function App() {
   React.useEffect(() => {
     fetch(
       `${host}:8002/positive_score/average_per_days?` +
-        new URLSearchParams({
-          start_date: lastweek,
-          end_date: today,
-        }),
+      new URLSearchParams({
+        start_date: lastweek,
+        end_date: today,
+      }),
       {
         method: "GET",
         headers: {
@@ -94,10 +94,10 @@ function App() {
   React.useEffect(() => {
     fetch(
       `${host}:8002/positive_score/average_for_period?` +
-        new URLSearchParams({
-          start_date: yesterday,
-          end_date: yesterday,
-        }),
+      new URLSearchParams({
+        start_date: yesterday,
+        end_date: yesterday,
+      }),
       {
         method: "GET",
         headers: {
@@ -116,10 +116,10 @@ function App() {
   React.useEffect(() => {
     fetch(
       `${host}:8002/positive_score/average_for_period?` +
-        new URLSearchParams({
-          start_date: lastweek,
-          end_date: lastweek,
-        }),
+      new URLSearchParams({
+        start_date: lastweek,
+        end_date: lastweek,
+      }),
       {
         method: "GET",
         headers: {
@@ -138,10 +138,10 @@ function App() {
   React.useEffect(() => {
     fetch(
       `${host}:8002/positive_score/average_for_period?` +
-        new URLSearchParams({
-          start_date: lastmonth,
-          end_date: lastmonth,
-        }),
+      new URLSearchParams({
+        start_date: lastmonth,
+        end_date: lastmonth,
+      }),
       {
         method: "GET",
         headers: {
@@ -214,13 +214,13 @@ function App() {
       </div>
       <div className="description d-flex flex-column mt-50">
         <div className="d-flex align-center">
-          <h2 className="ml-20">Crypto Sentiment Inference API</h2>
+          <h2 className="ml-20">Crypto Sentiment Model: try it out</h2>
         </div>
         <p className="pr-15 pl-20">
-          The model will give probability outputs for three labels: positive,
-          negative or neutral.
+          Insert any news title, hit the "Compute" button, and our Deep Learning
+          model will produce predicted scores for 3 sentiments (positive, neutral, and negative).
         </p>
-        <Inference/>
+        <Inference />
       </div>
       <div className="basement d-flex mt-50">
         <div className="basementInfo d-flex flex-column pt-20">
