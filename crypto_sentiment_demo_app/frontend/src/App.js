@@ -3,12 +3,10 @@ import React from "react";
 import Chart from "./components/Chart";
 import HistoricalValues from "./components/HistoricalValues";
 import News from "./components/News";
-
-
+import Inference from "./components/Inference";
 
 function App() {
-  const host = process.env.REACT_APP_HOST
-     console.log(host);
+  const host = process.env.REACT_APP_HOST;
 
   const [latest_news_items, setLatestNewsItems] = React.useState([]);
   const [average_last_hours, setAverageLastHours] = React.useState([]);
@@ -19,20 +17,35 @@ function App() {
 
   var date = new Date();
   var today = date.toISOString().slice(0, 10);
-  var yesterday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1).toISOString().slice(0, 10);
-  var lastweek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7).toISOString().slice(0, 10);
-  var lastmonth = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 30).toISOString().slice(0, 10);
+  var yesterday = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() - 1
+  )
+    .toISOString()
+    .slice(0, 10);
+  var lastweek = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() - 7
+  )
+    .toISOString()
+    .slice(0, 10);
+  var lastmonth = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() - 30
+  )
+    .toISOString()
+    .slice(0, 10);
 
   React.useEffect(() => {
-    fetch(
-      `${host}:8002/news/top_k_news_titles?k=4`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json"
-        },
-      }
-    )
+    fetch(`${host}:8002/news/top_k_news_titles?k=4`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
       .then((res) => {
         return res.json();
       })
@@ -42,11 +55,10 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    fetch(
-      `${host}:8002/positive_score/average_last_hours?n=24`, {
+    fetch(`${host}:8002/positive_score/average_last_hours?n=24`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
     })
       .then((res) => {
@@ -58,15 +70,19 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    fetch(`${host}:8002/positive_score/average_per_days?` + new URLSearchParams({
-      "start_date": lastweek,
-      "end_date": today
-    }), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      },
-    })
+    fetch(
+      `${host}:8002/positive_score/average_per_days?` +
+      new URLSearchParams({
+        start_date: lastweek,
+        end_date: today,
+      }),
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
       .then((res) => {
         return res.json();
       })
@@ -76,15 +92,19 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
-      "start_date": yesterday,
-      "end_date": yesterday
-    }), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      },
-    })
+    fetch(
+      `${host}:8002/positive_score/average_for_period?` +
+      new URLSearchParams({
+        start_date: yesterday,
+        end_date: yesterday,
+      }),
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
       .then((res) => {
         return res.json();
       })
@@ -94,15 +114,19 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
-      "start_date": lastweek,
-      "end_date": lastweek
-    }), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      },
-    })
+    fetch(
+      `${host}:8002/positive_score/average_for_period?` +
+      new URLSearchParams({
+        start_date: lastweek,
+        end_date: lastweek,
+      }),
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
       .then((res) => {
         return res.json();
       })
@@ -112,15 +136,19 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    fetch(`${host}:8002/positive_score/average_for_period?` + new URLSearchParams({
-      "start_date": lastmonth,
-      "end_date": lastmonth
-    }), {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      },
-    })
+    fetch(
+      `${host}:8002/positive_score/average_for_period?` +
+      new URLSearchParams({
+        start_date: lastmonth,
+        end_date: lastmonth,
+      }),
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
       .then((res) => {
         return res.json();
       })
@@ -129,10 +157,14 @@ function App() {
       });
   }, []);
 
-  const dataForPlot = average_per_days.sort((a, b) => {
-    return new Date(a.pub_date).getTime() -
-      new Date(b.pub_date).getTime()
-  }).map(item => ({ ...item, avg_positive: Math.round(100 * item.avg_positive) }));
+  const dataForPlot = average_per_days
+    .sort((a, b) => {
+      return new Date(a.pub_date).getTime() - new Date(b.pub_date).getTime();
+    })
+    .map((item) => ({
+      ...item,
+      avg_positive: Math.round(100 * item.avg_positive),
+    }));
 
   return (
     <div className="wrapper clear">
@@ -179,6 +211,16 @@ function App() {
       </div>
       <div className="indexPlot d-flex justify-center">
         <Chart chartData={dataForPlot} />
+      </div>
+      <div className="description d-flex flex-column mt-50">
+        <div className="d-flex align-center">
+          <h2 className="ml-20">Crypto Sentiment Model: try it out</h2>
+        </div>
+        <p className="pr-15 pl-20">
+          Insert any news title, hit the "Compute" button, and our Deep Learning
+          model will produce predicted scores for 3 sentiments (positive, neutral, and negative).
+        </p>
+        <Inference />
       </div>
       <div className="basement d-flex mt-50">
         <div className="basementInfo d-flex flex-column pt-20">
