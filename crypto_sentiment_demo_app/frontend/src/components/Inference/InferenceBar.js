@@ -14,7 +14,7 @@ function InferenceBar(props) {
           </div>
           <p>positive</p>
         </li>
-        <p>{Math.round(props.positive * 100)}</p>
+        <p>{Math.round(props.positive * 1000)/10}</p>
       </div>
       <div className={styles.barObject}>
         <li>
@@ -26,7 +26,7 @@ function InferenceBar(props) {
           </div>
           <p>neutral</p>
         </li>
-        <p>{Math.round(props.neutral * 100)}</p>
+        <p>{Math.round(props.neutral * 1000)/10}</p>
       </div>
       <div className={styles.barObject}>
         <li>
@@ -38,7 +38,7 @@ function InferenceBar(props) {
           </div>
           <p>negative</p>
         </li>
-        <p>{Math.round(props.negative * 100)}</p>
+        <p>{Math.round(props.negative * 1000)/10}</p>
       </div>
     </div>
   );
