@@ -1,0 +1,62 @@
+.button {
+  height: 45px;
+  width: 100px;
+  border: 1px solid #dfdede;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 18px;
+  background: linear-gradient(#f9fafb, #e5e7eb);
+  margin-left: 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+
+  &:hover {
+    background: #e5e7eb;
+  }
+}
+
+.barObject {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  margin: 20px;
+
+  li {
+    width: 35%;
+    margin-right: 20px;
+
+    .progress {
+      height: 6px;
+      background: #e1e4e8;
+      border-radius: 3px;
+      overflow: hidden;
+
+      .progressBar {
+        display: block;
+        height: 100%;
+      }
+    }
+
+    p {
+      margin-top: 5px;
+    }
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.searchBlock {
+  display: flex;
+  border: 1px solid #dfdede;
+  border-radius: 10px;
+  margin: 20px 20px;
+
+  input {
+    border: 0px;
+    padding: 15px;
+    font-size: 18px;
+    width: 100%;
+  }
+}

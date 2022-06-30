@@ -1,8 +1,10 @@
+import os
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 
 from crypto_sentiment_demo_app.models.inference import (
     IModelInference,
@@ -13,6 +15,11 @@ from crypto_sentiment_demo_app.utils import get_logger, load_config_params
 from .news import News
 
 logger = get_logger(Path(__file__).name)
+
+host = os.environ.get("HOST")
+
+if host is None:
+    raise ValueError("Environment variable HOST should be defined!")
 
 
 def load_model(params: Dict[str, Any]) -> IModelInference:
@@ -35,6 +42,20 @@ params = load_config_params(return_hydra_config=True)
 model: IModelInference = load_model(params)
 
 app = FastAPI()
+
+origins = [
+    f"{host}:8000",
+    "http://localhost",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health", status_code=status.HTTP_200_OK)
