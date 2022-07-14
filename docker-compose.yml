@@ -16,7 +16,7 @@ services:
       - postgres
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.crawler.schedule: "0 */6 * * *"   # At minute 0 past every 6th hour
+      ofelia.job-exec.crawler.schedule: "0 0 */6 * * *"   # At minute 0 past every 6th hour (Note: it starts with seconds, not minutes)
       ofelia.job-exec.crawler.command: "python3 -m crypto_sentiment_demo_app.crawler.crawler"
 
   model_inference_api:
