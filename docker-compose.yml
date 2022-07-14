@@ -16,7 +16,7 @@ services:
       - postgres
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.crawler.schedule: "@every 6h"
+      ofelia.job-exec.crawler.schedule: "0 0 */6 * * *"   # At minute 0 past every 6th hour (Note: it starts with seconds, not minutes)
       ofelia.job-exec.crawler.command: "python3 -m crypto_sentiment_demo_app.crawler.crawler"
 
   model_inference_api:
@@ -69,7 +69,7 @@ services:
       - postgres
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.model_scorer.schedule: "@every 6h"
+      ofelia.job-exec.model_scorer.schedule: "0 15 */6 * * *"  # At minute 15 past every 6th hour (Note: the format starts with seconds, instead of minutes.)
       ofelia.job-exec.model_scorer.command: "python3 -m crypto_sentiment_demo_app.model_scorer.model_scorer"
 
   data_provider:
@@ -170,9 +170,9 @@ services:
       - postgres
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.label_studio_import.schedule: "@every 6h"
+      ofelia.job-exec.label_studio_import.schedule: "0 30 */6 * * *" # At minute 30 past every 6th hour (Note: the format starts with seconds, instead of minutes)
       ofelia.job-exec.label_studio_import.command: "bash /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p crypto_label_project -m import -c entropy -n 8"
-      ofelia.job-exec.label_studio_export.schedule: "@every 6h"
+      ofelia.job-exec.label_studio_export.schedule: "0 59 23 * * *" # Every day at 23:59
       ofelia.job-exec.label_studio_export.command: "bash /home/crypto_sentiment_demo_app/crypto_sentiment_demo_app/label_studio/modify_tasks.sh -p crypto_label_project -m export"
 
   db:
