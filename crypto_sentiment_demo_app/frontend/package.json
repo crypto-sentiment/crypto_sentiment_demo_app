@@ -6,6 +6,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^13.5.0",
+    "cors": "^2.8.5",
     "macro-css": "^1.0.5",
     "node-sass": "^7.0.1",
     "react": "^18.1.0",

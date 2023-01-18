@@ -1,9 +1,13 @@
 FROM heartexlabs/label-studio:latest
 
-RUN mkdir -p /home/crypto_sentiment_demo_app
+WORKDIR /label-studio
 
-COPY requirements.txt /home/crypto_sentiment_demo_app
-RUN pip3 install -r /home/crypto_sentiment_demo_app/requirements.txt
+COPY requirements.txt /label-studio
+#RUN python -m pip install --upgrade pip
+RUN pip3 install -r requirements.txt
 
-ENV PYTHONPATH "${PYTHONPATH}:/home/crypto_sentiment_demo_app"
+ENV PYTHONPATH "${PYTHONPATH}:/label-studio/crypto_sentiment_demo_app"
+ENV PYTHONPATH "${PYTHONPATH}:/label-studio/.local/bin"
 ENV PYTHONPYCACHEPREFIX=/tmp/cpython/
+
+COPY . /label-studio/

@@ -178,5 +178,8 @@ minio
 !data/bitcoin_ticker_5rows.csv
 .env
 
-#node modules
+# Custom github actions
+actions-runner/
+
+# Node modules
 node_modules/
