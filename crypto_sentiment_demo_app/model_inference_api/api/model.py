@@ -44,8 +44,10 @@ model: IModelInference = load_model(params)
 app = FastAPI()
 
 origins = [
+    f"{host}:3000",
     f"{host}:8000",
     "http://localhost",
+    "http://localhost:3000",
     "http://localhost:8000",
 ]
 
