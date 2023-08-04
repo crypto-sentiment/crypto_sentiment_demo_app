@@ -1,16 +1,16 @@
 --extra-index-url https://download.pytorch.org/whl/cu113
-transformers==4.18.0
-datasets==2.0.0
-scikit-learn==1.0.2
-hydra-core==1.1.2
-SQLAlchemy==1.4.36
-pyyaml==6.0
+transformers == 4.18.0
+datasets == 2.0.0
+scikit-learn == 1.0.2
+hydra-core == 1.1.2
+SQLAlchemy == 1.4.36
+pyyaml == 6.0
 python-dotenv >= 0.20.0
-skl2onnx==1.11.1
-onnxruntime==1.11.0
-torch==1.10.0+cu113
-pytorch-lightning==1.6.0
+skl2onnx == 1.11.1
+onnxruntime == 1.11.0
+torch == 1.10.0+cu113
+pytorch-lightning == 1.6.0
 protobuf<4.21.0
-mlflow==1.26.1
-boto3==1.24.3
-Delorean==1.0.0
+mlflow == 1.26.1
+boto3 == 1.24.3
+Delorean == 1.0.0
