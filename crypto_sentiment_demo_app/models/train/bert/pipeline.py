@@ -49,7 +49,6 @@ class SentimentPipeline(pl.LightningModule):
         return self.model(**item)
 
     def training_step(self, batch: Dict[str, Tensor], batch_idx: int) -> Tensor:
-
         outputs: SequenceClassifierOutput = self.forward(batch)
 
         logits = outputs.logits
@@ -77,7 +76,6 @@ class SentimentPipeline(pl.LightningModule):
         return outputs.loss
 
     def validation_step(self, batch: Dict[str, Tensor], batch_idx: int) -> None:
-
         with torch.no_grad():
             outputs = self.forward(batch)
 

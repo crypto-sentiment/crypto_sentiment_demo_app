@@ -87,7 +87,6 @@ class InferenceRegistry:
         def inner_wrapper(
             wrapped_class: IModelInference,
         ) -> IModelInference:
-
             if name in cls.registry:
                 logger.info(f"Model {name} already exists. " "It will be replaced")
 

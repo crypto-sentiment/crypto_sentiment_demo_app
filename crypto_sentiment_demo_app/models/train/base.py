@@ -48,7 +48,6 @@ class TrainRegistry:
         def inner_wrapper(
             wrapped_class: IModelTrain,
         ) -> IModelTrain:
-
             if name in cls.registry:
                 logger.info(f"Model {name} already exists. " "It will be replaced")
 

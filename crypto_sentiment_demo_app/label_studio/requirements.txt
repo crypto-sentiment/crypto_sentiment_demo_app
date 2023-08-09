@@ -3,4 +3,4 @@ hydra-core == 1.1.2
 label-studio-sdk == 0.0.12
 SQLAlchemy == 1.4.36
 pangres ==  4.1.1
-python-dotenv == 0.20.0
+python-dotenv == 0.21.0
