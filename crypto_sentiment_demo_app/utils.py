@@ -79,7 +79,6 @@ def get_db_connection_engine(
     database: str = os.getenv("POSTGRES_DB"),
     host: str = os.getenv("POSTGRES_HOST"),
 ) -> Engine:
-
     conn_string = f"postgresql://{user}:{pwd}@{host}/{database}"
 
     engine = create_engine(conn_string)
@@ -88,7 +87,6 @@ def get_db_connection_engine(
 
 
 def get_model_inference_api_endpoint() -> str:
-
     params = load_config_params()
 
     inference_api_params = params["inference_api"]
@@ -102,7 +100,6 @@ def get_model_inference_api_endpoint() -> str:
 
 
 def get_label_studio_endpoint(endpoint_name: str) -> str:
-
     params = load_config_params()
 
     label_studio_params = params["label_studio_api"]

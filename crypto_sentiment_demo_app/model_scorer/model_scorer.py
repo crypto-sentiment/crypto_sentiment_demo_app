@@ -58,10 +58,8 @@ class ModelScorer:
         return pred_dict
 
     def run_model_on_dataframe(self, content_df: pd.DataFrame, text_field_name="title"):
-
         pred_dicts: List[dict] = []
         for _, row in content_df.iterrows():
-
             pred_dict = self.run_model_on_single_text(text=row[text_field_name], id=row["title_id"])
             pred_dicts.append(pred_dict)
         pred_df = pd.DataFrame(pred_dicts)
@@ -93,7 +91,6 @@ class ModelScorer:
         self.sqlalchemy_engine.execute(query)
 
     def run(self):
-
         try:
             df = self.get_data_to_run_model()
 
