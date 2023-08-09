@@ -13,3 +13,4 @@ requests == 2.31.0
 spacy == 3.6.0
 spacy-langdetect == 0.1.2
 SQLAlchemy == 2.0.19
+tzlocal == 2.1 # bug fix
